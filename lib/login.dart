@@ -26,6 +26,13 @@ class OnboardingScreen extends StatelessWidget {
             title: 'Welcome to Our App',
             subTitle: 'Login to Continue',
             imageUrl: 'https://static.thenounproject.com/png/1743561-200.png',
+            pageController: _pageController,
+          ),
+          OnboardingPage(
+            title: 'Second Page',
+            subTitle: 'Login to Continue on the second page',
+            imageUrl: 'https://static.thenounproject.com/png/1743561-200.png',
+            pageController: _pageController,
           ),
           // Add more onboarding pages as needed
         ],
@@ -38,12 +45,16 @@ class OnboardingPage extends StatelessWidget {
   final String title;
   final String subTitle;
   final String imageUrl;
+  final PageController pageController;
+  final Color buttonColor = Color(0xff017a08); // Custom button color
+  final Color textColor = Color(0xff017a08); // Custom text color
 
-  const OnboardingPage({
+  OnboardingPage({
     Key? key,
     required this.title,
     required this.subTitle,
     required this.imageUrl,
+    required this.pageController,
   }) : super(key: key);
 
   @override
@@ -59,6 +70,7 @@ class OnboardingPage extends StatelessWidget {
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 24.0,
+              color: textColor, // Use custom text color
             ),
           ),
           SizedBox(height: 16.0),
@@ -93,7 +105,13 @@ class OnboardingPage extends StatelessWidget {
                       MaterialPageRoute(builder: (context) => AdminLogin()),
                     );
                   },
-                  child: Text('Admin'),
+                  style: ElevatedButton.styleFrom(
+                    primary: buttonColor, // Use custom button color
+                  ),
+                  child: Text(
+                    'Admin',
+                    style: TextStyle(color: Colors.white), // Text color
+                  ),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -103,7 +121,13 @@ class OnboardingPage extends StatelessWidget {
                       MaterialPageRoute(builder: (context) => UserLogin()),
                     );
                   },
-                  child: Text('User'),
+                  style: ElevatedButton.styleFrom(
+                    primary: buttonColor, // Use custom button color
+                  ),
+                  child: Text(
+                    'User',
+                    style: TextStyle(color: Colors.white), // Text color
+                  ),
                 ),
               ],
             ),
