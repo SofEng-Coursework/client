@@ -110,30 +110,60 @@ class Welcome extends StatelessWidget {
                 ),
                 Padding(
                   padding: EdgeInsets.fromLTRB(0, 30, 0, 0),
-                  child: MaterialButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => Login()),
-                        );
-                      },
-                    color: Color(0xffb4ffb9),
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(22.0),
-                    ),
-                    padding: EdgeInsets.all(16),
-                    child: Text(
-                      "SIGN IN",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        fontStyle: FontStyle.normal,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      MaterialButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => AdminLogin()),
+                          );
+                        },
+                        color: Color(0xffb4ffb9),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(22.0),
+                        ),
+                        padding: EdgeInsets.all(16),
+                        child: Text(
+                          "ADMIN LOGIN",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            fontStyle: FontStyle.normal,
+                          ),
+                        ),
+                        textColor: Color(0xff017a08),
+                        height: 50,
+                        minWidth: MediaQuery.of(context).size.width * 0.4,
                       ),
-                    ),
-                    textColor: Color(0xff017a08),
-                    height: 50,
-                    minWidth: MediaQuery.of(context).size.width,
+                      MaterialButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => UserLogin()),
+                          );
+                        },
+                        color: Color(0xffb4ffb9),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(22.0),
+                        ),
+                        padding: EdgeInsets.all(16),
+                        child: Text(
+                          "USER LOGIN",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            fontStyle: FontStyle.normal,
+                          ),
+                        ),
+                        textColor: Color(0xff017a08),
+                        height: 50,
+                        minWidth: MediaQuery.of(context).size.width * 0.4,
+                      ),
+                    ],
                   ),
                 ),
               ],
