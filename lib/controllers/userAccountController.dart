@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class UserAccountController extends ChangeNotifier {
   late final FirebaseAuth _auth;
@@ -16,15 +19,33 @@ class UserAccountController extends ChangeNotifier {
         password: password,
       );
       print('signup success');
+      print(credential.user);
       final idToken = await credential.user!.getIdToken();
+      print(idToken);
       //TODO request server
+
+      final response = await http.post(Uri.parse('192.168.0.11:3000/users'),
+          headers: <String, String>{
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $idToken',
+          },
+          body: jsonEncode({
+            'email': email,
+            'uid': credential.user!.uid,
+            'firstname': 'John',
+            'lastname': 'Doe',
+            'phone': '123-456-7890',
+          }));
+      print(response.statusCode);
     } on FirebaseAuthException catch (e) {
+      print(e.message);
       if (e.code == 'email-already-in-use') {
         errBox(context, 'Sign Up Failed', 'Email already in use');
       }
       if (e.code == 'weak-password') {
         errBox(context, 'Sign Up Failed', 'Password too weak');
       }
+      errBox(context, 'Sign Up Failed', 'An error occurred: ${e.message}');
     }
   }
 

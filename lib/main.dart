@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => UserAccountController(auth: auth),
       child: MaterialApp(
-        home: OnboardingScreen(),
+        home: SignUp(),
       ),
     );
   }
