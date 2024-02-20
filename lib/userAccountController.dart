@@ -31,13 +31,12 @@ class UserAccountController extends ChangeNotifier {
 
   void login(BuildContext context, String email, String password) async {
     try {
-      print('wtf');
       UserCredential credential = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-      print(credential);
-      final idToken = credential.user!.getIdToken();
+      //print(credential);
+      //final idToken = credential.user!.getIdToken();
     } on FirebaseAuthException catch (e) {
       if (e.code == 'invalid-email') {
         errBox(context, 'Login Failed', 'No user found with that email');
@@ -50,6 +49,7 @@ class UserAccountController extends ChangeNotifier {
       else if (e.code == 'missing-password') {
         errBox(context, 'Login Failed', 'No password entered');
       }
+      errBox(context, 'Login Failed', 'An error occurred: ${e.message}');
     }
 
   }
