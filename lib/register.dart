@@ -1,19 +1,12 @@
 import 'package:flutter/material.dart';
-
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: SignUp(),
-    );
-  }
-}
+import 'package:provider/provider.dart';
+import 'package:virtual_queue/controllers/userAccountController.dart';
 
 class SignUp extends StatelessWidget {
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,7 +35,7 @@ class SignUp extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.fromLTRB(0, 50, 0, 16),
                   child: TextField(
-                    controller: TextEditingController(),
+                    controller: _nameController,
                     obscureText: false,
                     textAlign: TextAlign.start,
                     maxLines: 1,
@@ -55,18 +48,15 @@ class SignUp extends StatelessWidget {
                     decoration: InputDecoration(
                       disabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(22.0),
-                        borderSide:
-                        BorderSide(color: Color(0x00ffffff), width: 1),
+                        borderSide: BorderSide(color: Color(0x00ffffff), width: 1),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(22.0),
-                        borderSide:
-                        BorderSide(color: Color(0x00ffffff), width: 1),
+                        borderSide: BorderSide(color: Color(0x00ffffff), width: 1),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(22.0),
-                        borderSide:
-                        BorderSide(color: Color(0x00ffffff), width: 1),
+                        borderSide: BorderSide(color: Color(0x00ffffff), width: 1),
                       ),
                       hintText: "Name",
                       hintStyle: TextStyle(
@@ -78,15 +68,13 @@ class SignUp extends StatelessWidget {
                       filled: true,
                       fillColor: Color(0xfff2f2f3),
                       isDense: false,
-                      contentPadding:
-                      EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                      prefixIcon: Icon(Icons.person,
-                          color: Color(0xff017a08), size: 24),
+                      contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                      prefixIcon: Icon(Icons.person, color: Color(0xff017a08), size: 24),
                     ),
                   ),
                 ),
                 TextField(
-                  controller: TextEditingController(),
+                  controller: _emailController,
                   obscureText: false,
                   textAlign: TextAlign.start,
                   maxLines: 1,
@@ -99,18 +87,15 @@ class SignUp extends StatelessWidget {
                   decoration: InputDecoration(
                     disabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(22.0),
-                      borderSide:
-                      BorderSide(color: Color(0x00ffffff), width: 1),
+                      borderSide: BorderSide(color: Color(0x00ffffff), width: 1),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(22.0),
-                      borderSide:
-                      BorderSide(color: Color(0x00ffffff), width: 1),
+                      borderSide: BorderSide(color: Color(0x00ffffff), width: 1),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(22.0),
-                      borderSide:
-                      BorderSide(color: Color(0x00ffffff), width: 1),
+                      borderSide: BorderSide(color: Color(0x00ffffff), width: 1),
                     ),
                     hintText: "Email",
                     hintStyle: TextStyle(
@@ -122,16 +107,14 @@ class SignUp extends StatelessWidget {
                     filled: true,
                     fillColor: Color(0xfff2f2f3),
                     isDense: false,
-                    contentPadding:
-                    EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                    prefixIcon:
-                    Icon(Icons.mail, color: Color(0xff017a08), size: 24),
+                    contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                    prefixIcon: Icon(Icons.mail, color: Color(0xff017a08), size: 24),
                   ),
                 ),
                 Padding(
                   padding: EdgeInsets.fromLTRB(0, 16, 0, 30),
                   child: TextField(
-                    controller: TextEditingController(),
+                    controller: _passwordController,
                     obscureText: true,
                     textAlign: TextAlign.start,
                     maxLines: 1,
@@ -144,18 +127,15 @@ class SignUp extends StatelessWidget {
                     decoration: InputDecoration(
                       disabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(22.0),
-                        borderSide:
-                        BorderSide(color: Color(0x00ffffff), width: 1),
+                        borderSide: BorderSide(color: Color(0x00ffffff), width: 1),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(22.0),
-                        borderSide:
-                        BorderSide(color: Color(0x00ffffff), width: 1),
+                        borderSide: BorderSide(color: Color(0x00ffffff), width: 1),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(22.0),
-                        borderSide:
-                        BorderSide(color: Color(0x00ffffff), width: 1),
+                        borderSide: BorderSide(color: Color(0x00ffffff), width: 1),
                       ),
                       hintText: "Password",
                       hintStyle: TextStyle(
@@ -167,17 +147,20 @@ class SignUp extends StatelessWidget {
                       filled: true,
                       fillColor: Color(0xfff2f2f3),
                       isDense: false,
-                      contentPadding:
-                      EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                      prefixIcon:
-                      Icon(Icons.lock, color: Color(0xff017a08), size: 24),
-                      suffixIcon: Icon(Icons.visibility,
-                          color: Color(0xff97989a), size: 24),
+                      contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                      prefixIcon: Icon(Icons.lock, color: Color(0xff017a08), size: 24),
+                      suffixIcon: Icon(Icons.visibility, color: Color(0xff97989a), size: 24),
                     ),
                   ),
                 ),
                 MaterialButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    final name = _nameController.value.text;
+                    final email = _emailController.value.text;
+                    final password = _passwordController.value.text;
+                    final userAccountController = Provider.of<UserAccountController>(context, listen: false);
+                    userAccountController.signUp(context, email, password);
+                  },
                   color: Color(0xff017a08),
                   elevation: 0,
                   shape: RoundedRectangleBorder(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'userAccountController.dart';
+import 'controllers/userAccountController.dart';
 
 class OnboardingScreen extends StatelessWidget {
   final PageController _pageController = PageController();
@@ -94,9 +94,9 @@ class OnboardingPage extends StatelessWidget {
                       MaterialPageRoute(builder: (context) => AdminLogin()),
                     );
                   },
-                  style: ElevatedButton.styleFrom(
-                    primary: buttonColor, // Use custom button color
-                  ),
+                  // style: ElevatedButton.styleFrom(
+                  //   primary: buttonColor, // Use custom button color
+                  // ),
                   child: Text(
                     'Admin',
                     style: TextStyle(color: Colors.white), // Text color
@@ -110,9 +110,9 @@ class OnboardingPage extends StatelessWidget {
                       MaterialPageRoute(builder: (context) => UserLogin()),
                     );
                   },
-                  style: ElevatedButton.styleFrom(
-                    primary: buttonColor, // Use custom button color
-                  ),
+                  // style: ElevatedButton.styleFrom(
+                  //   primary: buttonColor, // Use custom button color
+                  // ),
                   child: Text(
                     'User',
                     style: TextStyle(color: Colors.white), // Text color
@@ -172,8 +172,7 @@ class AdminLogin extends StatelessWidget {
                   child: Align(
                     alignment: Alignment.center,
                     child: Image(
-                      image: NetworkImage(
-                          "https://static.thenounproject.com/png/1743561-200.png"),
+                      image: NetworkImage("https://static.thenounproject.com/png/1743561-200.png"),
                       height: 120,
                       width: 120,
                       fit: BoxFit.contain,
@@ -194,18 +193,15 @@ class AdminLogin extends StatelessWidget {
                   decoration: InputDecoration(
                     disabledBorder: UnderlineInputBorder(
                       borderRadius: BorderRadius.circular(4.0),
-                      borderSide:
-                      BorderSide(color: Color(0xff000000), width: 1),
+                      borderSide: BorderSide(color: Color(0xff000000), width: 1),
                     ),
                     focusedBorder: UnderlineInputBorder(
                       borderRadius: BorderRadius.circular(4.0),
-                      borderSide:
-                      BorderSide(color: Color(0xff000000), width: 1),
+                      borderSide: BorderSide(color: Color(0xff000000), width: 1),
                     ),
                     enabledBorder: UnderlineInputBorder(
                       borderRadius: BorderRadius.circular(4.0),
-                      borderSide:
-                      BorderSide(color: Color(0xff000000), width: 1),
+                      borderSide: BorderSide(color: Color(0xff000000), width: 1),
                     ),
                     labelText: "Email",
                     labelStyle: TextStyle(
@@ -243,18 +239,15 @@ class AdminLogin extends StatelessWidget {
                     decoration: InputDecoration(
                       disabledBorder: UnderlineInputBorder(
                         borderRadius: BorderRadius.circular(4.0),
-                        borderSide:
-                        BorderSide(color: Color(0xff000000), width: 1),
+                        borderSide: BorderSide(color: Color(0xff000000), width: 1),
                       ),
                       focusedBorder: UnderlineInputBorder(
                         borderRadius: BorderRadius.circular(4.0),
-                        borderSide:
-                        BorderSide(color: Color(0xff000000), width: 1),
+                        borderSide: BorderSide(color: Color(0xff000000), width: 1),
                       ),
                       enabledBorder: UnderlineInputBorder(
                         borderRadius: BorderRadius.circular(4.0),
-                        borderSide:
-                        BorderSide(color: Color(0xff000000), width: 1),
+                        borderSide: BorderSide(color: Color(0xff000000), width: 1),
                       ),
                       labelText: "Password",
                       labelStyle: TextStyle(
@@ -274,8 +267,7 @@ class AdminLogin extends StatelessWidget {
                       fillColor: Color(0x00ffffff),
                       isDense: false,
                       contentPadding: EdgeInsets.all(0),
-                      suffixIcon: Icon(Icons.visibility,
-                          color: Color(0xff7b7c82), size: 24),
+                      suffixIcon: Icon(Icons.visibility, color: Color(0xff7b7c82), size: 24),
                     ),
                   ),
                 ),
@@ -359,8 +351,7 @@ class UserLogin extends StatelessWidget {
                   child: Align(
                     alignment: Alignment.center,
                     child: Image(
-                      image: NetworkImage(
-                          "https://static.thenounproject.com/png/1743561-200.png"),
+                      image: NetworkImage("https://static.thenounproject.com/png/1743561-200.png"),
                       height: 120,
                       width: 120,
                       fit: BoxFit.contain,
@@ -381,18 +372,15 @@ class UserLogin extends StatelessWidget {
                   decoration: InputDecoration(
                     disabledBorder: UnderlineInputBorder(
                       borderRadius: BorderRadius.circular(4.0),
-                      borderSide:
-                      BorderSide(color: Color(0xff000000), width: 1),
+                      borderSide: BorderSide(color: Color(0xff000000), width: 1),
                     ),
                     focusedBorder: UnderlineInputBorder(
                       borderRadius: BorderRadius.circular(4.0),
-                      borderSide:
-                      BorderSide(color: Color(0xff000000), width: 1),
+                      borderSide: BorderSide(color: Color(0xff000000), width: 1),
                     ),
                     enabledBorder: UnderlineInputBorder(
                       borderRadius: BorderRadius.circular(4.0),
-                      borderSide:
-                      BorderSide(color: Color(0xff000000), width: 1),
+                      borderSide: BorderSide(color: Color(0xff000000), width: 1),
                     ),
                     labelText: "Email",
                     labelStyle: TextStyle(
@@ -430,18 +418,15 @@ class UserLogin extends StatelessWidget {
                     decoration: InputDecoration(
                       disabledBorder: UnderlineInputBorder(
                         borderRadius: BorderRadius.circular(4.0),
-                        borderSide:
-                        BorderSide(color: Color(0xff000000), width: 1),
+                        borderSide: BorderSide(color: Color(0xff000000), width: 1),
                       ),
                       focusedBorder: UnderlineInputBorder(
                         borderRadius: BorderRadius.circular(4.0),
-                        borderSide:
-                        BorderSide(color: Color(0xff000000), width: 1),
+                        borderSide: BorderSide(color: Color(0xff000000), width: 1),
                       ),
                       enabledBorder: UnderlineInputBorder(
                         borderRadius: BorderRadius.circular(4.0),
-                        borderSide:
-                        BorderSide(color: Color(0xff000000), width: 1),
+                        borderSide: BorderSide(color: Color(0xff000000), width: 1),
                       ),
                       labelText: "Password",
                       labelStyle: TextStyle(
@@ -461,8 +446,7 @@ class UserLogin extends StatelessWidget {
                       fillColor: Color(0x00ffffff),
                       isDense: false,
                       contentPadding: EdgeInsets.all(0),
-                      suffixIcon: Icon(Icons.visibility,
-                          color: Color(0xff7b7c82), size: 24),
+                      suffixIcon: Icon(Icons.visibility, color: Color(0xff7b7c82), size: 24),
                     ),
                   ),
                 ),

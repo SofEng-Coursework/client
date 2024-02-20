@@ -3,7 +3,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_queue/login.dart';
-import 'package:virtual_queue/userAccountController.dart';
+import 'package:virtual_queue/register.dart';
+import 'package:virtual_queue/controllers/userAccountController.dart';
 
 import 'firebase_options.dart';
 
@@ -25,7 +26,7 @@ class MyApp extends StatelessWidget {
   final FirebaseAuth auth;
 
   MyApp({required this.auth});
-  
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
