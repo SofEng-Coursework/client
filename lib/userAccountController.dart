@@ -2,11 +2,18 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class UserAccountController {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+class UserAccountController extends ChangeNotifier {
+  late final FirebaseAuth _auth;
+
+  UserAccountController({required FirebaseAuth auth}) {
+    print('YEET');
+    _auth = auth;
+    print(auth);
+  }
 
   void signUp(BuildContext context, String email, String password) async {
     try {
+      print(_auth);
       UserCredential credential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
@@ -24,10 +31,12 @@ class UserAccountController {
 
   void login(BuildContext context, String email, String password) async {
     try {
+      print('wtf');
       UserCredential credential = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
+      print(credential);
       final idToken = credential.user!.getIdToken();
     } on FirebaseAuthException catch (e) {
       if (e.code == 'invalid-email') {

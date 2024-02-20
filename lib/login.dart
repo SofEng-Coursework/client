@@ -1,19 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'userAccountController.dart';
-
-
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: OnboardingScreen(),
-    );
-  }
-}
 
 class OnboardingScreen extends StatelessWidget {
   final PageController _pageController = PageController();
@@ -325,8 +312,6 @@ class AdminLogin extends StatelessWidget {
 }
 
 class UserLogin extends StatelessWidget {
-  final UserAccountController _userAccountController = UserAccountController();
-
   @override
   Widget build(BuildContext context) {
     final TextEditingController emailController = TextEditingController();
@@ -383,7 +368,7 @@ class UserLogin extends StatelessWidget {
                   ),
                 ),
                 TextField(
-                  controller: TextEditingController(),
+                  controller: emailController,
                   obscureText: false,
                   textAlign: TextAlign.start,
                   maxLines: 1,
@@ -432,7 +417,7 @@ class UserLogin extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: 16, horizontal: 0),
                   child: TextField(
-                    controller: TextEditingController(),
+                    controller: passwordController,
                     obscureText: true,
                     textAlign: TextAlign.start,
                     maxLines: 1,
@@ -485,10 +470,11 @@ class UserLogin extends StatelessWidget {
                   padding: EdgeInsets.fromLTRB(0, 30, 0, 50),
                   child: MaterialButton(
                     onPressed: () {
+                      final _userAccountController = Provider.of<UserAccountController>(context, listen: false);
                       _userAccountController.login(
                         context,
-                        emailController.text,
-                        passwordController.text,
+                        emailController.value.text,
+                        passwordController.value.text,
                       );
                     },
                     color: Color(0xff017a08),
