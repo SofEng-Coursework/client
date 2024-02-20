@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'userAccountController.dart';
+
 
 void main() {
   runApp(MyApp());
@@ -23,7 +25,7 @@ class OnboardingScreen extends StatelessWidget {
         controller: _pageController,
         children: [
           OnboardingPage(
-            title: 'Welcome to Our App',
+            title: 'Welcome back!',
             subTitle: 'Login to Continue',
             imageUrl: 'https://static.thenounproject.com/png/1743561-200.png',
             pageController: _pageController,
@@ -323,8 +325,13 @@ class AdminLogin extends StatelessWidget {
 }
 
 class UserLogin extends StatelessWidget {
+  final UserAccountController _userAccountController = UserAccountController();
+
   @override
   Widget build(BuildContext context) {
+    final TextEditingController emailController = TextEditingController();
+    final TextEditingController passwordController = TextEditingController();
+
     return Scaffold(
       backgroundColor: Color(0xffffffff),
       body: Align(
@@ -477,7 +484,13 @@ class UserLogin extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.fromLTRB(0, 30, 0, 50),
                   child: MaterialButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      _userAccountController.login(
+                        context,
+                        emailController.text,
+                        passwordController.text,
+                      );
+                    },
                     color: Color(0xff017a08),
                     elevation: 0,
                     shape: RoundedRectangleBorder(
