@@ -3,13 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:virtual_queue/controllers/userAccountController.dart';
 
 class SignUp extends StatelessWidget {
-  final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       backgroundColor: Color(0xffffffff),
       body: Align(
         alignment: Alignment.center,
@@ -32,193 +28,185 @@ class SignUp extends StatelessWidget {
                     color: Color(0xff017a08),
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(0, 50, 0, 16),
-                  child: TextField(
-                    controller: _nameController,
-                    obscureText: false,
-                    textAlign: TextAlign.start,
-                    maxLines: 1,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w400,
-                      fontStyle: FontStyle.normal,
-                      fontSize: 14,
-                      color: Color(0xff000000),
-                    ),
-                    decoration: InputDecoration(
-                      disabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(22.0),
-                        borderSide: BorderSide(color: Color(0x00ffffff), width: 1),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(22.0),
-                        borderSide: BorderSide(color: Color(0x00ffffff), width: 1),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(22.0),
-                        borderSide: BorderSide(color: Color(0x00ffffff), width: 1),
-                      ),
-                      hintText: "Name",
-                      hintStyle: TextStyle(
-                        fontWeight: FontWeight.w400,
-                        fontStyle: FontStyle.normal,
-                        fontSize: 14,
-                        color: Color(0xff000000),
-                      ),
-                      filled: true,
-                      fillColor: Color(0xfff2f2f3),
-                      isDense: false,
-                      contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                      prefixIcon: Icon(Icons.person, color: Color(0xff017a08), size: 24),
-                    ),
-                  ),
-                ),
-                TextField(
-                  controller: _emailController,
-                  obscureText: false,
-                  textAlign: TextAlign.start,
-                  maxLines: 1,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w400,
-                    fontStyle: FontStyle.normal,
-                    fontSize: 14,
-                    color: Color(0xff000000),
-                  ),
-                  decoration: InputDecoration(
-                    disabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(22.0),
-                      borderSide: BorderSide(color: Color(0x00ffffff), width: 1),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(22.0),
-                      borderSide: BorderSide(color: Color(0x00ffffff), width: 1),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(22.0),
-                      borderSide: BorderSide(color: Color(0x00ffffff), width: 1),
-                    ),
-                    hintText: "Email",
-                    hintStyle: TextStyle(
-                      fontWeight: FontWeight.w400,
-                      fontStyle: FontStyle.normal,
-                      fontSize: 14,
-                      color: Color(0xff000000),
-                    ),
-                    filled: true,
-                    fillColor: Color(0xfff2f2f3),
-                    isDense: false,
-                    contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                    prefixIcon: Icon(Icons.mail, color: Color(0xff017a08), size: 24),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(0, 16, 0, 30),
-                  child: TextField(
-                    controller: _passwordController,
-                    obscureText: true,
-                    textAlign: TextAlign.start,
-                    maxLines: 1,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w400,
-                      fontStyle: FontStyle.normal,
-                      fontSize: 14,
-                      color: Color(0xff000000),
-                    ),
-                    decoration: InputDecoration(
-                      disabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(22.0),
-                        borderSide: BorderSide(color: Color(0x00ffffff), width: 1),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(22.0),
-                        borderSide: BorderSide(color: Color(0x00ffffff), width: 1),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(22.0),
-                        borderSide: BorderSide(color: Color(0x00ffffff), width: 1),
-                      ),
-                      hintText: "Password",
-                      hintStyle: TextStyle(
-                        fontWeight: FontWeight.w400,
-                        fontStyle: FontStyle.normal,
-                        fontSize: 14,
-                        color: Color(0xff000000),
-                      ),
-                      filled: true,
-                      fillColor: Color(0xfff2f2f3),
-                      isDense: false,
-                      contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                      prefixIcon: Icon(Icons.lock, color: Color(0xff017a08), size: 24),
-                      suffixIcon: Icon(Icons.visibility, color: Color(0xff97989a), size: 24),
-                    ),
-                  ),
-                ),
-                MaterialButton(
-                  onPressed: () {
-                    final name = _nameController.value.text;
-                    final email = _emailController.value.text;
-                    final password = _passwordController.value.text;
-                    final userAccountController = Provider.of<UserAccountController>(context, listen: false);
-                    userAccountController.signUp(context, email, password);
-                  },
-                  color: Color(0xff017a08),
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(22.0),
-                  ),
-                  padding: EdgeInsets.all(16),
-                  child: Text(
-                    "Create Account",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      fontStyle: FontStyle.normal,
-                    ),
-                  ),
-                  textColor: Color(0xffffffff),
-                  height: 50,
-                  minWidth: MediaQuery.of(context).size.width,
-                ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(0, 16, 0, 0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        "Already have an account?",
-                        textAlign: TextAlign.start,
-                        overflow: TextOverflow.clip,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w400,
-                          fontStyle: FontStyle.normal,
-                          fontSize: 14,
-                          color: Color(0xff017a08),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(8, 0, 0, 0),
-                        child: Text(
-                          "SignIn",
-                          textAlign: TextAlign.start,
-                          overflow: TextOverflow.clip,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontStyle: FontStyle.normal,
-                            fontSize: 14,
-                            color: Color(0xff017a08),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                RegisterForm(),
               ],
             ),
           ),
         ),
       ),
     );
+  }
+}
+
+class RegisterForm extends StatefulWidget {
+  const RegisterForm({
+    super.key,
+  });
+
+  @override
+  State<RegisterForm> createState() => _RegisterFormState();
+}
+
+class _RegisterFormState extends State<RegisterForm> {
+  final _formKey = GlobalKey<FormState>();
+  bool _passwordVisible = false;
+
+  String _email = '';
+  String _password = '';
+  String _firstname = '';
+  String _lastname = '';
+  String _phone = '';
+
+  @override
+  void initState() {
+    _passwordVisible = false;
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+        padding: EdgeInsets.fromLTRB(0, 50, 0, 16),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: <Widget>[
+              TextFormField(
+                onSaved: (value) {
+                  _email = value!;
+                },
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.email),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your email';
+                  }
+                  if (!RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$').hasMatch(value)) {
+                    return 'Please enter a valid email';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(
+                height: 16,
+              ),
+              TextFormField(
+                onSaved: (value) {
+                  _password = value!;
+                },
+                decoration: InputDecoration(
+                    labelText: 'Password',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.lock),
+                    suffixIcon: Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: IconButton(
+                        icon: Icon(
+                          _passwordVisible ? Icons.visibility : Icons.visibility_off,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _passwordVisible = !_passwordVisible;
+                          });
+                        },
+                      ),
+                    )),
+                obscureText: !_passwordVisible,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your password';
+                  }
+                  if (value.length < 6) {
+                    return 'Password must be at least 6 characters';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(
+                height: 16,
+              ),
+              TextFormField(
+                onSaved: (value) {
+                  _firstname = value!;
+                },
+                decoration: InputDecoration(
+                  labelText: 'First Name',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.person),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your first name';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(
+                height: 16,
+              ),
+              TextFormField(
+                onSaved: (value) {
+                  _lastname = value!;
+                },
+                decoration: InputDecoration(
+                  labelText: 'Last Name',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.person),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your last name';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(
+                height: 16,
+              ),
+              TextFormField(
+                onSaved: (value) {
+                  _phone = value!;
+                },
+                decoration: InputDecoration(labelText: 'Phone', border: OutlineInputBorder(), prefixIcon: Icon(Icons.phone)),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your phone number';
+                  }
+                  if (!RegExp(r'^\+?\d{1,3}-?\d{3}-?\d{3}-?\d{4}$').hasMatch(value)) {
+                    return 'Please enter a valid phone number';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(
+                height: 16,
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  if (_formKey.currentState!.validate()) {
+                    _formKey.currentState!.save();
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Processing Data')));
+                    final errStatus = await Provider.of<UserAccountController>(context, listen: false).signUp(
+                      _email,
+                      _password,
+                      _firstname,
+                      _lastname,
+                      _phone,
+                    );
+                    if (errStatus != null) {
+                      showDialog(context: context, builder: (context) => AlertDialog(content: Text(errStatus)));
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Sign up successful')));
+                    }
+                  }
+                },
+                child: Text('Sign Up'),
+              ),
+            ],
+          ),
+        ));
   }
 }
