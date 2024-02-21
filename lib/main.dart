@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_queue/login.dart';
@@ -19,18 +20,20 @@ Future<void> main() async {
   );
   print('Starting');
   final auth = FirebaseAuth.instanceFor(app: app);
-  runApp(MyApp(auth: auth));
+  final firestore = FirebaseFirestore.instanceFor(app: app);
+  runApp(MyApp(auth: auth, firestore: firestore));
 }
 
 class MyApp extends StatelessWidget {
   final FirebaseAuth auth;
+  final FirebaseFirestore firestore;
 
-  MyApp({required this.auth});
+  MyApp({required this.auth, required this.firestore});
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => UserAccountController(auth: auth),
+      create: (context) => UserAccountController(auth: auth, firestore: firestore),
       child: MaterialApp(
         home: SignUp(),
       ),

@@ -7,9 +7,11 @@ import 'package:http/http.dart' as http;
 
 class UserAccountController extends ChangeNotifier {
   late final FirebaseAuth _auth;
+  late final FirebaseFirestore _firestore;
 
-  UserAccountController({required FirebaseAuth auth}) {
+  UserAccountController({required FirebaseAuth auth, required FirebaseFirestore firestore}) {
     _auth = auth;
+    _firestore = firestore;
   }
 
   void signUp(BuildContext context, String email, String password) async {
@@ -18,25 +20,16 @@ class UserAccountController extends ChangeNotifier {
         email: email,
         password: password,
       );
-      print('signup success');
-      print(credential.user);
-      final idToken = await credential.user!.getIdToken();
-      print(idToken);
-      //TODO request server
 
-      final response = await http.post(Uri.parse('192.168.0.11:3000/users'),
-          headers: <String, String>{
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $idToken',
-          },
-          body: jsonEncode({
-            'email': email,
-            'uid': credential.user!.uid,
-            'firstname': 'John',
-            'lastname': 'Doe',
-            'phone': '123-456-7890',
-          }));
-      print(response.statusCode);
+      CollectionReference users = _firestore.collection('users');
+      DocumentReference ref = await users.add({
+        'email': email,
+        'uid': credential.user!.uid,
+        'firstname': 'John',
+        'lastname': 'Doe',
+        'phone': '123-456-7890',
+      });
+
     } on FirebaseAuthException catch (e) {
       print(e.message);
       if (e.code == 'email-already-in-use') {
@@ -56,7 +49,7 @@ class UserAccountController extends ChangeNotifier {
         password: password,
       );
       print('login success');
-      final idToken = credential.user!.getIdToken();
+
       //TODO request server
     } on FirebaseAuthException catch (e) {
       if (e.code == 'invalid-email') {
