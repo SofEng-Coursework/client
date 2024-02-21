@@ -14,7 +14,7 @@ class UserAccountController extends ChangeNotifier {
     _firestore = firestore;
   }
 
-  Future<String?> signUp(String email, String password, String firstname, String lastname, String phone) async {
+  Future<String?> signUp(String email, String password, String name, String phone) async {
     try {
       UserCredential credential = await _auth.createUserWithEmailAndPassword(
         email: email,
@@ -25,8 +25,7 @@ class UserAccountController extends ChangeNotifier {
       DocumentReference ref = await users.add({
         'email': email,
         'uid': credential.user!.uid,
-        'firstname': firstname,
-        'lastname': lastname,
+        'name': name,
         'phone': phone,
       });
       return null;
