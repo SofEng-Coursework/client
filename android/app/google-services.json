@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "453363243064",
+    "firebase_url": "https://virtual-queue-database-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "virtual-queue-database",
+    "storage_bucket": "virtual-queue-database.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:453363243064:android:ce70d8db6bbdc69f0c6ecd",
+        "android_client_info": {
+          "package_name": "com.example.virtual_queue"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCreqU6cibzahaOxeXvJOgTwjUGFLnUJOM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
