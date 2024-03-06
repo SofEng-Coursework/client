@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_queue/controllers/FirebaseProvider.dart';
 import 'package:virtual_queue/pages/SignIn_Page.dart';
-import 'package:virtual_queue/register.dart';
+import 'package:virtual_queue/pages/SignUpPage.dart';
 import 'package:virtual_queue/controllers/UserAccountController.dart';
 
 import 'firebase_options.dart';
@@ -23,9 +23,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<FirebaseProvider>(
       create: (context) => FirebaseProvider(),
-      child: MaterialApp(
-        home: FirebaseLoadingWidget()
-      ),
+      child: MaterialApp(home: FirebaseLoadingWidget()),
     );
   }
 }
