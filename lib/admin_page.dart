@@ -3,10 +3,6 @@ import 'package:fl_chart/fl_chart.dart';
 import 'dart:math';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
-void main() {
-  runApp(const MaterialApp(home: AdminPage()));
-}
-
 List<String> getPeopleInQueue() {
   return ["Harry", "Elliott", "Andrew", "Ilyas", "Tommy", "Antoine", "idk"];
 }
