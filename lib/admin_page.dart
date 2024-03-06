@@ -133,7 +133,7 @@ class _AdminPageState extends State<AdminPage> {
                               fontSize: 20),
                         ),
                         trailing: showQueueOptions ? Row(children: [
-                          ElevatedButton(style: ButtonStyle(backgroundColor: const Color(0x00FFFFFF)) ,onPressed: () {}, child: const Text("Remove"),),
+                          ElevatedButton(onPressed: () {}, child: const Text("Remove"),),
                           ElevatedButton(child: const Text("^"), onPressed: () {}),
                           ElevatedButton(child: const Text("v"), onPressed: () {},)
                         ],) : null,
