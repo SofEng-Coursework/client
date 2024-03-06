@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_queue/controllers/FirebaseProvider.dart';
-import 'package:virtual_queue/pages/SignIn_Page.dart';
+import 'package:virtual_queue/pages/SignInPage.dart';
 import 'package:virtual_queue/pages/SignUpPage.dart';
 import 'package:virtual_queue/controllers/UserAccountController.dart';
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_queue/controllers/UserAccountController.dart';
-import 'package:virtual_queue/register.dart';
+import 'package:virtual_queue/pages/SignUpPage.dart';
 
 class SignIn extends StatefulWidget {
   @override
@@ -9,7 +9,6 @@ class SignIn extends StatefulWidget {
 }
 
 class _SignInState extends State<SignIn> {
-
   @override
   void initState() {
     super.initState();
@@ -50,9 +49,7 @@ class _SignInState extends State<SignIn> {
   }
 }
 
-
 class LoginForm extends StatefulWidget {
-
   const LoginForm({
     super.key,
   });
@@ -138,12 +135,11 @@ class _LoginFormState extends State<LoginForm> {
             height: 16,
           ),
           ElevatedButton(
-            child: Text('Sign In'),
-            onPressed: () async {
-            //check if details are correct
-            print("Boom");
-            }
-          ),
+              child: Text('Sign In'),
+              onPressed: () async {
+                //check if details are correct
+                print("Boom");
+              }),
           SizedBox(
             height: 16,
           ),
@@ -161,4 +157,3 @@ class _LoginFormState extends State<LoginForm> {
     );
   }
 }
-
