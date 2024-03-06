@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'dart:math';
-import 'package:syncfusion_flutter_charts/charts.dart';
 
 void main() {
   runApp(const MaterialApp(home: AdminPage()));
@@ -31,7 +30,7 @@ class _AdminPageState extends State<AdminPage> {
 
   int touchedGroupIndex = -1;
 
-  List<double> data = [0,0,0,0,0,0,0,7,9,13,20,25,36,35,34,27,24,19,14,9,0,0,0,0];
+  List<double> data = [0,0,0,0,0,0,0,7,9,13,20,25,31,36,34,27,24,19,14,9,0,0,0,0];
 
   @override
   void initState() {
@@ -109,7 +108,11 @@ class _AdminPageState extends State<AdminPage> {
                     }),
               ),
               /*edit button*/ ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  setState(() {
+
+                  });
+                },
                 style: ButtonStyle(
                     shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
@@ -210,7 +213,9 @@ class _AdminPageState extends State<AdminPage> {
                     makeBar(5, averageDay[5]),
                     makeBar(6, averageDay[6]),
                   ],
-                  gridData: FlGridData(drawVerticalLine: false, drawHorizontalLine: true),
+                  gridData: const FlGridData(
+                    drawVerticalLine: false,
+                  ),
                   alignment: BarChartAlignment.spaceAround,
                   maxY: averageDay.reduce(max))),
             ),
@@ -268,8 +273,6 @@ class _AdminPageState extends State<AdminPage> {
                     borderData: FlBorderData(show: true),
                     barGroups: todayData,
                     gridData: FlGridData(
-                      show: true,
-                      checkToShowHorizontalLine: (value) => value % (data.reduce(max) % 10) == 0,
                       getDrawingHorizontalLine: (value) => const FlLine(
                         color: Color(0xFF979797),
                         strokeWidth: 1,
@@ -345,8 +348,13 @@ class _AdminPageState extends State<AdminPage> {
       fontSize: 14,
     );
     String text;
-    if (value % (data.reduce(max) % 10) == 0){
-      text = value.toString();
+    if (value % (data.reduce(max) ~/ sqrt(data.reduce(max))) == 0 || value == data.reduce(max)){
+      if (data.reduce(max) - 5 < value && value != data.reduce(max)){
+        return Container();
+      }else{
+        text = value.toString();
+      }
+
     }else{
       return Container();
     }
