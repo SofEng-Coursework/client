@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_queue/controllers/FirebaseProvider.dart';
+import 'package:virtual_queue/pages/SignIn_Page.dart';
 import 'package:virtual_queue/register.dart';
 import 'package:virtual_queue/controllers/UserAccountController.dart';
 
@@ -47,7 +48,7 @@ class FirebaseLoadingWidget extends StatelessWidget {
             ],
             child: Consumer<FirebaseProvider>(builder: (context, firebaseProvider, child) {
               return AnimatedSwitcher(
-                  duration: Duration(milliseconds: 400), child: firebaseProvider.getLoggedInUser() != null ? Dashboard() : SignUp());
+                  duration: Duration(milliseconds: 400), child: firebaseProvider.getLoggedInUser() != null ? Dashboard() : SignIn());
             }),
           );
         }

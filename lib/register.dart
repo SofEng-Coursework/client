@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_queue/controllers/UserAccountController.dart';
 
+
 class SignUp extends StatefulWidget {
   @override
   State<SignUp> createState() => _SignUpState();
