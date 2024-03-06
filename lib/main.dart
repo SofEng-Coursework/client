@@ -26,13 +26,7 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider<FirebaseProvider>(
       create: (context) => firebaseProvider,
       child: MaterialApp(
-        home: MultiProvider(
-          providers: [
-            ChangeNotifierProvider<UserAccountController>(
-              create: (context) => UserAccountController(firebaseProvider: firebaseProvider),
-            ),],
-          child: FirebaseLoadingWidget()
-        ),
+        home: FirebaseLoadingWidget()
       ),
     );
   }
@@ -48,10 +42,17 @@ class FirebaseLoadingWidget extends StatelessWidget {
       future: firebaseProvider.initialize(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
-          return Consumer<FirebaseProvider>(builder: (context, firebaseProvider, child) {
-            return AnimatedSwitcher(
-                duration: Duration(milliseconds: 400), child: firebaseProvider.getLoggedInUser() != null ? Dashboard() : SignUp());
-          });
+          return MultiProvider(
+            providers: [
+              ChangeNotifierProvider<UserAccountController>(
+                create: (context) => UserAccountController(firebaseProvider: firebaseProvider),
+              ),
+            ],
+            child: Consumer<FirebaseProvider>(builder: (context, firebaseProvider, child) {
+              return AnimatedSwitcher(
+                  duration: Duration(milliseconds: 400), child: firebaseProvider.getLoggedInUser() != null ? Dashboard() : SignUp());
+            }),
+          );
         }
         return LoadingScreen();
       },
