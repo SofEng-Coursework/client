@@ -4,16 +4,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_queue/controllers/FirebaseProvider.dart';
-import 'package:virtual_queue/register.dart';
+import 'package:virtual_queue/pages/SignUpPage.dart';
 import 'package:virtual_queue/controllers/UserAccountController.dart';
 
 import 'firebase_options.dart';
 
-Future<void> main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  // We're using the manual installation on non-web platforms since Google sign in plugin doesn't yet support Dart initialization.
-  // See related issue: https://github.com/flutter/flutter/issues/96391
-
   runApp(MyApp());
 }
 
@@ -24,15 +21,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<FirebaseProvider>(
-      create: (context) => firebaseProvider,
+      create: (context) => FirebaseProvider(),
       child: MaterialApp(
-        home: MultiProvider(
-          providers: [
-            ChangeNotifierProvider<UserAccountController>(
-              create: (context) => UserAccountController(firebaseProvider: firebaseProvider),
-            ),],
-          child: FirebaseLoadingWidget()
-        ),
+        home: FirebaseLoadingWidget()
       ),
     );
   }
@@ -48,10 +39,17 @@ class FirebaseLoadingWidget extends StatelessWidget {
       future: firebaseProvider.initialize(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
-          return Consumer<FirebaseProvider>(builder: (context, firebaseProvider, child) {
-            return AnimatedSwitcher(
-                duration: Duration(milliseconds: 400), child: firebaseProvider.getLoggedInUser() != null ? Dashboard() : SignUp());
-          });
+          return MultiProvider(
+            providers: [
+              ChangeNotifierProvider<UserAccountController>(
+                create: (context) => UserAccountController(firebaseProvider: firebaseProvider),
+              ),
+            ],
+            child: Consumer<FirebaseProvider>(builder: (context, firebaseProvider, child) {
+              return AnimatedSwitcher(
+                  duration: Duration(milliseconds: 400), child: firebaseProvider.getLoggedInUser() != null ? Dashboard() : SignUp());
+            }),
+          );
         }
         return LoadingScreen();
       },

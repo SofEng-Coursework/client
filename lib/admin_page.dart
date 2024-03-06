@@ -2,10 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'dart:math';
 
-void main() {
-  runApp(const MaterialApp(home: AdminPage()));
-}
-
 List<String> getPeopleInQueue() {
   return ["Harry", "Elliott", "Andrew", "Ilyas", "Tommy", "Antoine", "idk"];
 }

@@ -7,12 +7,13 @@ class SignUp extends StatefulWidget {
   State<SignUp> createState() => _SignUpState();
 }
 
+enum AccountType { User, Admin }
+
 class _SignUpState extends State<SignUp> {
-  String chosenValue = 'User';
+  AccountType _accountType = AccountType.User;
 
   @override
   void initState() {
-    chosenValue = 'User';
     super.initState();
   }
 
@@ -48,10 +49,10 @@ class _SignUpState extends State<SignUp> {
                     children: [
                       ChoiceChip(
                           label: Text("User"),
-                          selected: chosenValue == "User",
+                          selected: _accountType == AccountType.User,
                           onSelected: (selected) {
                             setState(() {
-                              chosenValue = "User";
+                              _accountType = AccountType.User;
                             });
                           }),
                       SizedBox(
@@ -59,17 +60,17 @@ class _SignUpState extends State<SignUp> {
                       ),
                       ChoiceChip(
                           label: Text("Admin"),
-                          selected: chosenValue == "Admin",
+                          selected: _accountType == AccountType.Admin,
                           onSelected: (selected) {
                             setState(() {
-                              chosenValue = "Admin";
+                              _accountType = AccountType.Admin;
                             });
                           }),
                     ],
                   ),
                 ),
                 RegisterForm(
-                  accountType: chosenValue,
+                  accountType: _accountType,
                 ),
               ],
             ),
@@ -81,7 +82,7 @@ class _SignUpState extends State<SignUp> {
 }
 
 class RegisterForm extends StatefulWidget {
-  final String accountType;
+  final AccountType accountType;
 
   const RegisterForm({
     super.key,
@@ -212,7 +213,7 @@ class _RegisterFormState extends State<RegisterForm> {
               if (_formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
 
-                if (widget.accountType == "User") {
+                if (widget.accountType == AccountType.User) {
                   final errStatus = await Provider.of<UserAccountController>(context, listen: false).signUp(
                     _email,
                     _password,
