@@ -4,29 +4,29 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:virtual_queue/controllers/FirebaseProvider.dart';
 
 class UserAccountController extends ChangeNotifier {
-  late final FirebaseAuth _auth;
-  late final FirebaseFirestore _firestore;
-
-  UserAccountController({required FirebaseAuth auth, required FirebaseFirestore firestore}) {
-    _auth = auth;
-    _firestore = firestore;
+  late FirebaseProvider _firebaseProvider;
+  UserAccountController({required FirebaseProvider firebaseProvider}) {
+    _firebaseProvider = firebaseProvider;
   }
 
   Future<String?> signUp(String email, String password, String name, String phone) async {
     try {
-      UserCredential credential = await _auth.createUserWithEmailAndPassword(
+      UserCredential credential = await _firebaseProvider.FIREBASE_AUTH.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      CollectionReference users = _firestore.collection('users');
-      DocumentReference ref = await users.add({
-        'email': email,
-        'uid': credential.user!.uid,
+      final uid = credential.user!.uid;
+
+      CollectionReference users = _firebaseProvider.FIREBASE_FIRESTORE.collection('users');
+      await users.doc(uid).set({
         'name': name,
         'phone': phone,
+        'email': email,
+        'uid': uid,
       });
       return null;
     } on FirebaseAuthException catch (e) {
@@ -42,7 +42,7 @@ class UserAccountController extends ChangeNotifier {
 
   Future<String?> login(BuildContext context, String email, String password) async {
     try {
-      UserCredential credential = await _auth.signInWithEmailAndPassword(
+      UserCredential credential = await _firebaseProvider.FIREBASE_AUTH.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
