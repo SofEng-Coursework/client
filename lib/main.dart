@@ -4,11 +4,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_queue/controllers/FirebaseProvider.dart';
-import 'package:virtual_queue/pages/SignInPage.dart';
-import 'package:virtual_queue/pages/SignUpPage.dart';
+import 'package:virtual_queue/pages/AuthPage.dart';
+import 'package:virtual_queue/pages/LoginForm.dart';
+import 'package:virtual_queue/pages/RegisterForm.dart';
 import 'package:virtual_queue/controllers/UserAccountController.dart';
 
 import 'firebase_options.dart';
+import 'pages/Dashboard.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -46,7 +48,7 @@ class FirebaseLoadingWidget extends StatelessWidget {
             ],
             child: Consumer<FirebaseProvider>(builder: (context, firebaseProvider, child) {
               return AnimatedSwitcher(
-                  duration: Duration(milliseconds: 400), child: firebaseProvider.getLoggedInUser() != null ? Dashboard() : SignIn());
+                  duration: Duration(milliseconds: 400), child: firebaseProvider.getLoggedInUser() != null ? Dashboard() : AuthPage());
             }),
           );
         }
@@ -77,14 +79,5 @@ class LoadingScreen extends StatelessWidget {
         ]),
       ),
     );
-  }
-}
-
-class Dashboard extends StatelessWidget {
-  const Dashboard({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
   }
 }
