@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:virtual_queue/pages/Dashboard.dart';
 
 class Settings extends StatelessWidget {
   @override
@@ -22,10 +23,17 @@ class Settings extends StatelessWidget {
             color: Color(0xffffffff),
           ),
         ),
-        leading: Icon(
-          Icons.arrow_back,
-          color: Color(0xffffffff),
-          size: 24,
+        leading: IconButton(
+          icon : Icon(
+            Icons.arrow_back,
+            color: Color(0xffffffff),
+            size: 24,
+          ),
+          onPressed: () {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => Dashboard())
+        );
+      },
         ),
       ),
       body: SingleChildScrollView(
