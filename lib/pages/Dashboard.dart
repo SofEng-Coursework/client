@@ -5,8 +5,6 @@ import 'package:virtual_queue/pages/Settings.dart';
 
 class Dashboard extends StatelessWidget {
   const Dashboard({super.key});
-
-class Dashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,7 +26,6 @@ class Dashboard extends StatelessWidget {
           onPressed: () {
             Provider.of<UserAccountController>(context, listen: false).signOut();
           },
-        child: Text("Sign Out"),
   ),
   actions: [
     IconButton(
@@ -70,7 +67,10 @@ class Dashboard extends StatelessWidget {
                 shrinkWrap: true,
                 physics: ScrollPhysics(),
                 children: [
-                  QueueCard(),
+                  QueueCard(
+                    queueName: "Example Queue",
+                    queueDetails: "Example Details",
+                  ),
                 ],
               ),
             ],
@@ -80,12 +80,16 @@ class Dashboard extends StatelessWidget {
     );
   }
 }
-}
 
 class QueueCard extends StatelessWidget {
+  final String queueName;
+  final String queueDetails;
+
   const QueueCard({
-    super.key,
-  });
+    required this.queueName,
+    required this.queueDetails,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -130,7 +134,7 @@ class QueueCard extends StatelessWidget {
                   mainAxisSize: MainAxisSize.max,
                   children: [
                     Text(
-                      "Queue 1",
+                      queueName,
                       textAlign: TextAlign.start,
                       maxLines: 1,
                       overflow: TextOverflow.clip,
@@ -144,7 +148,7 @@ class QueueCard extends StatelessWidget {
                     Padding(
                       padding: EdgeInsets.fromLTRB(0, 4, 0, 0),
                       child: Text(
-                        "Queue info example",
+                        queueDetails,
                         textAlign: TextAlign.start,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
