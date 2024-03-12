@@ -40,7 +40,7 @@ class UserAccountController extends ChangeNotifier {
     }
   }
 
-  Future<String?> login(BuildContext context, String email, String password) async {
+  Future<String?> login(String email, String password) async {
     try {
       UserCredential credential = await _firebaseProvider.FIREBASE_AUTH.signInWithEmailAndPassword(
         email: email,
@@ -60,5 +60,18 @@ class UserAccountController extends ChangeNotifier {
       }
       return 'An error occurred: ${e.message}';
     }
+  }
+
+  Future<Map<String, dynamic>?> getUserData() async {
+    final user = _firebaseProvider.FIREBASE_AUTH.currentUser;
+    if (user != null) {
+      final response = await _firebaseProvider.FIREBASE_FIRESTORE.collection('users').doc(user.uid).get();
+      return response.data();
+    }
+    return null;
+  }
+
+  Future<void> signOut() async {
+    await _firebaseProvider.FIREBASE_AUTH.signOut();
   }
 }
