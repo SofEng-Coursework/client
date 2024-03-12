@@ -2,8 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:virtual_queue/controllers/FirebaseProvider.dart';
+import 'package:virtual_queue/pages/RegisterForm.dart';
 
-abstract class AccountController extends ChangeNotifier {
+class AccountController extends ChangeNotifier {
   late FirebaseProvider _firebaseProvider;
   final String collectionName;
 
@@ -49,7 +50,10 @@ abstract class AccountController extends ChangeNotifier {
     final user = _firebaseProvider.FIREBASE_AUTH.currentUser;
     if (user != null) {
       final response = await _firebaseProvider.FIREBASE_FIRESTORE.collection(collectionName).doc(user.uid).get();
-      return response.data();
+      Map<String, dynamic>? data = response.data();
+      if (data == null) { return null; }
+      data['accountType'] = collectionName == 'users' ? AccountType.User : AccountType.Admin; 
+      return data;
     }
     return null;
   }
