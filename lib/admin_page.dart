@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'dart:math';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 List<String> getPeopleInQueue() {
   return ["Harry", "Elliott", "Andrew", "Ilyas", "Tommy", "Antoine", "idk"];
@@ -26,40 +27,13 @@ class _AdminPageState extends State<AdminPage> {
 
   int touchedGroupIndex = -1;
 
-  bool showQueueOptions = false;
-
-  List<double> data = [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    7,
-    9,
-    13,
-    20,
-    25,
-    31,
-    36,
-    34,
-    27,
-    24,
-    19,
-    14,
-    9,
-    0,
-    0,
-    0,
-    0
-  ];
+  List<double> data = [0,0,0,0,0,0,0,7,9,13,20,25,36,35,34,27,24,19,14,9,0,0,0,0];
 
   @override
   void initState() {
     super.initState();
     final averageToday = [];
-    for (int i = 0; i < 24; i++) {
+    for (int i = 0; i < 24; i++){
       averageToday.add(makeBar(i, data[i]));
     }
 
@@ -119,8 +93,7 @@ class _AdminPageState extends State<AdminPage> {
                             width: 3,
                           ),
                         ),
-                        child: 
-                        ListTile(title: Text(
+                        child: Text(
                           getPeopleInQueue()[i],
                           textAlign: TextAlign.center,
                           style: const TextStyle(
@@ -128,23 +101,11 @@ class _AdminPageState extends State<AdminPage> {
                               fontWeight: FontWeight.bold,
                               fontSize: 20),
                         ),
-                        trailing: showQueueOptions ? Row(children: [
-                          ElevatedButton(onPressed: () {}, child: const Text("Remove"),),
-                          ElevatedButton(child: const Text("^"), onPressed: () {}),
-                          ElevatedButton(child: const Text("v"), onPressed: () {},)
-                        ],) : null,
-                        )
-                        
-                        
                       );
                     }),
               ),
               /*edit button*/ ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    showQueueOptions = !showQueueOptions;
-                  });
-                },
+                onPressed: () {},
                 style: ButtonStyle(
                     shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
@@ -161,30 +122,33 @@ class _AdminPageState extends State<AdminPage> {
               )
             ],
           ),
-          /*wait time*/ Column(children: [
-            Container(
-                width: screenWidth * 0.2,
-                //height: screenWidth * 0.05,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                  color: const Color(0xFF017A08),
-                  border: Border.all(
-                    color: const Color(0xFF042433),
-                    width: 3,
-                  ),
-                ),
-                child: Column(children: [
-                  const Text("Current Wait Time:",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 20, color: Color(0xFFFFFFFF))),
-                  Text("$waitTime minutes",
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFFFFFFFF)))
-                ]))
-          ]),
+          /*wait time*/ Column(
+              //mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(
+                    width: screenWidth * 0.2,
+                    //height: screenWidth * 0.05,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      color: const Color(0xFF017A08),
+                      border: Border.all(
+                        color: const Color(0xFF042433),
+                        width: 3,
+                      ),
+                    ),
+                    child: Column(children: [
+                      const Text("Current Wait Time:",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 20, color: Color(0xFFFFFFFF))),
+                      Text("$waitTime minutes",
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFFFFFFFF)))
+                    ]))
+              ]),
           /*right side*/ Column(children: [
             /*average daily*/ Container(
               width: screenWidth * 0.1,
@@ -242,9 +206,7 @@ class _AdminPageState extends State<AdminPage> {
                     makeBar(5, averageDay[5]),
                     makeBar(6, averageDay[6]),
                   ],
-                  gridData: const FlGridData(
-                    drawVerticalLine: false,
-                  ),
+                  gridData: FlGridData(drawVerticalLine: false, drawHorizontalLine: true),
                   alignment: BarChartAlignment.spaceAround,
                   maxY: averageDay.reduce(max))),
             ),
@@ -302,6 +264,8 @@ class _AdminPageState extends State<AdminPage> {
                     borderData: FlBorderData(show: true),
                     barGroups: todayData,
                     gridData: FlGridData(
+                      show: true,
+                      checkToShowHorizontalLine: (value) => value % (data.reduce(max) % 10) == 0,
                       getDrawingHorizontalLine: (value) => const FlLine(
                         color: Color(0xFF979797),
                         strokeWidth: 1,
@@ -309,7 +273,9 @@ class _AdminPageState extends State<AdminPage> {
                       drawVerticalLine: false,
                     ),
                     alignment: BarChartAlignment.spaceAround,
-                    maxY: data.reduce(max)))),
+                    maxY: data.reduce(max)
+                ))
+            ),
           ])
         ]));
   }
@@ -375,14 +341,9 @@ class _AdminPageState extends State<AdminPage> {
       fontSize: 14,
     );
     String text;
-    if (value % (data.reduce(max) ~/ sqrt(data.reduce(max))) == 0 ||
-        value == data.reduce(max)) {
-      if (data.reduce(max) - 5 < value && value != data.reduce(max)) {
-        return Container();
-      } else {
-        text = value.toString();
-      }
-    } else {
+    if (value % (data.reduce(max) % 10) == 0){
+      text = value.toString();
+    }else{
       return Container();
     }
 
@@ -394,32 +355,7 @@ class _AdminPageState extends State<AdminPage> {
   }
 
   Widget bottomTitles(double value, TitleMeta meta) {
-    List<String> titles = [
-      "00:00",
-      "01:00",
-      "02:00",
-      "03:00",
-      "04:00",
-      "05:00",
-      "06:00",
-      "07:00",
-      "08:00",
-      "09:00",
-      "10:00",
-      "11:00",
-      "12:00",
-      "13:00",
-      "14:00",
-      "15:00",
-      "16:00",
-      "17:00",
-      "18:00",
-      "19:00",
-      "20:00",
-      "21:00",
-      "22:00",
-      "23:00"
-    ];
+    List<String> titles = ["00:00","01:00","02:00","03:00","04:00","05:00","06:00","07:00","08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00","21:00","22:00","23:00"];
 
     Widget text = Text(
       titles[value.toInt()],
