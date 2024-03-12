@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:virtual_queue/controllers/AdminAccountController.dart';
 import 'package:virtual_queue/controllers/UserAccountController.dart';
 
 enum AccountType { User, Admin }
@@ -191,7 +192,17 @@ class _RegisterFormState extends State<RegisterForm> {
                         });
                       }
                     } else {
-                      // TODO implement admin sign up
+                      final errStatus = await Provider.of<AdminAccountController>(context, listen: false).signUp(
+                        _email,
+                        _password,
+                        _name,
+                        _phone
+                      );
+                      if (errStatus != null) {
+                        setState(() {
+                          errorMesssage = errStatus;
+                        });
+                      }
                     }
                   }
                 },
