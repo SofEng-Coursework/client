@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:virtual_queue/pages/Dashboard.dart';
+import 'package:virtual_queue/pages/userDashboard.dart';
 
 class Settings extends StatelessWidget {
   @override

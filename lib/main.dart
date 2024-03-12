@@ -10,7 +10,7 @@ import 'package:virtual_queue/pages/RegisterForm.dart';
 import 'package:virtual_queue/controllers/UserAccountController.dart';
 
 import 'firebase_options.dart';
-import 'pages/Dashboard.dart';
+import 'pages/userDashboard.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
