@@ -1,73 +1,77 @@
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:virtual_queue/controllers/FirebaseProvider.dart';
 
 class UserAccountController extends ChangeNotifier {
-  late final FirebaseAuth _auth;
-
-  UserAccountController({required FirebaseAuth auth}) {
-    _auth = auth;
+  late FirebaseProvider _firebaseProvider;
+  UserAccountController({required FirebaseProvider firebaseProvider}) {
+    _firebaseProvider = firebaseProvider;
   }
 
-  void signUp(BuildContext context, String email, String password) async {
+  Future<String?> signUp(String email, String password, String name, String phone) async {
     try {
-      UserCredential credential = await _auth.createUserWithEmailAndPassword(
+      UserCredential credential = await _firebaseProvider.FIREBASE_AUTH.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
-      print('signup success');
-      final idToken = await credential.user!.getIdToken();
-      //TODO request server
+
+      final uid = credential.user!.uid;
+
+      CollectionReference users = _firebaseProvider.FIREBASE_FIRESTORE.collection('users');
+      await users.doc(uid).set({
+        'name': name,
+        'phone': phone,
+        'email': email,
+        'uid': uid,
+      });
+      return null;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {
-        errBox(context, 'Sign Up Failed', 'Email already in use');
+        return 'Email already in use';
       }
       if (e.code == 'weak-password') {
-        errBox(context, 'Sign Up Failed', 'Password too weak');
+        return 'Password too weak';
       }
+      return 'An error occurred: ${e.message}';
     }
   }
 
-  void login(BuildContext context, String email, String password) async {
+  Future<String?> login(String email, String password) async {
     try {
-      UserCredential credential = await _auth.signInWithEmailAndPassword(
+      UserCredential credential = await _firebaseProvider.FIREBASE_AUTH.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
       print('login success');
-      final idToken = credential.user!.getIdToken();
-      //TODO request server
+      return null;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'invalid-email') {
-        errBox(context, 'Login Failed', 'No user found with that email');
+        return 'Invalid email';
       } else if (e.code == 'invalid-login-credentials') {
-        errBox(context, 'Login Failed', 'Incorrect password for that account');
+        return 'Incorrect email or password credentials';
       } else if (e.code == 'too-many-requests') {
-        errBox(context, 'Login Failed', 'Too many attempts, you have been locked out');
+        return 'Too many requests';
       } else if (e.code == 'missing-password') {
-        errBox(context, 'Login Failed', 'No password entered');
+        return 'Missing password';
       }
-      errBox(context, 'Login Failed', 'An error occurred: ${e.message}');
+      return 'An error occurred: ${e.message}';
     }
   }
-}
 
-void errBox(BuildContext context, String alert, String errMsg) {
-  showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: Text(alert),
-        content: Text(errMsg),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: Text('OK'),
-          ),
-        ],
-      );
-    },
-  );
+  Future<Map<String, dynamic>?> getUserData() async {
+    final user = _firebaseProvider.FIREBASE_AUTH.currentUser;
+    if (user != null) {
+      final response = await _firebaseProvider.FIREBASE_FIRESTORE.collection('users').doc(user.uid).get();
+      return response.data();
+    }
+    return null;
+  }
+
+  Future<void> signOut() async {
+    await _firebaseProvider.FIREBASE_AUTH.signOut();
+  }
 }
