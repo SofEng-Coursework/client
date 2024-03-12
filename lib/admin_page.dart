@@ -6,7 +6,12 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 List<String> getPeopleInQueue() {
   return ["Harry", "Elliott", "Andrew", "Ilyas", "Tommy", "Antoine", "idk"];
 }
-
+void main(){
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const Directionality(
+      textDirection: TextDirection.rtl,
+      child: MaterialApp(home: AdminPage())));
+}
 class AdminPage extends StatefulWidget {
   const AdminPage({Key? key}) : super(key: key);
 
@@ -21,9 +26,22 @@ class _AdminPageState extends State<AdminPage> {
       .instance.platformDispatcher.views.first.physicalSize.height;
   int waitTime = 15;
 
+  ButtonStyle editStyle = ButtonStyle(
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            side: const BorderSide(
+                                color: Color(0xFFFFFFFF), width: 3))),
+                    backgroundColor: MaterialStateProperty.all<Color>(
+                        const Color(0x00000000)));
+
   List<double> averageDay = [1, 2, 3, 4, 5, 6, 7];
 
   late List<BarChartGroupData> todayData;
+
+  bool isEditingQueue = false;
+
+  List peopleInQueue = getPeopleInQueue();
 
   int touchedGroupIndex = -1;
 
@@ -59,14 +77,17 @@ class _AdminPageState extends State<AdminPage> {
           ],
         ),
         drawer: const Drawer(),
-        body: Row(children: [
+        body: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
           /*left side*/ Column(
+            mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text("Queue",
                   style: TextStyle(fontSize: 30, fontWeight: FontWeight.w900)),
               /*queue*/ Container(
-                width: screenWidth * 0.1,
+                width: screenWidth * 0.2,
                 height: screenHeight * 0.3,
                 padding: const EdgeInsets.all(3),
                 margin: const EdgeInsets.fromLTRB(10, 0, 0, 5),
@@ -80,8 +101,8 @@ class _AdminPageState extends State<AdminPage> {
                   ),
                 ),
                 child: ListView.builder(
-                    itemCount: getPeopleInQueue().length,
-                    itemBuilder: (BuildContext context, i) {
+                    itemCount: peopleInQueue.length,
+                    itemBuilder: (BuildContext context, int i) {
                       return Container(
                         padding: const EdgeInsets.all(1),
                         margin: const EdgeInsets.all(2),
@@ -93,19 +114,57 @@ class _AdminPageState extends State<AdminPage> {
                             width: 3,
                           ),
                         ),
-                        child: Text(
-                          getPeopleInQueue()[i],
+                        child: ListTile(
+                          title: Text(peopleInQueue[i],
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                               color: Color(0xFFFFFFFF),
                               fontWeight: FontWeight.bold,
-                              fontSize: 20),
-                        ),
+                              fontSize: 20)),
+                          trailing: isEditingQueue ? Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ElevatedButton(child: Text("\u25b2", style: TextStyle(color: Color(0xFFFFFFFF), fontWeight: FontWeight.bold,
+                              fontSize: 10)), onPressed: () {
+                                if (i > 0) {
+                                  setState(() {
+                                    var temp = peopleInQueue[i];
+                                    peopleInQueue[i] = peopleInQueue[i - 1];
+                                    peopleInQueue[i - 1] = temp;
+
+                                });}
+                              },
+                              style: editStyle,
+                              ),
+                              ElevatedButton(child: Text("\u25bc", style: TextStyle(color: Color(0xFFFFFFFF), fontWeight: FontWeight.bold,
+                              fontSize: 10)), onPressed: () {
+                                if (i < peopleInQueue.length) {
+                                  setState(() {
+                                    var temp = peopleInQueue[i];
+                                    peopleInQueue[i] = peopleInQueue[i + 1];
+                                    peopleInQueue[i + 1] = temp;
+
+                                });}
+                              },
+                              style: editStyle,),
+                              ElevatedButton(child: Text("Remove", style: TextStyle(color: Color(0xFFFFFFFF), fontWeight: FontWeight.bold,
+                              fontSize: 15)), onPressed: () {
+                                setState(() {
+                                peopleInQueue.removeAt(i);
+                              });},
+                              style: editStyle,),
+                              ]
+                              ) : null
+                      )
                       );
                     }),
               ),
               /*edit button*/ ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  setState(() {
+                    isEditingQueue = !isEditingQueue;
+                  });
+                },
                 style: ButtonStyle(
                     shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
@@ -123,7 +182,7 @@ class _AdminPageState extends State<AdminPage> {
             ],
           ),
           /*wait time*/ Column(
-              //mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
                     width: screenWidth * 0.2,
@@ -136,7 +195,9 @@ class _AdminPageState extends State<AdminPage> {
                         width: 3,
                       ),
                     ),
-                    child: Column(children: [
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
                       const Text("Current Wait Time:",
                           textAlign: TextAlign.center,
                           style: TextStyle(
@@ -149,7 +210,9 @@ class _AdminPageState extends State<AdminPage> {
                               color: Color(0xFFFFFFFF)))
                     ]))
               ]),
-          /*right side*/ Column(children: [
+          /*right side*/ Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
             /*average daily*/ Container(
               width: screenWidth * 0.1,
               height: screenHeight * 0.2,
