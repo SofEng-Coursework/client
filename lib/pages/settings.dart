@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:virtual_queue/controllers/UserAccountController.dart';
 import 'package:virtual_queue/pages/userDashboard.dart';
 
 class Settings extends StatelessWidget {
@@ -24,16 +26,14 @@ class Settings extends StatelessWidget {
           ),
         ),
         leading: IconButton(
-          icon : Icon(
+          icon: Icon(
             Icons.arrow_back,
             color: Color(0xffffffff),
             size: 24,
           ),
           onPressed: () {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => Dashboard())
-        );
-      },
+            Navigator.of(context).pop();
+          },
         ),
       ),
       body: SingleChildScrollView(
@@ -85,18 +85,15 @@ class Settings extends StatelessWidget {
                         decoration: InputDecoration(
                           disabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(4.0),
-                            borderSide:
-                                BorderSide(color: Color(0xff000000), width: 1),
+                            borderSide: BorderSide(color: Color(0xff000000), width: 1),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(4.0),
-                            borderSide:
-                                BorderSide(color: Color(0xff000000), width: 1),
+                            borderSide: BorderSide(color: Color(0xff000000), width: 1),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(4.0),
-                            borderSide:
-                                BorderSide(color: Color(0xff000000), width: 1),
+                            borderSide: BorderSide(color: Color(0xff000000), width: 1),
                           ),
                           labelText: "Full Name",
                           labelStyle: TextStyle(
@@ -115,8 +112,7 @@ class Settings extends StatelessWidget {
                           filled: true,
                           fillColor: Color(0xfff2f2f3),
                           isDense: false,
-                          contentPadding:
-                              EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                          contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                         ),
                       ),
                     ),
@@ -141,18 +137,15 @@ class Settings extends StatelessWidget {
                       decoration: InputDecoration(
                         disabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(4.0),
-                          borderSide:
-                              BorderSide(color: Color(0xff000000), width: 1),
+                          borderSide: BorderSide(color: Color(0xff000000), width: 1),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(4.0),
-                          borderSide:
-                              BorderSide(color: Color(0xff000000), width: 1),
+                          borderSide: BorderSide(color: Color(0xff000000), width: 1),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(4.0),
-                          borderSide:
-                              BorderSide(color: Color(0xff000000), width: 1),
+                          borderSide: BorderSide(color: Color(0xff000000), width: 1),
                         ),
                         labelText: "Email",
                         labelStyle: TextStyle(
@@ -171,8 +164,7 @@ class Settings extends StatelessWidget {
                         filled: true,
                         fillColor: Color(0xfff2f2f3),
                         isDense: false,
-                        contentPadding:
-                            EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                        contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                       ),
                     ),
                     Divider(
@@ -196,18 +188,15 @@ class Settings extends StatelessWidget {
                       decoration: InputDecoration(
                         disabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(4.0),
-                          borderSide:
-                              BorderSide(color: Color(0xff000000), width: 1),
+                          borderSide: BorderSide(color: Color(0xff000000), width: 1),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(4.0),
-                          borderSide:
-                              BorderSide(color: Color(0xff000000), width: 1),
+                          borderSide: BorderSide(color: Color(0xff000000), width: 1),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(4.0),
-                          borderSide:
-                              BorderSide(color: Color(0xff000000), width: 1),
+                          borderSide: BorderSide(color: Color(0xff000000), width: 1),
                         ),
                         labelText: "Password",
                         labelStyle: TextStyle(
@@ -226,8 +215,7 @@ class Settings extends StatelessWidget {
                         filled: true,
                         fillColor: Color(0xfff2f2f3),
                         isDense: false,
-                        contentPadding:
-                            EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                        contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                       ),
                     ),
                   ],
@@ -396,7 +384,10 @@ class Settings extends StatelessWidget {
             Padding(
               padding: EdgeInsets.fromLTRB(16, 10, 16, 0),
               child: MaterialButton(
-                onPressed: () {},
+                onPressed: () {
+                  Provider.of<UserAccountController>(context, listen: false).signOut();
+                  Navigator.of(context).pop();
+                },
                 color: Color(0xff017a08),
                 elevation: 0,
                 shape: RoundedRectangleBorder(

@@ -3,10 +3,11 @@ import 'package:provider/provider.dart';
 import 'package:virtual_queue/controllers/UserAccountController.dart';
 import 'package:virtual_queue/pages/Settings.dart';
 
-class Dashboard extends StatelessWidget {
-  const Dashboard({super.key});
+class UserDashboard extends StatelessWidget {
+  const UserDashboard({super.key});
   @override
   Widget build(BuildContext context) {
+    final userAccountController = Provider.of<UserAccountController>(context, listen: false);
     return Scaffold(
       backgroundColor: Color(0xffffffff),
       appBar: AppBar(
@@ -26,19 +27,19 @@ class Dashboard extends StatelessWidget {
           onPressed: () {
             Provider.of<UserAccountController>(context, listen: false).signOut();
           },
-  ),
-  actions: [
-    IconButton(
-      icon: Icon(Icons.settings),
-      color: Color(0xffffffff),
-      onPressed: () {
-        Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => Settings())
-        );
-      },
-    ),
-  ],
-),
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.settings),
+            color: Color(0xffffffff),
+            onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) =>
+                      ChangeNotifierProvider<UserAccountController>(create: (context) => userAccountController, child: Settings())));
+            },
+          ),
+        ],
+      ),
       body: Padding(
         padding: EdgeInsets.symmetric(vertical: 0, horizontal: 16),
         child: SingleChildScrollView(
@@ -126,8 +127,7 @@ class QueueCard extends StatelessWidget {
             Expanded(
               flex: 1,
               child: Padding(
-                padding: EdgeInsets.symmetric(
-                    vertical: 0, horizontal: 16),
+                padding: EdgeInsets.symmetric(vertical: 0, horizontal: 16),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,

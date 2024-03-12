@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:virtual_queue/controllers/AdminAccountController.dart';
 import 'package:virtual_queue/controllers/FirebaseProvider.dart';
 import 'package:virtual_queue/pages/AuthPage.dart';
+import 'package:virtual_queue/pages/Dashboard.dart';
 import 'package:virtual_queue/pages/LoginForm.dart';
 import 'package:virtual_queue/pages/RegisterForm.dart';
 import 'package:virtual_queue/controllers/UserAccountController.dart';
