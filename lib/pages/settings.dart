@@ -4,6 +4,9 @@ import 'package:virtual_queue/controllers/UserAccountController.dart';
 import 'package:virtual_queue/pages/userDashboard.dart';
 
 class Settings extends StatelessWidget {
+  final nameController = TextEditingController();
+  final passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -72,7 +75,7 @@ class Settings extends StatelessWidget {
                     Padding(
                       padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
                       child: TextField(
-                        controller: TextEditingController(),
+                        controller: nameController,
                         obscureText: false,
                         textAlign: TextAlign.start,
                         maxLines: 1,
@@ -124,58 +127,7 @@ class Settings extends StatelessWidget {
                       endIndent: 0,
                     ),
                     TextField(
-                      controller: TextEditingController(),
-                      obscureText: false,
-                      textAlign: TextAlign.start,
-                      maxLines: 1,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w400,
-                        fontStyle: FontStyle.normal,
-                        fontSize: 14,
-                        color: Color(0xff000000),
-                      ),
-                      decoration: InputDecoration(
-                        disabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(4.0),
-                          borderSide: BorderSide(color: Color(0xff000000), width: 1),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(4.0),
-                          borderSide: BorderSide(color: Color(0xff000000), width: 1),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(4.0),
-                          borderSide: BorderSide(color: Color(0xff000000), width: 1),
-                        ),
-                        labelText: "Email",
-                        labelStyle: TextStyle(
-                          fontWeight: FontWeight.w400,
-                          fontStyle: FontStyle.normal,
-                          fontSize: 14,
-                          color: Color(0xff000000),
-                        ),
-                        hintText: "Enter Email",
-                        hintStyle: TextStyle(
-                          fontWeight: FontWeight.w400,
-                          fontStyle: FontStyle.normal,
-                          fontSize: 14,
-                          color: Color(0xff000000),
-                        ),
-                        filled: true,
-                        fillColor: Color(0xfff2f2f3),
-                        isDense: false,
-                        contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                      ),
-                    ),
-                    Divider(
-                      color: Color(0xff808080),
-                      height: 16,
-                      thickness: 0,
-                      indent: 0,
-                      endIndent: 0,
-                    ),
-                    TextField(
-                      controller: TextEditingController(),
+                      controller: passwordController,
                       obscureText: true,
                       textAlign: TextAlign.start,
                       maxLines: 1,
@@ -218,6 +170,12 @@ class Settings extends StatelessWidget {
                         contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                       ),
                     ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: ElevatedButton(onPressed: () {
+                      
+                      }, child: Text("Save Changes")),
+                    )
                   ],
                 ),
               ),
