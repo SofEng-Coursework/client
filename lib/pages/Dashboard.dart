@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:virtual_queue/controllers/AdminAccountController.dart';
+import 'package:virtual_queue/controllers/adminAccountController.dart';
 import 'package:virtual_queue/controllers/UserAccountController.dart';
 import 'package:virtual_queue/pages/RegisterForm.dart';
 import 'package:virtual_queue/pages/userDashboard.dart';

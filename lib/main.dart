@@ -3,7 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:virtual_queue/controllers/AdminAccountController.dart';
+import 'package:virtual_queue/controllers/adminAccountController.dart';
 import 'package:virtual_queue/controllers/FirebaseProvider.dart';
 import 'package:virtual_queue/pages/AuthPage.dart';
 import 'package:virtual_queue/pages/Dashboard.dart';
