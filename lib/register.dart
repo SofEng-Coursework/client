@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'userAccountController.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 void main() {
   runApp(MyApp());
@@ -16,12 +14,6 @@ class MyApp extends StatelessWidget {
 }
 
 class SignUp extends StatelessWidget {
-  final UserAccountController _userController = UserAccountController(auth: FirebaseAuth.instance);
-
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,7 +42,7 @@ class SignUp extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.fromLTRB(0, 50, 0, 16),
                   child: TextField(
-                    controller: _nameController,
+                    controller: TextEditingController(),
                     obscureText: false,
                     textAlign: TextAlign.start,
                     maxLines: 1,
@@ -94,7 +86,7 @@ class SignUp extends StatelessWidget {
                   ),
                 ),
                 TextField(
-                  controller: _emailController,
+                  controller: TextEditingController(),
                   obscureText: false,
                   textAlign: TextAlign.start,
                   maxLines: 1,
@@ -139,7 +131,7 @@ class SignUp extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.fromLTRB(0, 16, 0, 30),
                   child: TextField(
-                    controller: _passwordController,
+                    controller: TextEditingController(),
                     obscureText: true,
                     textAlign: TextAlign.start,
                     maxLines: 1,
@@ -185,9 +177,7 @@ class SignUp extends StatelessWidget {
                   ),
                 ),
                 MaterialButton(
-                  onPressed: () {
-                    _userController.signUp(context, _emailController.text, _passwordController.text);
-                  },
+                  onPressed: () {},
                   color: Color(0xff017a08),
                   elevation: 0,
                   shape: RoundedRectangleBorder(
