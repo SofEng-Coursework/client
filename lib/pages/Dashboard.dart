@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:virtual_queue/controllers/AdminAccountController.dart';
-import 'package:virtual_queue/controllers/UserAccountController.dart';
+import 'package:virtual_queue/controllers/adminAccountController.dart';
+import 'package:virtual_queue/controllers/userAccountController.dart';
 import 'package:virtual_queue/pages/RegisterForm.dart';
 import 'package:virtual_queue/pages/userDashboard.dart';
+import 'package:virtual_queue/pages/AdminDashboard.dart';
+import 'package:virtual_queue/controllers/FirebaseProvider.dart';
 
 class Dashboard extends StatelessWidget {
   const Dashboard({super.key});
@@ -30,7 +32,9 @@ class Dashboard extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
             AccountType accountType = snapshot.data!['accountType'];
-            // TODO Conditional rendering based on account type
+            if (accountType == AccountType.Admin) {
+              return AdminDashboard();
+            }
             if (accountType == AccountType.User) {
               return UserDashboard();
             }
