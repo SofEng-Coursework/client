@@ -45,7 +45,7 @@ class _AdminPageState extends State<AdminPage> {
 
   int touchedGroupIndex = -1;
 
-  List<double> data = [0,0,0,0,0,0,0,7,9,13,20,25,36,35,34,27,24,19,14,9,0,0,0,0];
+  List<double> data = [0,0,0,0,0,0,0,7,9,13,20,25,37,35,34,27,24,19,14,9,0,0,0,0];
 
   @override
   void initState() {
@@ -124,8 +124,7 @@ class _AdminPageState extends State<AdminPage> {
                           trailing: isEditingQueue ? Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              ElevatedButton(child: Text("\u25b2", style: TextStyle(color: Color(0xFFFFFFFF), fontWeight: FontWeight.bold,
-                              fontSize: 10)), onPressed: () {
+                              ElevatedButton(onPressed: () {
                                 if (i > 0) {
                                   setState(() {
                                     var temp = peopleInQueue[i];
@@ -134,10 +133,10 @@ class _AdminPageState extends State<AdminPage> {
 
                                 });}
                               },
-                              style: editStyle,
+                              style: editStyle,child: const Text("\u25b2", style: TextStyle(color: Color(0xFFFFFFFF), fontWeight: FontWeight.bold,
+                              fontSize: 10)),
                               ),
-                              ElevatedButton(child: Text("\u25bc", style: TextStyle(color: Color(0xFFFFFFFF), fontWeight: FontWeight.bold,
-                              fontSize: 10)), onPressed: () {
+                              ElevatedButton(onPressed: () {
                                 if (i < peopleInQueue.length) {
                                   setState(() {
                                     var temp = peopleInQueue[i];
@@ -146,13 +145,14 @@ class _AdminPageState extends State<AdminPage> {
 
                                 });}
                               },
-                              style: editStyle,),
-                              ElevatedButton(child: Text("Remove", style: TextStyle(color: Color(0xFFFFFFFF), fontWeight: FontWeight.bold,
-                              fontSize: 15)), onPressed: () {
+                              style: editStyle,child: const Text("\u25bc", style: TextStyle(color: Color(0xFFFFFFFF), fontWeight: FontWeight.bold,
+                              fontSize: 10)),),
+                              ElevatedButton(onPressed: () {
                                 setState(() {
                                 peopleInQueue.removeAt(i);
                               });},
-                              style: editStyle,),
+                              style: editStyle,child: const Text("Remove", style: TextStyle(color: Color(0xFFFFFFFF), fontWeight: FontWeight.bold,
+                              fontSize: 15)),),
                               ]
                               ) : null
                       )
@@ -183,9 +183,9 @@ class _AdminPageState extends State<AdminPage> {
           ),
           /*wait time*/ Column(
             mainAxisSize: MainAxisSize.min,
-              children: [
+            children: [
                 Container(
-                    width: screenWidth * 0.2,
+                    width: screenWidth * 0.15,
                     //height: screenWidth * 0.05,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(15),
@@ -269,7 +269,7 @@ class _AdminPageState extends State<AdminPage> {
                     makeBar(5, averageDay[5]),
                     makeBar(6, averageDay[6]),
                   ],
-                  gridData: FlGridData(drawVerticalLine: false, drawHorizontalLine: true),
+                  gridData: const FlGridData(drawVerticalLine: false, drawHorizontalLine: true),
                   alignment: BarChartAlignment.spaceAround,
                   maxY: averageDay.reduce(max))),
             ),
@@ -328,7 +328,17 @@ class _AdminPageState extends State<AdminPage> {
                     barGroups: todayData,
                     gridData: FlGridData(
                       show: true,
-                      checkToShowHorizontalLine: (value) => value % (data.reduce(max) % 10) == 0,
+                      /*checkToShowHorizontalLine: (value) {
+                        if (value % (data.reduce(max) % 10) == 0 || value == data.reduce(max)){
+                          if (value > data.reduce(max) - (data.reduce(max) % 10) && value != data.reduce(max)){
+                            return false;
+                          }else{
+                            return true;
+                          }
+                        }else{
+                          return false;
+                        }
+                      },*/
                       getDrawingHorizontalLine: (value) => const FlLine(
                         color: Color(0xFF979797),
                         strokeWidth: 1,
@@ -404,8 +414,12 @@ class _AdminPageState extends State<AdminPage> {
       fontSize: 14,
     );
     String text;
-    if (value % (data.reduce(max) % 10) == 0){
-      text = value.toString();
+    if (value % (data.reduce(max) % 10) == 0 || value == data.reduce(max)){
+      if (value > data.reduce(max) - (data.reduce(max) % 10) && value != data.reduce(max)){
+        text = "";
+      }else{
+        text = value.toString();
+      }
     }else{
       return Container();
     }
