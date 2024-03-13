@@ -12,9 +12,7 @@ class FirebaseProvider extends ChangeNotifier {
   FirebaseProvider();
 
   Future<void> initialize() async {
-    print("test");
     FIREBASE_APP = await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-    print("app");
     FIREBASE_AUTH = FirebaseAuth.instanceFor(app: FIREBASE_APP);
     FIREBASE_FIRESTORE = FirebaseFirestore.instanceFor(app: FIREBASE_APP);
 
@@ -23,7 +21,6 @@ class FirebaseProvider extends ChangeNotifier {
     });
 
     await Future.delayed(Duration(milliseconds: 250));
-    print("lol");
   }
 
   User? getLoggedInUser() {
