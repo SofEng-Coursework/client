@@ -7,6 +7,7 @@ import 'package:virtual_queue/pages/userDashboard.dart';
 import 'package:virtual_queue/pages/AdminDashboard.dart';
 import 'package:virtual_queue/controllers/FirebaseProvider.dart';
 
+
 class Dashboard extends StatelessWidget {
   const Dashboard({super.key});
 

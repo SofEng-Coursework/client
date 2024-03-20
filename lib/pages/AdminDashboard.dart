@@ -1,13 +1,32 @@
 
 
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_queue/controllers/adminAccountController.dart';
 import 'package:virtual_queue/pages/Settings.dart';
 
-class AdminDashboard extends StatelessWidget {
-  const AdminDashboard({super.key});
+class AdminDashboard extends StatefulWidget {
+  const AdminDashboard({
+    super.key
+  });
+
+  @override
+  State<AdminDashboard> createState() => _AdminDashboardState();
+}
+
+class _AdminDashboardState extends State<AdminDashboard> {
+
+  TextEditingController name = new TextEditingController();
+  TextEditingController capacity = new TextEditingController();
+
+  bool ischecked = true;
+
+
+
   @override
   Widget build(BuildContext context) {
     final adminAccountController = Provider.of<AdminAccountController>(context, listen: false);
@@ -33,6 +52,13 @@ class AdminDashboard extends StatelessWidget {
         ),
         actions: [
           IconButton(
+            icon: Icon(Icons.add),
+            color: Color(0xffffffff),
+            onPressed: () {
+              newQueue(context);
+            },
+          ),
+          IconButton(
             icon: Icon(Icons.settings),
             color: Color(0xffffffff),
             onPressed: () {
@@ -54,7 +80,7 @@ class AdminDashboard extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.fromLTRB(0, 16, 0, 20),
                 child: Text(
-                  "This will be graphs and pie charts and other forms of data visualisation!!!",
+                  "This will be where the queue cards live!!!",
                   textAlign: TextAlign.start,
                   overflow: TextOverflow.clip,
                   style: TextStyle(
@@ -70,5 +96,67 @@ class AdminDashboard extends StatelessWidget {
         ),
       ),
     );
+  }
+  Future newQueue(BuildContext context) => showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text('Create New Queue'),
+      content: StatefulBuilder(
+      builder: (BuildContext context, StateSetter setState) {
+        return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              TextField(
+                autofocus: true,
+                decoration: InputDecoration(hintText: 'Enter Queue Name'),
+                controller: name,
+              ),
+              CheckboxListTile(
+                  title: const Text('Unlimited Capacity'),
+                  value: ischecked,
+                  onChanged: (bool? value) {
+                    setState(() {
+                      ischecked = value!;
+                    });
+                  },
+              ),
+
+              if (!ischecked) TextField(
+                keyboardType: TextInputType.number,
+
+                autofocus: false,
+                decoration: const InputDecoration(hintText: 'Enter Max Users',),
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.digitsOnly
+                ],
+                controller: capacity,
+
+              )
+            ]
+
+        );
+      }
+      ),
+
+
+      actions: [
+        TextButton(
+            child: Text("SUBMIT"),
+            onPressed: () {
+              uploadNewQueue();
+              Navigator.of(context).pop();
+            }
+        ),
+      ],
+    ),
+  );
+
+  void uploadNewQueue() {
+    print("Uploading...");
+    print("Uploading...");
+    print("Uploading...");
+    print("Uploading...");
+    print("Just kidding there's nothing in this function yet");
   }
 }
