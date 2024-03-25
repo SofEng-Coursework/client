@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'dart:math';
-import 'package:syncfusion_flutter_charts/charts.dart';
 
 List<String> getPeopleInQueue() {
   return ["Harry", "Elliott", "Andrew", "Ilyas", "Tommy", "Antoine", "idk"];
 }
-void main(){
+
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const Directionality(
-      textDirection: TextDirection.rtl,
-      child: MaterialApp(home: AdminPage())));
+      textDirection: TextDirection.rtl, child: MaterialApp(home: AdminPage())));
 }
+
 class AdminPage extends StatefulWidget {
   const AdminPage({Key? key}) : super(key: key);
 
@@ -27,13 +27,12 @@ class _AdminPageState extends State<AdminPage> {
   int waitTime = 15;
 
   ButtonStyle editStyle = ButtonStyle(
-                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            side: const BorderSide(
-                                color: Color(0xFFFFFFFF), width: 3))),
-                    backgroundColor: MaterialStateProperty.all<Color>(
-                        const Color(0x00000000)));
+      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+          RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+              side: const BorderSide(color: Color(0xFFFFFFFF), width: 3))),
+      backgroundColor:
+          MaterialStateProperty.all<Color>(const Color(0x00000000)));
 
   List<double> averageDay = [1, 2, 3, 4, 5, 6, 7];
 
@@ -45,13 +44,38 @@ class _AdminPageState extends State<AdminPage> {
 
   int touchedGroupIndex = -1;
 
-  List<double> data = [0,0,0,0,0,0,0,7,9,13,20,25,37,35,34,27,24,19,14,9,0,0,0,0];
+  List<double> data = [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    7,
+    9,
+    13,
+    20,
+    25,
+    37,
+    35,
+    34,
+    27,
+    24,
+    19,
+    14,
+    9,
+    0,
+    0,
+    0,
+    0
+  ];
 
   @override
   void initState() {
     super.initState();
     final averageToday = [];
-    for (int i = 0; i < 24; i++){
+    for (int i = 0; i < 24; i++) {
       averageToday.add(makeBar(i, data[i]));
     }
 
@@ -77,9 +101,7 @@ class _AdminPageState extends State<AdminPage> {
           ],
         ),
         drawer: const Drawer(),
-        body: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
+        body: Row(mainAxisSize: MainAxisSize.min, children: [
           /*left side*/ Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -87,78 +109,119 @@ class _AdminPageState extends State<AdminPage> {
               const Text("Queue",
                   style: TextStyle(fontSize: 30, fontWeight: FontWeight.w900)),
               /*queue*/ Container(
-                width: screenWidth * 0.2,
-                height: screenHeight * 0.3,
-                padding: const EdgeInsets.all(3),
-                margin: const EdgeInsets.fromLTRB(10, 0, 0, 5),
-                alignment: Alignment.centerLeft,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(25),
-                  color: const Color(0xFF017A08),
-                  border: Border.all(
-                    color: const Color(0xFF042433),
-                    width: 3,
+                  width: screenWidth * 0.2,
+                  height: screenHeight * 0.3,
+                  padding: const EdgeInsets.all(3),
+                  margin: const EdgeInsets.fromLTRB(10, 0, 0, 5),
+                  alignment: Alignment.centerLeft,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(25),
+                    color: const Color(0xFF017A08),
+                    border: Border.all(
+                      color: const Color(0xFF042433),
+                      width: 3,
+                    ),
                   ),
-                ),
-                child: ListView.builder(
-                    itemCount: peopleInQueue.length,
-                    itemBuilder: (BuildContext context, int i) {
-                      return Container(
-                        padding: const EdgeInsets.all(1),
-                        margin: const EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(15)),
-                          border: Border.all(
-                            color: const Color(0xFFFFFFFF),
-                            width: 3,
-                          ),
-                        ),
-                        child: ListTile(
-                          title: Text(peopleInQueue[i],
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                              color: Color(0xFFFFFFFF),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20)),
-                          trailing: isEditingQueue ? Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              ElevatedButton(onPressed: () {
-                                if (i > 0) {
-                                  setState(() {
-                                    var temp = peopleInQueue[i];
-                                    peopleInQueue[i] = peopleInQueue[i - 1];
-                                    peopleInQueue[i - 1] = temp;
-
-                                });}
-                              },
-                              style: editStyle,child: const Text("\u25b2", style: TextStyle(color: Color(0xFFFFFFFF), fontWeight: FontWeight.bold,
-                              fontSize: 10)),
-                              ),
-                              ElevatedButton(onPressed: () {
-                                if (i < peopleInQueue.length) {
-                                  setState(() {
-                                    var temp = peopleInQueue[i];
-                                    peopleInQueue[i] = peopleInQueue[i + 1];
-                                    peopleInQueue[i + 1] = temp;
-
-                                });}
-                              },
-                              style: editStyle,child: const Text("\u25bc", style: TextStyle(color: Color(0xFFFFFFFF), fontWeight: FontWeight.bold,
-                              fontSize: 10)),),
-                              ElevatedButton(onPressed: () {
-                                setState(() {
-                                peopleInQueue.removeAt(i);
-                              });},
-                              style: editStyle,child: const Text("Remove", style: TextStyle(color: Color(0xFFFFFFFF), fontWeight: FontWeight.bold,
-                              fontSize: 15)),),
-                              ]
-                              ) : null
-                      )
-                      );
-                    }),
-              ),
+                  child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ListView.builder(
+                            itemCount: peopleInQueue.length,
+                            itemBuilder: (BuildContext context, int i) {
+                              return Container(
+                                  padding: const EdgeInsets.all(1),
+                                  margin: const EdgeInsets.all(2),
+                                  decoration: BoxDecoration(
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(15)),
+                                    border: Border.all(
+                                      color: const Color(0xFFFFFFFF),
+                                      width: 3,
+                                    ),
+                                  ),
+                                  child: ListTile(
+                                      title: Text(peopleInQueue[i],
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(
+                                              color: Color(0xFFFFFFFF),
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 20)),
+                                      trailing: isEditingQueue
+                                          ? Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                  ElevatedButton(
+                                                    onPressed: () {
+                                                      if (i > 0) {
+                                                        setState(() {
+                                                          var temp =
+                                                              peopleInQueue[i];
+                                                          peopleInQueue[i] =
+                                                              peopleInQueue[
+                                                                  i - 1];
+                                                          peopleInQueue[i - 1] =
+                                                              temp;
+                                                        });
+                                                      }
+                                                    },
+                                                    style: editStyle,
+                                                    child: const Text("\u25b2",
+                                                        style: TextStyle(
+                                                            color: Color(
+                                                                0xFFFFFFFF),
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontSize: 10)),
+                                                  ),
+                                                  ElevatedButton(
+                                                    onPressed: () {
+                                                      if (i <
+                                                          peopleInQueue
+                                                              .length) {
+                                                        setState(() {
+                                                          var temp =
+                                                              peopleInQueue[i];
+                                                          peopleInQueue[i] =
+                                                              peopleInQueue[
+                                                                  i + 1];
+                                                          peopleInQueue[i + 1] =
+                                                              temp;
+                                                        });
+                                                      }
+                                                    },
+                                                    style: editStyle,
+                                                    child: const Text("\u25bc",
+                                                        style: TextStyle(
+                                                            color: Color(
+                                                                0xFFFFFFFF),
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontSize: 10)),
+                                                  ),
+                                                  ElevatedButton(
+                                                    onPressed: () {
+                                                      setState(() {
+                                                        peopleInQueue
+                                                            .removeAt(i);
+                                                      });
+                                                    },
+                                                    style: editStyle,
+                                                    child: const Text("Remove",
+                                                        style: TextStyle(
+                                                            color: Color(
+                                                                0xFFFFFFFF),
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontSize: 15)),
+                                                  ),
+                                                ])
+                                          : null));
+                            }),
+                        if (isEditingQueue)
+                          ElevatedButton(
+                              child: const Text("Add person"), onPressed: () {})
+                      ])),
               /*edit button*/ ElevatedButton(
                 onPressed: () {
                   setState(() {
@@ -181,38 +244,31 @@ class _AdminPageState extends State<AdminPage> {
               )
             ],
           ),
-          /*wait time*/ Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-                Container(
-                    width: screenWidth * 0.15,
-                    //height: screenWidth * 0.05,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                      color: const Color(0xFF017A08),
-                      border: Border.all(
-                        color: const Color(0xFF042433),
-                        width: 3,
-                      ),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                      const Text("Current Wait Time:",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontSize: 20, color: Color(0xFFFFFFFF))),
-                      Text("$waitTime minutes",
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFFFFFFFF)))
-                    ]))
-              ]),
-          /*right side*/ Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
+          /*wait time*/ Column(mainAxisSize: MainAxisSize.min, children: [
+            Container(
+                width: screenWidth * 0.15,
+                //height: screenWidth * 0.05,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  color: const Color(0xFF017A08),
+                  border: Border.all(
+                    color: const Color(0xFF042433),
+                    width: 3,
+                  ),
+                ),
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  const Text("Current Wait Time:",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 20, color: Color(0xFFFFFFFF))),
+                  Text("$waitTime minutes",
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFFFFFFFF)))
+                ]))
+          ]),
+          /*right side*/ Column(mainAxisSize: MainAxisSize.min, children: [
             /*average daily*/ Container(
               width: screenWidth * 0.1,
               height: screenHeight * 0.2,
@@ -269,7 +325,8 @@ class _AdminPageState extends State<AdminPage> {
                     makeBar(5, averageDay[5]),
                     makeBar(6, averageDay[6]),
                   ],
-                  gridData: const FlGridData(drawVerticalLine: false, drawHorizontalLine: true),
+                  gridData: const FlGridData(
+                      drawVerticalLine: false, drawHorizontalLine: true),
                   alignment: BarChartAlignment.spaceAround,
                   maxY: averageDay.reduce(max))),
             ),
@@ -346,9 +403,7 @@ class _AdminPageState extends State<AdminPage> {
                       drawVerticalLine: false,
                     ),
                     alignment: BarChartAlignment.spaceAround,
-                    maxY: data.reduce(max)
-                ))
-            ),
+                    maxY: data.reduce(max)))),
           ])
         ]));
   }
@@ -414,13 +469,14 @@ class _AdminPageState extends State<AdminPage> {
       fontSize: 14,
     );
     String text;
-    if (value % (data.reduce(max) % 10) == 0 || value == data.reduce(max)){
-      if (value > data.reduce(max) - (data.reduce(max) % 10) && value != data.reduce(max)){
+    if (value % (data.reduce(max) % 10) == 0 || value == data.reduce(max)) {
+      if (value > data.reduce(max) - (data.reduce(max) % 10) &&
+          value != data.reduce(max)) {
         text = "";
-      }else{
+      } else {
         text = value.toString();
       }
-    }else{
+    } else {
       return Container();
     }
 
@@ -432,7 +488,32 @@ class _AdminPageState extends State<AdminPage> {
   }
 
   Widget bottomTitles(double value, TitleMeta meta) {
-    List<String> titles = ["00:00","01:00","02:00","03:00","04:00","05:00","06:00","07:00","08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00","21:00","22:00","23:00"];
+    List<String> titles = [
+      "00:00",
+      "01:00",
+      "02:00",
+      "03:00",
+      "04:00",
+      "05:00",
+      "06:00",
+      "07:00",
+      "08:00",
+      "09:00",
+      "10:00",
+      "11:00",
+      "12:00",
+      "13:00",
+      "14:00",
+      "15:00",
+      "16:00",
+      "17:00",
+      "18:00",
+      "19:00",
+      "20:00",
+      "21:00",
+      "22:00",
+      "23:00"
+    ];
 
     Widget text = Text(
       titles[value.toInt()],
