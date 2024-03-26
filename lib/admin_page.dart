@@ -39,6 +39,9 @@ class _AdminPageState extends State<AdminPage> {
   late List<BarChartGroupData> todayData;
 
   bool isEditingQueue = false;
+  bool isAddingPersonToQueue = false;
+
+  TextEditingController addToQueue = TextEditingController();
 
   List peopleInQueue = getPeopleInQueue();
 
@@ -109,119 +112,97 @@ class _AdminPageState extends State<AdminPage> {
               const Text("Queue",
                   style: TextStyle(fontSize: 30, fontWeight: FontWeight.w900)),
               /*queue*/ Container(
-                  width: screenWidth * 0.2,
-                  height: screenHeight * 0.3,
-                  padding: const EdgeInsets.all(3),
-                  margin: const EdgeInsets.fromLTRB(10, 0, 0, 5),
-                  alignment: Alignment.centerLeft,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(25),
-                    color: const Color(0xFF017A08),
-                    border: Border.all(
-                      color: const Color(0xFF042433),
-                      width: 3,
-                    ),
+                width: screenWidth * 0.2,
+                height: screenHeight * 0.3,
+                padding: const EdgeInsets.all(3),
+                margin: const EdgeInsets.fromLTRB(10, 0, 0, 5),
+                alignment: Alignment.centerLeft,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(25),
+                  color: const Color(0xFF017A08),
+                  border: Border.all(
+                    color: const Color(0xFF042433),
+                    width: 3,
                   ),
-                  child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ListView.builder(
-                            itemCount: peopleInQueue.length,
-                            itemBuilder: (BuildContext context, int i) {
-                              return Container(
-                                  padding: const EdgeInsets.all(1),
-                                  margin: const EdgeInsets.all(2),
-                                  decoration: BoxDecoration(
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(15)),
-                                    border: Border.all(
-                                      color: const Color(0xFFFFFFFF),
-                                      width: 3,
-                                    ),
-                                  ),
-                                  child: ListTile(
-                                      title: Text(peopleInQueue[i],
-                                          textAlign: TextAlign.center,
-                                          style: const TextStyle(
-                                              color: Color(0xFFFFFFFF),
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 20)),
-                                      trailing: isEditingQueue
-                                          ? Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                  ElevatedButton(
-                                                    onPressed: () {
-                                                      if (i > 0) {
-                                                        setState(() {
-                                                          var temp =
-                                                              peopleInQueue[i];
-                                                          peopleInQueue[i] =
-                                                              peopleInQueue[
-                                                                  i - 1];
-                                                          peopleInQueue[i - 1] =
-                                                              temp;
-                                                        });
-                                                      }
-                                                    },
-                                                    style: editStyle,
-                                                    child: const Text("\u25b2",
-                                                        style: TextStyle(
-                                                            color: Color(
-                                                                0xFFFFFFFF),
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            fontSize: 10)),
-                                                  ),
-                                                  ElevatedButton(
-                                                    onPressed: () {
-                                                      if (i <
-                                                          peopleInQueue
-                                                              .length) {
-                                                        setState(() {
-                                                          var temp =
-                                                              peopleInQueue[i];
-                                                          peopleInQueue[i] =
-                                                              peopleInQueue[
-                                                                  i + 1];
-                                                          peopleInQueue[i + 1] =
-                                                              temp;
-                                                        });
-                                                      }
-                                                    },
-                                                    style: editStyle,
-                                                    child: const Text("\u25bc",
-                                                        style: TextStyle(
-                                                            color: Color(
-                                                                0xFFFFFFFF),
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            fontSize: 10)),
-                                                  ),
-                                                  ElevatedButton(
-                                                    onPressed: () {
-                                                      setState(() {
-                                                        peopleInQueue
-                                                            .removeAt(i);
-                                                      });
-                                                    },
-                                                    style: editStyle,
-                                                    child: const Text("Remove",
-                                                        style: TextStyle(
-                                                            color: Color(
-                                                                0xFFFFFFFF),
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            fontSize: 15)),
-                                                  ),
-                                                ])
-                                          : null));
-                            }),
-                        if (isEditingQueue)
-                          ElevatedButton(
-                              child: const Text("Add person"), onPressed: () {})
-                      ])),
+                ),
+                child: ListView.builder(
+                    itemCount: peopleInQueue.length,
+                    itemBuilder: (BuildContext context, int i) {
+                      return Container(
+                          padding: const EdgeInsets.all(1),
+                          margin: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(15)),
+                            border: Border.all(
+                              color: const Color(0xFFFFFFFF),
+                              width: 3,
+                            ),
+                          ),
+                          child: ListTile(
+                              title: Text(peopleInQueue[i],
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                      color: Color(0xFFFFFFFF),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20)),
+                              trailing: isEditingQueue
+                                  ? Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              if (i > 0) {
+                                                setState(() {
+                                                  var temp = peopleInQueue[i];
+                                                  peopleInQueue[i] =
+                                                      peopleInQueue[i - 1];
+                                                  peopleInQueue[i - 1] = temp;
+                                                });
+                                              }
+                                            },
+                                            style: editStyle,
+                                            child: const Text("\u25b2",
+                                                style: TextStyle(
+                                                    color: Color(0xFFFFFFFF),
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 10)),
+                                          ),
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              if (i < peopleInQueue.length) {
+                                                setState(() {
+                                                  var temp = peopleInQueue[i];
+                                                  peopleInQueue[i] =
+                                                      peopleInQueue[i + 1];
+                                                  peopleInQueue[i + 1] = temp;
+                                                });
+                                              }
+                                            },
+                                            style: editStyle,
+                                            child: const Text("\u25bc",
+                                                style: TextStyle(
+                                                    color: Color(0xFFFFFFFF),
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 10)),
+                                          ),
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                peopleInQueue.removeAt(i);
+                                              });
+                                            },
+                                            style: editStyle,
+                                            child: const Text("Remove",
+                                                style: TextStyle(
+                                                    color: Color(0xFFFFFFFF),
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 15)),
+                                          ),
+                                        ])
+                                  : null));
+                    }),
+              ),
               /*edit button*/ ElevatedButton(
                 onPressed: () {
                   setState(() {
@@ -241,10 +222,52 @@ class _AdminPageState extends State<AdminPage> {
                         color: Color(0xFFFFFFFF),
                         fontSize: 15,
                         fontWeight: FontWeight.bold)),
-              )
+              ),
+              if (isEditingQueue)
+                Container(
+                    padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                    child: ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            isAddingPersonToQueue = !isAddingPersonToQueue;
+                          });
+                        },
+                        style: ButtonStyle(
+                            shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    side: const BorderSide(
+                                        color: Color(0xFF01CA08), width: 3))),
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                const Color(0xFF017A08))),
+                        child: const Text("Add person +",
+                            style: TextStyle(
+                                color: Color(0xFFFFFFFF),
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold)))),
+              if (isAddingPersonToQueue)
+                Container(
+                    padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                      TextField(
+                        controller: addToQueue,
+                        decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            hintText: "Enter name"),
+                      ),
+                      ElevatedButton(
+                          onPressed: () {}, child: const Text("Confirm"))
+                    ]))
             ],
           ),
-          /*wait time*/ Column(mainAxisSize: MainAxisSize.min, children: [
+          /*wait time*/ Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
             Container(
                 width: screenWidth * 0.15,
                 //height: screenWidth * 0.05,
@@ -256,7 +279,10 @@ class _AdminPageState extends State<AdminPage> {
                     width: 3,
                   ),
                 ),
-                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
                   const Text("Current Wait Time:",
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 20, color: Color(0xFFFFFFFF))),
@@ -268,7 +294,10 @@ class _AdminPageState extends State<AdminPage> {
                           color: Color(0xFFFFFFFF)))
                 ]))
           ]),
-          /*right side*/ Column(mainAxisSize: MainAxisSize.min, children: [
+          /*right side*/ Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
             /*average daily*/ Container(
               width: screenWidth * 0.1,
               height: screenHeight * 0.2,
