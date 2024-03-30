@@ -207,6 +207,8 @@ class _AdminPageState extends State<AdminPage> {
                 onPressed: () {
                   setState(() {
                     isEditingQueue = !isEditingQueue;
+                    isAddingPersonToQueue = false;
+                    addToQueue.clear();
                   });
                 },
                 style: ButtonStyle(
@@ -224,12 +226,13 @@ class _AdminPageState extends State<AdminPage> {
                         fontWeight: FontWeight.bold)),
               ),
               if (isEditingQueue)
-                Container(
+                /*add person button*/ Container(
                     padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
                     child: ElevatedButton(
                         onPressed: () {
                           setState(() {
                             isAddingPersonToQueue = !isAddingPersonToQueue;
+                            addToQueue.clear();
                           });
                         },
                         style: ButtonStyle(
@@ -247,174 +250,227 @@ class _AdminPageState extends State<AdminPage> {
                                 fontSize: 15,
                                 fontWeight: FontWeight.bold)))),
               if (isAddingPersonToQueue)
-                Container(
+                /*add to new person to queue*/ Container(
                     padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
                     child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                      TextField(
-                        controller: addToQueue,
-                        decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            hintText: "Enter name"),
-                      ),
-                      ElevatedButton(
-                          onPressed: () {}, child: const Text("Confirm"))
-                    ]))
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.fromLTRB(0, 3, 0, 3),
+                            width: screenWidth * 0.1,
+                            height: screenHeight * 0.05,
+                            child: TextField(
+                              controller: addToQueue,
+                              decoration: const InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  hintText: "Enter name"),
+                            ),
+                          ),
+                          ElevatedButton(
+                              onPressed: () {
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                          title: const Text("Confirm"),
+                                          content: Text(
+                                              "Would you like to add ${addToQueue.text} to the queue?"),
+                                          actions: [
+                                            ElevatedButton(
+                                              child: const Text("Cancel"),
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                            ),
+                                            ElevatedButton(
+                                              child: const Text("Confirm"),
+                                              onPressed: () {
+                                                setState(() {
+                                                  if (addToQueue.text != "") {
+                                                    peopleInQueue
+                                                        .add(addToQueue.text);
+                                                    addToQueue.clear();
+                                                  }
+                                                  Navigator.of(context).pop();
+                                                });
+                                              },
+                                            ),
+                                          ]);
+                                    });
+                              },
+                              style: ButtonStyle(
+                                  shape: MaterialStateProperty.all<
+                                          RoundedRectangleBorder>(
+                                      RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          side: const BorderSide(
+                                              color: Color(0xFF600000),
+                                              width: 3))),
+                                  backgroundColor:
+                                      MaterialStateProperty.all<Color>(
+                                          const Color(0xFFFF0101))),
+                              child: const Text("Confirm",
+                                  style: TextStyle(
+                                      color: Color(0xFFFFFFFF),
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold)))
+                        ]))
             ],
           ),
           /*wait time*/ Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-            Container(
-                width: screenWidth * 0.15,
-                //height: screenWidth * 0.05,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                  color: const Color(0xFF017A08),
-                  border: Border.all(
-                    color: const Color(0xFF042433),
-                    width: 3,
-                  ),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                  const Text("Current Wait Time:",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 20, color: Color(0xFFFFFFFF))),
-                  Text("$waitTime minutes",
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFFFFFFFF)))
-                ]))
-          ]),
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                    width: screenWidth * 0.15,
+                    //height: screenWidth * 0.05,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      color: const Color(0xFF017A08),
+                      border: Border.all(
+                        color: const Color(0xFF042433),
+                        width: 3,
+                      ),
+                    ),
+                    child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text("Current Wait Time:",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontSize: 20, color: Color(0xFFFFFFFF))),
+                          Text("$waitTime minutes",
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFFFFFFFF)))
+                        ]))
+              ]),
           /*right side*/ Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-            /*average daily*/ Container(
-              width: screenWidth * 0.1,
-              height: screenHeight * 0.2,
-              padding: const EdgeInsets.fromLTRB(0, 10, 5, 5),
-              child: BarChart(BarChartData(
-                  barTouchData: BarTouchData(
-                    enabled: false,
-                    touchTooltipData: BarTouchTooltipData(
-                      tooltipBgColor: Colors.transparent,
-                      tooltipPadding: EdgeInsets.zero,
-                      tooltipMargin: 8,
-                      getTooltipItem: (
-                        BarChartGroupData group,
-                        int groupIndex,
-                        BarChartRodData rod,
-                        int rodIndex,
-                      ) {
-                        return BarTooltipItem(
-                          rod.toY.round().toString(),
-                          const TextStyle(
-                            color: Color(0xFF0065B7),
-                            fontWeight: FontWeight.bold,
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                /*average daily*/ Container(
+                  width: screenWidth * 0.1,
+                  height: screenHeight * 0.2,
+                  padding: const EdgeInsets.fromLTRB(0, 10, 5, 5),
+                  child: BarChart(BarChartData(
+                      barTouchData: BarTouchData(
+                        enabled: false,
+                        touchTooltipData: BarTouchTooltipData(
+                          tooltipBgColor: Colors.transparent,
+                          tooltipPadding: EdgeInsets.zero,
+                          tooltipMargin: 8,
+                          getTooltipItem: (
+                            BarChartGroupData group,
+                            int groupIndex,
+                            BarChartRodData rod,
+                            int rodIndex,
+                          ) {
+                            return BarTooltipItem(
+                              rod.toY.round().toString(),
+                              const TextStyle(
+                                color: Color(0xFF0065B7),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      titlesData: FlTitlesData(
+                        show: true,
+                        bottomTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            reservedSize: 30,
+                            getTitlesWidget: getTitles,
                           ),
-                        );
-                      },
-                    ),
-                  ),
-                  titlesData: FlTitlesData(
-                    show: true,
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        reservedSize: 30,
-                        getTitlesWidget: getTitles,
+                        ),
+                        leftTitles: const AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
+                        ),
+                        topTitles: const AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
+                        ),
+                        rightTitles: const AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
+                        ),
                       ),
-                    ),
-                    leftTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                    topTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                    rightTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                  ),
-                  borderData: FlBorderData(show: false),
-                  barGroups: [
-                    makeBar(0, averageDay[0]),
-                    makeBar(1, averageDay[1]),
-                    makeBar(2, averageDay[2]),
-                    makeBar(3, averageDay[3]),
-                    makeBar(4, averageDay[4]),
-                    makeBar(5, averageDay[5]),
-                    makeBar(6, averageDay[6]),
-                  ],
-                  gridData: const FlGridData(
-                      drawVerticalLine: false, drawHorizontalLine: true),
-                  alignment: BarChartAlignment.spaceAround,
-                  maxY: averageDay.reduce(max))),
-            ),
-            /*average today*/ Container(
-                width: screenWidth * 0.3,
-                height: screenHeight * 0.25,
-                padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
-                child: BarChart(BarChartData(
-                    barTouchData: BarTouchData(
-                      enabled: false,
-                      touchTooltipData: BarTouchTooltipData(
-                        tooltipBgColor: Colors.transparent,
-                        tooltipPadding: EdgeInsets.zero,
-                        tooltipMargin: 8,
-                        getTooltipItem: (
-                          BarChartGroupData group,
-                          int groupIndex,
-                          BarChartRodData rod,
-                          int rodIndex,
-                        ) {
-                          return BarTooltipItem(
-                            rod.toY.round().toString(),
-                            const TextStyle(
-                              color: Color(0xFF0065B7),
-                              fontWeight: FontWeight.bold,
+                      borderData: FlBorderData(show: false),
+                      barGroups: [
+                        makeBar(0, averageDay[0]),
+                        makeBar(1, averageDay[1]),
+                        makeBar(2, averageDay[2]),
+                        makeBar(3, averageDay[3]),
+                        makeBar(4, averageDay[4]),
+                        makeBar(5, averageDay[5]),
+                        makeBar(6, averageDay[6]),
+                      ],
+                      gridData: const FlGridData(
+                          drawVerticalLine: false, drawHorizontalLine: true),
+                      alignment: BarChartAlignment.spaceAround,
+                      maxY: averageDay.reduce(max))),
+                ),
+                /*average today*/ Container(
+                    width: screenWidth * 0.3,
+                    height: screenHeight * 0.25,
+                    padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
+                    child: BarChart(BarChartData(
+                        barTouchData: BarTouchData(
+                          enabled: false,
+                          touchTooltipData: BarTouchTooltipData(
+                            tooltipBgColor: Colors.transparent,
+                            tooltipPadding: EdgeInsets.zero,
+                            tooltipMargin: 8,
+                            getTooltipItem: (
+                              BarChartGroupData group,
+                              int groupIndex,
+                              BarChartRodData rod,
+                              int rodIndex,
+                            ) {
+                              return BarTooltipItem(
+                                rod.toY.round().toString(),
+                                const TextStyle(
+                                  color: Color(0xFF0065B7),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        titlesData: FlTitlesData(
+                          show: true,
+                          rightTitles: const AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
+                          topTitles: const AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
+                          bottomTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              getTitlesWidget: bottomTitles,
+                              reservedSize: 42,
                             ),
-                          );
-                        },
-                      ),
-                    ),
-                    titlesData: FlTitlesData(
-                      show: true,
-                      rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      topTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          getTitlesWidget: bottomTitles,
-                          reservedSize: 42,
+                          ),
+                          leftTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              reservedSize: 28,
+                              interval: 1,
+                              getTitlesWidget: leftTitles,
+                            ),
+                          ),
                         ),
-                      ),
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 28,
-                          interval: 1,
-                          getTitlesWidget: leftTitles,
-                        ),
-                      ),
-                    ),
-                    borderData: FlBorderData(show: true),
-                    barGroups: todayData,
-                    gridData: FlGridData(
-                      show: true,
-                      /*checkToShowHorizontalLine: (value) {
+                        borderData: FlBorderData(show: true),
+                        barGroups: todayData,
+                        gridData: FlGridData(
+                          show: true,
+                          /*checkToShowHorizontalLine: (value) {
                         if (value % (data.reduce(max) % 10) == 0 || value == data.reduce(max)){
                           if (value > data.reduce(max) - (data.reduce(max) % 10) && value != data.reduce(max)){
                             return false;
@@ -425,15 +481,15 @@ class _AdminPageState extends State<AdminPage> {
                           return false;
                         }
                       },*/
-                      getDrawingHorizontalLine: (value) => const FlLine(
-                        color: Color(0xFF979797),
-                        strokeWidth: 1,
-                      ),
-                      drawVerticalLine: false,
-                    ),
-                    alignment: BarChartAlignment.spaceAround,
-                    maxY: data.reduce(max)))),
-          ])
+                          getDrawingHorizontalLine: (value) => const FlLine(
+                            color: Color(0xFF979797),
+                            strokeWidth: 1,
+                          ),
+                          drawVerticalLine: false,
+                        ),
+                        alignment: BarChartAlignment.spaceAround,
+                        maxY: data.reduce(max)))),
+              ])
         ]));
   }
 
