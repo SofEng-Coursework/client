@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'dart:math';
-import 'package:syncfusion_flutter_charts/charts.dart';
 
 List<String> getPeopleInQueue() {
   return ["Harry", "Elliott", "Andrew", "Ilyas", "Tommy", "Antoine", "idk"];
+}
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const Directionality(
+      textDirection: TextDirection.rtl, child: MaterialApp(home: AdminPage())));
 }
 
 class AdminPage extends StatefulWidget {
@@ -21,19 +26,59 @@ class _AdminPageState extends State<AdminPage> {
       .instance.platformDispatcher.views.first.physicalSize.height;
   int waitTime = 15;
 
+  ButtonStyle editStyle = ButtonStyle(
+      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+          RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+              side: const BorderSide(color: Color(0xFFFFFFFF), width: 3))),
+      backgroundColor:
+          MaterialStateProperty.all<Color>(const Color(0x00000000)));
+
   List<double> averageDay = [1, 2, 3, 4, 5, 6, 7];
 
   late List<BarChartGroupData> todayData;
 
+  bool isEditingQueue = false;
+  bool isAddingPersonToQueue = false;
+
+  TextEditingController addToQueue = TextEditingController();
+
+  List peopleInQueue = getPeopleInQueue();
+
   int touchedGroupIndex = -1;
 
-  List<double> data = [0,0,0,0,0,0,0,7,9,13,20,25,36,35,34,27,24,19,14,9,0,0,0,0];
+  List<double> data = [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    7,
+    9,
+    13,
+    20,
+    25,
+    37,
+    35,
+    34,
+    27,
+    24,
+    19,
+    14,
+    9,
+    0,
+    0,
+    0,
+    0
+  ];
 
   @override
   void initState() {
     super.initState();
     final averageToday = [];
-    for (int i = 0; i < 24; i++){
+    for (int i = 0; i < 24; i++) {
       averageToday.add(makeBar(i, data[i]));
     }
 
@@ -59,14 +104,15 @@ class _AdminPageState extends State<AdminPage> {
           ],
         ),
         drawer: const Drawer(),
-        body: Row(children: [
+        body: Row(mainAxisSize: MainAxisSize.min, children: [
           /*left side*/ Column(
+            mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text("Queue",
                   style: TextStyle(fontSize: 30, fontWeight: FontWeight.w900)),
               /*queue*/ Container(
-                width: screenWidth * 0.1,
+                width: screenWidth * 0.2,
                 height: screenHeight * 0.3,
                 padding: const EdgeInsets.all(3),
                 margin: const EdgeInsets.fromLTRB(10, 0, 0, 5),
@@ -80,32 +126,91 @@ class _AdminPageState extends State<AdminPage> {
                   ),
                 ),
                 child: ListView.builder(
-                    itemCount: getPeopleInQueue().length,
-                    itemBuilder: (BuildContext context, i) {
+                    itemCount: peopleInQueue.length,
+                    itemBuilder: (BuildContext context, int i) {
                       return Container(
-                        padding: const EdgeInsets.all(1),
-                        margin: const EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(15)),
-                          border: Border.all(
-                            color: const Color(0xFFFFFFFF),
-                            width: 3,
+                          padding: const EdgeInsets.all(1),
+                          margin: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(15)),
+                            border: Border.all(
+                              color: const Color(0xFFFFFFFF),
+                              width: 3,
+                            ),
                           ),
-                        ),
-                        child: Text(
-                          getPeopleInQueue()[i],
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                              color: Color(0xFFFFFFFF),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20),
-                        ),
-                      );
+                          child: ListTile(
+                              title: Text(peopleInQueue[i],
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                      color: Color(0xFFFFFFFF),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20)),
+                              trailing: isEditingQueue
+                                  ? Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              if (i > 0) {
+                                                setState(() {
+                                                  var temp = peopleInQueue[i];
+                                                  peopleInQueue[i] =
+                                                      peopleInQueue[i - 1];
+                                                  peopleInQueue[i - 1] = temp;
+                                                });
+                                              }
+                                            },
+                                            style: editStyle,
+                                            child: const Text("\u25b2",
+                                                style: TextStyle(
+                                                    color: Color(0xFFFFFFFF),
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 10)),
+                                          ),
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              if (i < peopleInQueue.length) {
+                                                setState(() {
+                                                  var temp = peopleInQueue[i];
+                                                  peopleInQueue[i] =
+                                                      peopleInQueue[i + 1];
+                                                  peopleInQueue[i + 1] = temp;
+                                                });
+                                              }
+                                            },
+                                            style: editStyle,
+                                            child: const Text("\u25bc",
+                                                style: TextStyle(
+                                                    color: Color(0xFFFFFFFF),
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 10)),
+                                          ),
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                peopleInQueue.removeAt(i);
+                                              });
+                                            },
+                                            style: editStyle,
+                                            child: const Text("Remove",
+                                                style: TextStyle(
+                                                    color: Color(0xFFFFFFFF),
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 15)),
+                                          ),
+                                        ])
+                                  : null));
                     }),
               ),
               /*edit button*/ ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  setState(() {
+                    isEditingQueue = !isEditingQueue;
+                    isAddingPersonToQueue = false;
+                    addToQueue.clear();
+                  });
+                },
                 style: ButtonStyle(
                     shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
@@ -119,14 +224,107 @@ class _AdminPageState extends State<AdminPage> {
                         color: Color(0xFFFFFFFF),
                         fontSize: 15,
                         fontWeight: FontWeight.bold)),
-              )
+              ),
+              if (isEditingQueue)
+                /*add person button*/ Container(
+                    padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                    child: ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            isAddingPersonToQueue = !isAddingPersonToQueue;
+                            addToQueue.clear();
+                          });
+                        },
+                        style: ButtonStyle(
+                            shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    side: const BorderSide(
+                                        color: Color(0xFF01CA08), width: 3))),
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                const Color(0xFF017A08))),
+                        child: const Text("Add person +",
+                            style: TextStyle(
+                                color: Color(0xFFFFFFFF),
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold)))),
+              if (isAddingPersonToQueue)
+                /*add to new person to queue*/ Container(
+                    padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                    child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.fromLTRB(0, 3, 0, 3),
+                            width: screenWidth * 0.1,
+                            height: screenHeight * 0.05,
+                            child: TextField(
+                              controller: addToQueue,
+                              decoration: const InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  hintText: "Enter name"),
+                            ),
+                          ),
+                          ElevatedButton(
+                              onPressed: () {
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                          title: const Text("Confirm"),
+                                          content: Text(
+                                              "Would you like to add ${addToQueue.text} to the queue?"),
+                                          actions: [
+                                            ElevatedButton(
+                                              child: const Text("Cancel"),
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                            ),
+                                            ElevatedButton(
+                                              child: const Text("Confirm"),
+                                              onPressed: () {
+                                                setState(() {
+                                                  if (addToQueue.text != "") {
+                                                    peopleInQueue
+                                                        .add(addToQueue.text);
+                                                    addToQueue.clear();
+                                                  }
+                                                  Navigator.of(context).pop();
+                                                });
+                                              },
+                                            ),
+                                          ]);
+                                    });
+                              },
+                              style: ButtonStyle(
+                                  shape: MaterialStateProperty.all<
+                                          RoundedRectangleBorder>(
+                                      RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          side: const BorderSide(
+                                              color: Color(0xFF600000),
+                                              width: 3))),
+                                  backgroundColor:
+                                      MaterialStateProperty.all<Color>(
+                                          const Color(0xFFFF0101))),
+                              child: const Text("Confirm",
+                                  style: TextStyle(
+                                      color: Color(0xFFFFFFFF),
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold)))
+                        ]))
             ],
           ),
           /*wait time*/ Column(
-              //mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                    width: screenWidth * 0.2,
+                    width: screenWidth * 0.15,
                     //height: screenWidth * 0.05,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(15),
@@ -136,147 +334,162 @@ class _AdminPageState extends State<AdminPage> {
                         width: 3,
                       ),
                     ),
-                    child: Column(children: [
-                      const Text("Current Wait Time:",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontSize: 20, color: Color(0xFFFFFFFF))),
-                      Text("$waitTime minutes",
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFFFFFFFF)))
-                    ]))
+                    child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text("Current Wait Time:",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontSize: 20, color: Color(0xFFFFFFFF))),
+                          Text("$waitTime minutes",
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFFFFFFFF)))
+                        ]))
               ]),
-          /*right side*/ Column(children: [
-            /*average daily*/ Container(
-              width: screenWidth * 0.1,
-              height: screenHeight * 0.2,
-              padding: const EdgeInsets.fromLTRB(0, 10, 5, 5),
-              child: BarChart(BarChartData(
-                  barTouchData: BarTouchData(
-                    enabled: false,
-                    touchTooltipData: BarTouchTooltipData(
-                      tooltipBgColor: Colors.transparent,
-                      tooltipPadding: EdgeInsets.zero,
-                      tooltipMargin: 8,
-                      getTooltipItem: (
-                        BarChartGroupData group,
-                        int groupIndex,
-                        BarChartRodData rod,
-                        int rodIndex,
-                      ) {
-                        return BarTooltipItem(
-                          rod.toY.round().toString(),
-                          const TextStyle(
-                            color: Color(0xFF0065B7),
-                            fontWeight: FontWeight.bold,
+          /*right side*/ Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                /*average daily*/ Container(
+                  width: screenWidth * 0.1,
+                  height: screenHeight * 0.2,
+                  padding: const EdgeInsets.fromLTRB(0, 10, 5, 5),
+                  child: BarChart(BarChartData(
+                      barTouchData: BarTouchData(
+                        enabled: false,
+                        touchTooltipData: BarTouchTooltipData(
+                          tooltipBgColor: Colors.transparent,
+                          tooltipPadding: EdgeInsets.zero,
+                          tooltipMargin: 8,
+                          getTooltipItem: (
+                            BarChartGroupData group,
+                            int groupIndex,
+                            BarChartRodData rod,
+                            int rodIndex,
+                          ) {
+                            return BarTooltipItem(
+                              rod.toY.round().toString(),
+                              const TextStyle(
+                                color: Color(0xFF0065B7),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      titlesData: FlTitlesData(
+                        show: true,
+                        bottomTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            reservedSize: 30,
+                            getTitlesWidget: getTitles,
                           ),
-                        );
-                      },
-                    ),
-                  ),
-                  titlesData: FlTitlesData(
-                    show: true,
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        reservedSize: 30,
-                        getTitlesWidget: getTitles,
+                        ),
+                        leftTitles: const AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
+                        ),
+                        topTitles: const AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
+                        ),
+                        rightTitles: const AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
+                        ),
                       ),
-                    ),
-                    leftTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                    topTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                    rightTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                  ),
-                  borderData: FlBorderData(show: false),
-                  barGroups: [
-                    makeBar(0, averageDay[0]),
-                    makeBar(1, averageDay[1]),
-                    makeBar(2, averageDay[2]),
-                    makeBar(3, averageDay[3]),
-                    makeBar(4, averageDay[4]),
-                    makeBar(5, averageDay[5]),
-                    makeBar(6, averageDay[6]),
-                  ],
-                  gridData: FlGridData(drawVerticalLine: false, drawHorizontalLine: true),
-                  alignment: BarChartAlignment.spaceAround,
-                  maxY: averageDay.reduce(max))),
-            ),
-            /*average today*/ Container(
-                width: screenWidth * 0.3,
-                height: screenHeight * 0.25,
-                padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
-                child: BarChart(BarChartData(
-                    barTouchData: BarTouchData(
-                      enabled: false,
-                      touchTooltipData: BarTouchTooltipData(
-                        tooltipBgColor: Colors.transparent,
-                        tooltipPadding: EdgeInsets.zero,
-                        tooltipMargin: 8,
-                        getTooltipItem: (
-                          BarChartGroupData group,
-                          int groupIndex,
-                          BarChartRodData rod,
-                          int rodIndex,
-                        ) {
-                          return BarTooltipItem(
-                            rod.toY.round().toString(),
-                            const TextStyle(
-                              color: Color(0xFF0065B7),
-                              fontWeight: FontWeight.bold,
+                      borderData: FlBorderData(show: false),
+                      barGroups: [
+                        makeBar(0, averageDay[0]),
+                        makeBar(1, averageDay[1]),
+                        makeBar(2, averageDay[2]),
+                        makeBar(3, averageDay[3]),
+                        makeBar(4, averageDay[4]),
+                        makeBar(5, averageDay[5]),
+                        makeBar(6, averageDay[6]),
+                      ],
+                      gridData: const FlGridData(
+                          drawVerticalLine: false, drawHorizontalLine: true),
+                      alignment: BarChartAlignment.spaceAround,
+                      maxY: averageDay.reduce(max))),
+                ),
+                /*average today*/ Container(
+                    width: screenWidth * 0.3,
+                    height: screenHeight * 0.25,
+                    padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
+                    child: BarChart(BarChartData(
+                        barTouchData: BarTouchData(
+                          enabled: false,
+                          touchTooltipData: BarTouchTooltipData(
+                            tooltipBgColor: Colors.transparent,
+                            tooltipPadding: EdgeInsets.zero,
+                            tooltipMargin: 8,
+                            getTooltipItem: (
+                              BarChartGroupData group,
+                              int groupIndex,
+                              BarChartRodData rod,
+                              int rodIndex,
+                            ) {
+                              return BarTooltipItem(
+                                rod.toY.round().toString(),
+                                const TextStyle(
+                                  color: Color(0xFF0065B7),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        titlesData: FlTitlesData(
+                          show: true,
+                          rightTitles: const AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
+                          topTitles: const AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
+                          bottomTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              getTitlesWidget: bottomTitles,
+                              reservedSize: 42,
                             ),
-                          );
-                        },
-                      ),
-                    ),
-                    titlesData: FlTitlesData(
-                      show: true,
-                      rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      topTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          getTitlesWidget: bottomTitles,
-                          reservedSize: 42,
+                          ),
+                          leftTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              reservedSize: 28,
+                              interval: 1,
+                              getTitlesWidget: leftTitles,
+                            ),
+                          ),
                         ),
-                      ),
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 28,
-                          interval: 1,
-                          getTitlesWidget: leftTitles,
+                        borderData: FlBorderData(show: true),
+                        barGroups: todayData,
+                        gridData: FlGridData(
+                          show: true,
+                          /*checkToShowHorizontalLine: (value) {
+                        if (value % (data.reduce(max) % 10) == 0 || value == data.reduce(max)){
+                          if (value > data.reduce(max) - (data.reduce(max) % 10) && value != data.reduce(max)){
+                            return false;
+                          }else{
+                            return true;
+                          }
+                        }else{
+                          return false;
+                        }
+                      },*/
+                          getDrawingHorizontalLine: (value) => const FlLine(
+                            color: Color(0xFF979797),
+                            strokeWidth: 1,
+                          ),
+                          drawVerticalLine: false,
                         ),
-                      ),
-                    ),
-                    borderData: FlBorderData(show: true),
-                    barGroups: todayData,
-                    gridData: FlGridData(
-                      show: true,
-                      checkToShowHorizontalLine: (value) => value % (data.reduce(max) % 10) == 0,
-                      getDrawingHorizontalLine: (value) => const FlLine(
-                        color: Color(0xFF979797),
-                        strokeWidth: 1,
-                      ),
-                      drawVerticalLine: false,
-                    ),
-                    alignment: BarChartAlignment.spaceAround,
-                    maxY: data.reduce(max)
-                ))
-            ),
-          ])
+                        alignment: BarChartAlignment.spaceAround,
+                        maxY: data.reduce(max)))),
+              ])
         ]));
   }
 
@@ -341,9 +554,14 @@ class _AdminPageState extends State<AdminPage> {
       fontSize: 14,
     );
     String text;
-    if (value % (data.reduce(max) % 10) == 0){
-      text = value.toString();
-    }else{
+    if (value % (data.reduce(max) % 10) == 0 || value == data.reduce(max)) {
+      if (value > data.reduce(max) - (data.reduce(max) % 10) &&
+          value != data.reduce(max)) {
+        text = "";
+      } else {
+        text = value.toString();
+      }
+    } else {
       return Container();
     }
 
@@ -355,7 +573,32 @@ class _AdminPageState extends State<AdminPage> {
   }
 
   Widget bottomTitles(double value, TitleMeta meta) {
-    List<String> titles = ["00:00","01:00","02:00","03:00","04:00","05:00","06:00","07:00","08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00","21:00","22:00","23:00"];
+    List<String> titles = [
+      "00:00",
+      "01:00",
+      "02:00",
+      "03:00",
+      "04:00",
+      "05:00",
+      "06:00",
+      "07:00",
+      "08:00",
+      "09:00",
+      "10:00",
+      "11:00",
+      "12:00",
+      "13:00",
+      "14:00",
+      "15:00",
+      "16:00",
+      "17:00",
+      "18:00",
+      "19:00",
+      "20:00",
+      "21:00",
+      "22:00",
+      "23:00"
+    ];
 
     Widget text = Text(
       titles[value.toInt()],
