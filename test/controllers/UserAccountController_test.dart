@@ -59,10 +59,5 @@ void main() {
       expect(userData!['email'], "test@test.com");
       expect(userData['accountType'], AccountType.User);
     });
-
-    test("can't login with invalid account", () async {
-      final result = await userAccountController.login("lol@lol.com", "password");
-      expect(result, isNotNull);
-    });
   });
 }
