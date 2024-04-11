@@ -33,7 +33,6 @@ class AccountController extends ChangeNotifier {
       return "An error occurred: ${e.message}";
     }
   }
-
   Future<String?> login(String email, String password) async {
     try {
       UserCredential credential = await _firebaseProvider.FIREBASE_AUTH.signInWithEmailAndPassword(

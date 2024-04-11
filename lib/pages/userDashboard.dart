@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:virtual_queue/controllers/UserAccountController.dart';
+import 'package:virtual_queue/controllers/userAccountController.dart';
 import 'package:virtual_queue/pages/Settings.dart';
 
 class UserDashboard extends StatelessWidget {
