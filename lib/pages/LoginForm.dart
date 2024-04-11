@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:virtual_queue/controllers/UserAccountController.dart';
+import 'package:virtual_queue/controllers/userAccountController.dart';
 import 'package:virtual_queue/pages/RegisterForm.dart';
 
 class LoginForm extends StatefulWidget {
@@ -109,7 +109,7 @@ class _LoginFormState extends State<LoginForm> {
               if (errorMesssage != null)
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(errorMesssage!, style: TextStyle(color: Colors.red)),
+                  child: Text("Username or Password is incorrect", style: TextStyle(color: Colors.red)),
                 ),
               ElevatedButton(
                   child: Text('Sign In'),
