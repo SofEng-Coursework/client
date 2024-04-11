@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:virtual_queue/controllers/AdminQueueController.dart';
 import 'package:virtual_queue/controllers/adminAccountController.dart';
 import 'package:virtual_queue/controllers/FirebaseProvider.dart';
 import 'package:virtual_queue/pages/AuthPage.dart';
@@ -42,6 +43,7 @@ class FirebaseLoadingWidget extends StatelessWidget {
       future: firebaseProvider.initialize(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
+          // Add any controllers that your widgets use into the MultiProvider here
           return MultiProvider(
             providers: [
               ChangeNotifierProvider<UserAccountController>(
@@ -49,7 +51,10 @@ class FirebaseLoadingWidget extends StatelessWidget {
               ),
               ChangeNotifierProvider<AdminAccountController>(
                   create: (context) => AdminAccountController(firebaseProvider: firebaseProvider)
-              )
+              ),
+              ChangeNotifierProvider<AdminQueueController>(
+                  create: (context) => AdminQueueController(firebaseProvider: firebaseProvider)
+              ),
             ],
             child: Consumer<FirebaseProvider>(builder: (context, firebaseProvider, child) {
               return AnimatedSwitcher(

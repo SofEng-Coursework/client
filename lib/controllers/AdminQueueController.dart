@@ -4,22 +4,32 @@ import 'package:flutter/material.dart';
 import 'package:virtual_queue/controllers/FirebaseProvider.dart';
 
 
-class QueueController extends ChangeNotifier {
+class AdminQueueController extends ChangeNotifier {
   late FirebaseProvider _firebaseProvider;
-  QueueController({required FirebaseProvider firebaseProvider}) {
+  AdminQueueController({required FirebaseProvider firebaseProvider}) {
     _firebaseProvider = firebaseProvider;
   }
 
-  Future<String?> addQueue(String name,int capacity,String owner) async {
-
+  /// Adds a new queue to the Firestore database
+  Future<String?> addQueue(String name, int? capacity, String owner) async {
     CollectionReference collection = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues');
     await collection.doc().set({
       'name': name,
       'open': true,
       'capacity': capacity,
-      'owner': owner
-      // other things I've got noted down somewhere
+      'owner': owner,
+      'users': []
     });
     return null;
+  }
+
+  /// Returns a Stream of all queues owned by the current admin
+  Stream<QuerySnapshot> getQueues() {
+    final adminUID = _firebaseProvider.FIREBASE_AUTH.currentUser!.uid;
+
+    return _firebaseProvider.FIREBASE_FIRESTORE
+      .collection('queues')
+      .where('owner', isEqualTo: adminUID)
+      .snapshots();
   }
 }
