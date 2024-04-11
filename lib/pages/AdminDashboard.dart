@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_queue/controllers/adminAccountController.dart';
 import 'package:virtual_queue/pages/Settings.dart';
+import 'package:virtual_queue/controllers/AdminQueueController.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({
@@ -25,9 +26,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   bool ischecked = true;
 
-
-
   @override
+
   Widget build(BuildContext context) {
     final adminAccountController = Provider.of<AdminAccountController>(context, listen: false);
     return Scaffold(
@@ -144,7 +144,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         TextButton(
             child: Text("SUBMIT"),
             onPressed: () {
-              uploadNewQueue();
+              uploadNewQueue(name,capacity,"The admin UID, need to create admin version of getData");
               Navigator.of(context).pop();
             }
         ),
@@ -152,11 +152,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
     ),
   );
 
-  void uploadNewQueue() {
-    print("Uploading...");
-    print("Uploading...");
-    print("Uploading...");
-    print("Uploading...");
-    print("Just kidding there's nothing in this function yet");
+  void uploadNewQueue(name,capacity,owner) {
+    final adminQueueController = Provider.of<QueueController>(context, listen: false);
+    adminQueueController.addQueue(name,capacity,owner);
   }
 }

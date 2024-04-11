@@ -11,4 +11,7 @@ class AdminAccountController extends AccountController {
   late FirebaseProvider _firebaseProvider;
   AdminAccountController({required FirebaseProvider firebaseProvider})
     : super(collectionName: 'admins', firebaseProvider: firebaseProvider);
+
+
 }
+

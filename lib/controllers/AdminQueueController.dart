@@ -9,18 +9,16 @@ class QueueController extends ChangeNotifier {
     _firebaseProvider = firebaseProvider;
   }
 
-  Future<String?> addQueue(String name,int capacity) async {
+  Future<String?> addQueue(String name,int capacity,String owner) async {
 
     CollectionReference collection = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues');
     await collection.doc().set({
       'name': name,
       'open': true,
       'capacity': capacity,
+      'owner': owner
       // other things I've got noted down somewhere
     });
     return null;
-
   }
-
-
 }
