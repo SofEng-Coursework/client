@@ -5,7 +5,7 @@ import 'package:virtual_queue/controllers/FirebaseProvider.dart';
 import 'package:virtual_queue/pages/RegisterForm.dart';
 import 'dart:async';
 
-class UserQueueController extends ChangeNotifier {
+class UserQueueController {
   late FirebaseProvider _firebaseProvider;
   UserQueueController({required FirebaseProvider firebaseProvider}) {
     _firebaseProvider = firebaseProvider;
@@ -17,9 +17,7 @@ class UserQueueController extends ChangeNotifier {
     double capacity = 0;
     Map<String, String> users = {};
     try {
-      DocumentReference queues = _firebaseProvider.FIREBASE_FIRESTORE
-          .collection('queues')
-          .doc(queueId);
+      DocumentReference queues = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(uid);
       final timeSnapshot = await queues.get();
       if (timeSnapshot.exists) {
         final open = timeSnapshot['open'] as bool;
@@ -53,9 +51,7 @@ class UserQueueController extends ChangeNotifier {
     final userUID = _firebaseProvider.FIREBASE_AUTH.currentUser!.uid;
     Map<String, String> users = {};
     try {
-      DocumentReference queues = _firebaseProvider.FIREBASE_FIRESTORE
-          .collection('queues')
-          .doc(queueId);
+      DocumentReference queues = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(uid);
       final timeSnapshot = await queues.get();
       if (timeSnapshot.exists) {
         final user = timeSnapshot['users'] as Map<String, String>;
@@ -104,49 +100,4 @@ class UserQueueController extends ChangeNotifier {
     return userPosition + 1;
   }
 
-  Stream<QuerySnapshot> getQueues() {
-    return _firebaseProvider.FIREBASE_FIRESTORE
-        .collection('queues')
-        .snapshots();
-  }
-
-  Stream<int> getProgressStream(String queueId) {
-    final userUID = _firebaseProvider.FIREBASE_AUTH.currentUser!.uid;
-    try {
-      // Reference to the queue document
-      DocumentReference queueRef = _firebaseProvider.FIREBASE_FIRESTORE
-          .collection('queues')
-          .doc(queueId);
-
-      // Return a stream of QuerySnapshot
-      return queueRef.snapshots().map((snapshot) {
-        if (snapshot.exists) {
-          // Get the users map from the snapshot data
-          Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
-          Map<String, String> users = data['users'] as Map<String, String>;
-
-          // Sort the users map by timestamp
-          List<MapEntry<String, String>> sortedUsers = users.entries.toList()
-            ..sort((a, b) {
-              DateTime bTime = DateTime.parse(b.value);
-              return bTime.compareTo(DateTime.now());
-            });
-
-          // Find the user position in the sorted list
-          int userPosition =
-              sortedUsers.indexWhere((entry) => entry.key == userUID);
-
-          // Return the user's position in the queue
-          return userPosition + 1;
-        } else {
-          // Return -1 if the queue document doesn't exist
-          return -1;
-        }
-      });
-    } catch (e) {
-      // Print and return -1 if an error occurs
-      print(e.toString());
-      return Stream.value(-1);
-    }
-  }
 }
