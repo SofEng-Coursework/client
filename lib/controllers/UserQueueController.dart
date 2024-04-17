@@ -15,7 +15,8 @@ class UserQueueController {
     double capacity = 0;
     Map<String, String> users = {};
     try {
-      DocumentReference queues = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(uid);
+      DocumentReference queues =
+          _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(uid);
       final timeSnapshot = await queues.get();
       if (timeSnapshot.exists) {
         final open = timeSnapshot['open'] as bool;
@@ -24,8 +25,7 @@ class UserQueueController {
         opened = open;
         capacity = cap;
         users = user;
-      }
-      else {
+      } else {
         print("Queue not found");
         return;
       }
@@ -36,33 +36,28 @@ class UserQueueController {
     if (opened == false) {
       print("Queue not opened");
       return;
-    }
-    else if (users.length >= capacity) {
+    } else if (users.length >= capacity) {
       print("Queue full");
       return;
-    }
-    else {
+    } else {
       users[uid] = (DateTime.now().toString());
       await FirebaseFirestore.instance
-                        .collection("queues")
-                        .doc(queueId)
-                        .update({
-                          "users" : users
+          .collection("queues")
+          .doc(queueId)
+          .update({"users": users});
     }
-    );
-  }
   }
 
   Future<void> leaveQueue(String uid, String queueId) async {
     Map<String, String> users = {};
     try {
-      DocumentReference queues = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(uid);
+      DocumentReference queues =
+          _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(uid);
       final timeSnapshot = await queues.get();
       if (timeSnapshot.exists) {
         final user = timeSnapshot['users'] as Map<String, String>;
         users = user;
-      }
-      else {
+      } else {
         print("Queue not found");
         return;
       }
@@ -73,25 +68,21 @@ class UserQueueController {
     users.remove(uid);
 
     await FirebaseFirestore.instance
-                        .collection("queues")
-                        .doc(queueId)
-                        .update({
-                          "users" : users
-    }
-    );
-
+        .collection("queues")
+        .doc(queueId)
+        .update({"users": users});
   }
 
-Future<int> viewProgress(String uid, String queueId) async {
+  Future<int> viewProgress(String uid, String queueId) async {
     Map<String, String> users = {};
     try {
-      DocumentReference queues = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(uid);
+      DocumentReference queues =
+          _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(uid);
       final timeSnapshot = await queues.get();
       if (timeSnapshot.exists) {
         final user = timeSnapshot['users'] as Map<String, String>;
         users = user;
-      }
-      else {
+      } else {
         print("Queue not found");
         return -1;
       }
@@ -99,13 +90,13 @@ Future<int> viewProgress(String uid, String queueId) async {
       print(e.toString());
       return -1;
     }
-    List<MapEntry<String, String>> sortedUsers = users.entries.toList()..sort((a, b) {
-    DateTime bTime = DateTime.parse(b.value);
-    return bTime.compareTo(DateTime.now());
-  });
+    List<MapEntry<String, String>> sortedUsers = users.entries.toList()
+      ..sort((a, b) {
+        DateTime bTime = DateTime.parse(b.value);
+        return bTime.compareTo(DateTime.now());
+      });
 
-  int userPosition = sortedUsers.indexWhere((entry) => entry.key == uid);
-  return userPosition+1;
+    int userPosition = sortedUsers.indexWhere((entry) => entry.key == uid);
+    return userPosition + 1;
   }
-
 }
