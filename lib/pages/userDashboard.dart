@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:virtual_queue/controllers/UserQueueController.dart';
 import 'package:virtual_queue/controllers/userAccountController.dart';
 import 'package:virtual_queue/pages/Settings.dart';
 
@@ -8,6 +9,7 @@ class UserDashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userAccountController = Provider.of<UserAccountController>(context, listen: false);
+    final userQueueContorller = Provider.of<UserQueueController>(context, listen: false);
     return Scaffold(
       backgroundColor: Color(0xffffffff),
       appBar: AppBar(
@@ -62,18 +64,35 @@ class UserDashboard extends StatelessWidget {
                   ),
                 ),
               ),
-              ListView(
-                scrollDirection: Axis.vertical,
-                padding: EdgeInsets.all(0),
-                shrinkWrap: true,
-                physics: ScrollPhysics(),
-                children: [
-                  QueueCard(
-                    queueName: "Example Queue",
-                    queueDetails: "Example Details",
-                  ),
-                ],
-              ),
+              StreamBuilder(
+                stream: userQueueContorller.getQueues(), 
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
+                  }
+                  if (snapshot.hasError) {
+                    return Text("Error: ${snapshot.error}");
+                  }
+                  return ListView.builder(
+                    scrollDirection: Axis.vertical,
+                    padding: EdgeInsets.all(0),
+                    shrinkWrap: true,
+                    physics: ScrollPhysics(),
+                    itemCount: snapshot.data!.docs.length,
+                    itemBuilder: (context, index) {
+                      final queueData = snapshot.data!.docs[index];
+                      final counter = queueData['capacity'] != null ? '${queueData['users'].length}/${queueData['capacity']}' : '${queueData['users'].length}';
+                      String queueDetails = '${counter} users in queue';
+
+                      return QueueCard(
+                        queueName: queueData['name'],
+                        queueId: queueData.id,
+                        queueDetails: queueDetails,
+                      );
+                    },
+                  );
+                },
+              )
             ],
           ),
         ),
@@ -84,10 +103,12 @@ class UserDashboard extends StatelessWidget {
 
 class QueueCard extends StatelessWidget {
   final String queueName;
+  final String queueId;
   final String queueDetails;
 
   const QueueCard({
     required this.queueName,
+    required this.queueId,
     required this.queueDetails,
     Key? key,
   }) : super(key: key);
@@ -164,18 +185,24 @@ class QueueCard extends StatelessWidget {
                 ),
               ),
             ),
-            Container(
-              alignment: Alignment.center,
-              margin: EdgeInsets.all(0),
-              padding: EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Color(0xff017a08),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.add_box,
-                color: Color(0xffffffff),
-                size: 16,
+            InkWell(
+              onTap: () async {
+                final status = await Provider.of<UserQueueController>(context, listen: false).joinQueue(queueId);
+                print(status);
+              },
+              child: Container(
+                alignment: Alignment.center,
+                margin: EdgeInsets.all(0),
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Color(0xff017a08),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.add_box,
+                  color: Color(0xffffffff),
+                  size: 16,
+                ),
               ),
             ),
           ],

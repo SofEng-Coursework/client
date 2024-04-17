@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_queue/controllers/AdminQueueController.dart';
+import 'package:virtual_queue/controllers/UserQueueController.dart';
 import 'package:virtual_queue/controllers/adminAccountController.dart';
 import 'package:virtual_queue/controllers/FirebaseProvider.dart';
 import 'package:virtual_queue/pages/AuthPage.dart';
@@ -55,6 +56,9 @@ class FirebaseLoadingWidget extends StatelessWidget {
               ChangeNotifierProvider<AdminQueueController>(
                   create: (context) => AdminQueueController(firebaseProvider: firebaseProvider)
               ),
+              ChangeNotifierProvider<UserQueueController>(
+                  create: (context) => UserQueueController(firebaseProvider: firebaseProvider)
+              )
             ],
             child: Consumer<FirebaseProvider>(builder: (context, firebaseProvider, child) {
               return AnimatedSwitcher(
