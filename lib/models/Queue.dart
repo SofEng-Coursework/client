@@ -37,12 +37,17 @@ class Queue {
     this.capacity,
   });
 
+  bool isFull() {
+    return capacity != null && users.length >= capacity!;
+  }
+
   factory Queue.fromJson(Map<String, dynamic> json) {
+    print(json);
     return Queue(
       id: json['id'] as String,
       name: json['name'] as String,
       open: json['open'] as bool,
-      capacity: json['capacity'] as double,
+      capacity: json['capacity'] as double?,
       users: (json['users'] as List).map((e) => QueueUserEntry.fromJson(e)).toList(),
     );
   }

@@ -12,54 +12,42 @@ class UserQueueController extends ChangeNotifier {
     _firebaseProvider = firebaseProvider;
   }
 
-  Future<String?> joinQueue(String queueId) async {
-    final userUID = _firebaseProvider.FIREBASE_AUTH.currentUser!.uid;
-    bool opened = false;
-    double capacity = 0;
-    dynamic users = {};
-    try {
-      DocumentReference queues = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queueId);
-      final timeSnapshot = await queues.get();
-      if (timeSnapshot.exists) {
-        opened = timeSnapshot['open'] as bool;
-        capacity = (timeSnapshot['capacity'] ?? double.infinity) as double;
-        users = timeSnapshot['users'];
-      } else {
-        return ("An error occurred: Queue not found");
-      }
-    } catch (e) {
-      return "An error occurred: ${e.toString()}";
+  Future<String?> joinQueue(Queue queue) async {
+    String? userUID = _firebaseProvider.FIREBASE_AUTH.currentUser?.uid;
+    if (userUID == null) {
+      return ("An error occurred: User not logged in");
     }
-    if (opened == false) {
-      return ("An error occurred: Queue not opened");
-    } else if (users.length >= capacity) {
+    if (queue.isFull()) {
       return ("An error occurred: Queue full");
-    } else {
-      users[userUID] = (DateTime.now().millisecondsSinceEpoch);
-      await FirebaseFirestore.instance.collection("queues").doc(queueId).update({"users": users});
-      return null;
     }
+    if (!queue.open) {
+      return ("An error occurred: Queue not opened");
+    }
+    if (queue.users.indexWhere((element) => element.userId == userUID) != -1) {
+      return ("An error occurred: User already in queue");
+    }
+
+    final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
+    queue.users.add(QueueUserEntry(userId: userUID, timestamp: DateTime.now().millisecondsSinceEpoch));
+
+    await queueReference.update({'users': queue.users.map((e) => e.toJson()).toList()});
+
+    return null;
   }
 
-  Future<String?> leaveQueue(String queueId) async {
-    final userUID = _firebaseProvider.FIREBASE_AUTH.currentUser!.uid;
-    Map<String, String> users = {};
-    try {
-      DocumentReference queues = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(userUID);
-      final timeSnapshot = await queues.get();
-      if (timeSnapshot.exists) {
-        final user = timeSnapshot['users'] as Map<String, String>;
-        users = user;
-      } else {
-        return ("An error occurred: Queue not found");
-      }
-    } catch (e) {
-      return "An error occurred: ${e.toString()}";
+  Future<String?> leaveQueue(Queue queue) async {
+    String? userUID = _firebaseProvider.FIREBASE_AUTH.currentUser?.uid;
+    if (userUID == null) {
+      return ("An error occurred: User not logged in");
+    }
+    if (queue.users.indexWhere((element) => element.userId == userUID) == -1) {
+      return ("An error occurred: User not in queue");
     }
 
-    users.remove(userUID);
+    final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
+    queue.users.removeWhere((element) => element.userId == userUID);
 
-    await FirebaseFirestore.instance.collection("queues").doc(queueId).update({"users": users});
+    await queueReference.update({'users': queue.users.map((e) => e.toJson()).toList()});
 
     return null;
   }
@@ -71,11 +59,10 @@ class UserQueueController extends ChangeNotifier {
         .map((snapshot) => snapshot.docs.map((doc) => Queue.fromJson(doc.data())).toList());
   }
 
-  Stream<int> getProgressStream() {
+  Stream<Queue?> getCurrentQueue() {
     final userUID = _firebaseProvider.FIREBASE_AUTH.currentUser?.uid;
     if (userUID == null) {
-      // Return -1 if the user is not logged in
-      return Stream.value(-1);
+      return Stream.value(null);
     }
 
     return _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').snapshots().map((snapshot) {
@@ -83,11 +70,25 @@ class UserQueueController extends ChangeNotifier {
         Queue queue = Queue.fromJson(doc.data() as Map<String, dynamic>);
         int position = queue.users.indexWhere((element) => element.userId == userUID);
         if (position != -1) {
-          print("User found in queue: $position");
-          return position; // Return the position if the user is found in the queue
+          return queue; // Return the Queue object if the user is found in the queue
         }
       }
-      return -1; // Return -1 if the user is not found in any queue
+      return null; // Return null if the user is not found in any queue
+    });
+  }
+
+  Stream<int> getCurrentQueuePosition() {
+    final userUID = _firebaseProvider.FIREBASE_AUTH.currentUser?.uid;
+    if (userUID == null) {
+      return Stream.value(-1);
+    }
+
+    return getCurrentQueue().map((queue) {
+      if (queue == null) {
+        return -1;
+      }
+      int position = queue.users.indexWhere((element) => element.userId == userUID);
+      return position == -1 ? -1 : position + 1;
     });
   }
 }
