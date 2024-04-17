@@ -65,7 +65,7 @@ class UserDashboard extends StatelessWidget {
                 ),
               ),
               StreamBuilder(
-                stream: userQueueContorller.getQueues(), 
+                stream: userQueueContorller.getQueues(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return CircularProgressIndicator();
@@ -73,19 +73,21 @@ class UserDashboard extends StatelessWidget {
                   if (snapshot.hasError) {
                     return Text("Error: ${snapshot.error}");
                   }
+                  final queues = snapshot.data!;
                   return ListView.builder(
                     scrollDirection: Axis.vertical,
                     padding: EdgeInsets.all(0),
                     shrinkWrap: true,
                     physics: ScrollPhysics(),
-                    itemCount: snapshot.data!.docs.length,
+                    itemCount: queues.length,
                     itemBuilder: (context, index) {
-                      final queueData = snapshot.data!.docs[index];
-                      final counter = queueData['capacity'] != null ? '${queueData['users'].length}/${queueData['capacity']}' : '${queueData['users'].length}';
-                      String queueDetails = '${counter} users in queue';
+                      final queueData = queues[index];
+                      final counter =
+                          queueData.capacity != null ? '${queueData.users.length}/${queueData.capacity}' : '${queueData.users.length}';
+                      String queueDetails = '$counter users in queue';
 
                       return QueueCard(
-                        queueName: queueData['name'],
+                        queueName: queueData.name,
                         queueId: queueData.id,
                         queueDetails: queueDetails,
                       );
