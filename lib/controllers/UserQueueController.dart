@@ -5,7 +5,7 @@ import 'package:virtual_queue/controllers/FirebaseProvider.dart';
 import 'package:virtual_queue/pages/RegisterForm.dart';
 import 'dart:async';
 
-class UserQueueController extends ChangeNotifier{
+class UserQueueController extends ChangeNotifier {
   late FirebaseProvider _firebaseProvider;
   UserQueueController({required FirebaseProvider firebaseProvider}) {
     _firebaseProvider = firebaseProvider;
@@ -15,19 +15,16 @@ class UserQueueController extends ChangeNotifier{
     final userUID = _firebaseProvider.FIREBASE_AUTH.currentUser!.uid;
     bool opened = false;
     double capacity = 0;
-    Map<String, String> users = {};
+    dynamic users = {};
     try {
       DocumentReference queues = _firebaseProvider.FIREBASE_FIRESTORE
           .collection('queues')
-          .doc(userUID);
+          .doc(queueId);
       final timeSnapshot = await queues.get();
       if (timeSnapshot.exists) {
-        final open = timeSnapshot['open'] as bool;
-        final cap = timeSnapshot['capacity'] as double;
-        final user = timeSnapshot['users'] as Map<String, String>;
-        opened = open;
-        capacity = cap;
-        users = user;
+        opened = timeSnapshot['open'] as bool;
+        capacity = (timeSnapshot['capacity'] ?? double.infinity) as double;
+        users = timeSnapshot['users'];
       } else {
         return ("An error occurred: Queue not found");
       }
@@ -38,9 +35,8 @@ class UserQueueController extends ChangeNotifier{
       return ("An error occurred: Queue not opened");
     } else if (users.length >= capacity) {
       return ("An error occurred: Queue full");
-      ;
     } else {
-      users[userUID] = (DateTime.now().toString());
+      users[userUID] = (DateTime.now().millisecondsSinceEpoch);
       await FirebaseFirestore.instance
           .collection("queues")
           .doc(queueId)
@@ -114,8 +110,9 @@ class UserQueueController extends ChangeNotifier{
     final userUID = _firebaseProvider.FIREBASE_AUTH.currentUser!.uid;
     try {
       // Reference to the queue document
-      DocumentReference queueRef =
-          _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(userUID);
+      DocumentReference queueRef = _firebaseProvider.FIREBASE_FIRESTORE
+          .collection('queues')
+          .doc(userUID);
 
       // Return a stream of QuerySnapshot
       return queueRef.snapshots().map((snapshot) {
@@ -148,5 +145,4 @@ class UserQueueController extends ChangeNotifier{
       return Stream.value(-1);
     }
   }
-
 }
