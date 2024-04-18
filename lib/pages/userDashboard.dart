@@ -2,14 +2,91 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_queue/controllers/UserQueueController.dart';
 import 'package:virtual_queue/controllers/userAccountController.dart';
+import 'package:virtual_queue/models/Queue.dart';
 import 'package:virtual_queue/pages/Settings.dart';
 
 class UserDashboard extends StatelessWidget {
   const UserDashboard({super.key});
   @override
   Widget build(BuildContext context) {
+    final userQueueController = Provider.of<UserQueueController>(context, listen: false);
+    final userAccountController = Provider.of<UserAccountController>(context, listen: false);
+
+    return StreamBuilder(
+        stream: userQueueController.getCurrentQueue(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return CircularProgressIndicator();
+          }
+          if (snapshot.hasError) {
+            return Text("Error: ${snapshot.error}");
+          }
+          final queue = snapshot.data;
+
+          return queue == null ? QueuesListView() : QueueProgressView(queue: queue);
+        });
+  }
+}
+
+class QueueProgressView extends StatelessWidget {
+  final Queue queue;
+
+  const QueueProgressView({required this.queue, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+          child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          SizedBox(),
+          Column(
+            children: [
+              Text("Your position in the queue"),
+              SizedBox(
+                height: 10,
+              ),
+              CircleAvatar(
+                radius: 50,
+                child: StreamBuilder(
+                  stream: Provider.of<UserQueueController>(context, listen: false).getCurrentQueuePosition(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    }
+                    if (snapshot.hasError) {
+                      return Text("Error: ${snapshot.error}");
+                    }
+                    final position = snapshot.data;
+                    return Text(position.toString());
+                  },
+                ),
+              ),
+            ],
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Provider.of<UserQueueController>(context, listen: false).leaveQueue(queue);
+            },
+            child: Text("Leave queue"),
+          )
+        ],
+      )),
+    );
+  }
+}
+
+class QueuesListView extends StatelessWidget {
+  const QueuesListView({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     final userAccountController = Provider.of<UserAccountController>(context, listen: false);
     final userQueueContorller = Provider.of<UserQueueController>(context, listen: false);
+
     return Scaffold(
       backgroundColor: Color(0xffffffff),
       appBar: AppBar(
@@ -65,7 +142,7 @@ class UserDashboard extends StatelessWidget {
                 ),
               ),
               StreamBuilder(
-                stream: userQueueContorller.getQueues(), 
+                stream: userQueueContorller.getQueues(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return CircularProgressIndicator();
@@ -73,22 +150,20 @@ class UserDashboard extends StatelessWidget {
                   if (snapshot.hasError) {
                     return Text("Error: ${snapshot.error}");
                   }
+                  final queues = snapshot.data!;
+                  print(queues);
                   return ListView.builder(
                     scrollDirection: Axis.vertical,
                     padding: EdgeInsets.all(0),
                     shrinkWrap: true,
                     physics: ScrollPhysics(),
-                    itemCount: snapshot.data!.docs.length,
+                    itemCount: queues.length,
                     itemBuilder: (context, index) {
-                      final queueData = snapshot.data!.docs[index];
-                      final counter = queueData['capacity'] != null ? '${queueData['users'].length}/${queueData['capacity']}' : '${queueData['users'].length}';
-                      String queueDetails = '${counter} users in queue';
-
-                      return QueueCard(
-                        queueName: queueData['name'],
-                        queueId: queueData.id,
-                        queueDetails: queueDetails,
-                      );
+                      final queueData = queues[index];
+                      final counter =
+                          queueData.capacity != null ? '${queueData.users.length}/${queueData.capacity}' : '${queueData.users.length}';
+                      String queueDetails = '$counter users in queue';
+                      return QueueCard(queueData: queueData);
                     },
                   );
                 },
@@ -102,14 +177,10 @@ class UserDashboard extends StatelessWidget {
 }
 
 class QueueCard extends StatelessWidget {
-  final String queueName;
-  final String queueId;
-  final String queueDetails;
+  final Queue queueData;
 
   const QueueCard({
-    required this.queueName,
-    required this.queueId,
-    required this.queueDetails,
+    required this.queueData,
     Key? key,
   }) : super(key: key);
 
@@ -155,7 +226,7 @@ class QueueCard extends StatelessWidget {
                   mainAxisSize: MainAxisSize.max,
                   children: [
                     Text(
-                      queueName,
+                      queueData.name,
                       textAlign: TextAlign.start,
                       maxLines: 1,
                       overflow: TextOverflow.clip,
@@ -169,7 +240,7 @@ class QueueCard extends StatelessWidget {
                     Padding(
                       padding: EdgeInsets.fromLTRB(0, 4, 0, 0),
                       child: Text(
-                        queueDetails,
+                        'test',
                         textAlign: TextAlign.start,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -187,8 +258,7 @@ class QueueCard extends StatelessWidget {
             ),
             InkWell(
               onTap: () async {
-                final status = await Provider.of<UserQueueController>(context, listen: false).joinQueue(queueId);
-                print(status);
+                final status = await Provider.of<UserQueueController>(context, listen: false).joinQueue(queueData);
               },
               child: Container(
                 alignment: Alignment.center,
