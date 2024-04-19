@@ -42,7 +42,6 @@ class Queue {
   }
 
   factory Queue.fromJson(Map<String, dynamic> json) {
-    print(json);
     return Queue(
       id: json['id'] as String,
       name: json['name'] as String,

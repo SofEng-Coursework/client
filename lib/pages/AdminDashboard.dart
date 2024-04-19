@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_queue/controllers/adminAccountController.dart';
+import 'package:virtual_queue/models/Queue.dart';
 import 'package:virtual_queue/pages/Settings.dart';
 import 'package:virtual_queue/controllers/AdminQueueController.dart';
 
@@ -104,11 +105,12 @@ class AdminQueueList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final adminQueueController = Provider.of<AdminQueueController>(context, listen: false);
     return Padding(
       padding: EdgeInsets.fromLTRB(0, 16, 0, 20),
       child: StreamBuilder(
-        stream: Provider.of<AdminQueueController>(context, listen: false).getQueues(),
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        stream: adminQueueController.getQueues(),
+        builder: (BuildContext context, AsyncSnapshot<List<Queue>> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           }
@@ -117,15 +119,15 @@ class AdminQueueList extends StatelessWidget {
             return Center(child: Text('Error: ${snapshot.error}'));
           }
 
-          if (snapshot.data!.docs.isEmpty) {
+          if (snapshot.data!.isEmpty) {
             return Center(child: Text('No queues found'));
           }
 
           return ListView.builder(
             shrinkWrap: true,
-            itemCount: snapshot.data!.docs.length,
+            itemCount: snapshot.data!.length,
             itemBuilder: (BuildContext context, int index) {
-              final queueData = snapshot.data!.docs[index];
+              final queueData = snapshot.data![index];
               return Card(
                 child: InkWell(
                   onTap: () {
@@ -134,25 +136,27 @@ class AdminQueueList extends StatelessWidget {
                   child: ListTile(
                     title: Row(
                       children: [
-                        Text(queueData['name']),
-                        if (queueData['open']) Icon(Icons.check, color: Colors.green),
-                        if (!queueData['open']) Icon(Icons.close, color: Colors.red),
+                        Text(queueData.name),
+                        if (queueData.open) Icon(Icons.check, color: Colors.green),
+                        if (!queueData.open) Icon(Icons.close, color: Colors.red),
                       ],
                     ),
-                    subtitle: Text(queueData['capacity'] == null ? 'Unlimited' : 'Capacity: ${queueData['capacity']}'),
+                    subtitle: Text(queueData.capacity == null ? 'Unlimited' : 'Capacity: ${queueData.capacity}'),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
-                          icon: Icon(queueData['open'] ? Icons.lock : Icons.lock_open),
+                          icon: Icon(queueData.open ? Icons.lock : Icons.lock_open),
                           onPressed: () {
-                            queueData.reference.update({'open': !queueData['open']});
+                            // Toggle queue open status
+                            adminQueueController.toggleQueueOpenStatus(queueData);
                           }
                         ),
                         IconButton(
                           icon: Icon(Icons.delete),
                           onPressed: () {
-                            queueData.reference.delete();
+                            // Delete queue
+                            adminQueueController.deleteQueue(queueData);
                           },
                         ),
                       ],
