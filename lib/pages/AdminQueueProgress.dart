@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
-import 'dart:math';
+import 'package:virtual_queue/controllers/AdminQueueController.dart';
 
 List<String> getPeopleInQueue() {
   return ["Harry", "Elliott", "Andrew", "Ilyas", "Tommy", "Antoine", "idk"];
@@ -106,7 +105,7 @@ class _AdminPageState extends State<AdminPage> {
                                   ? Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                          ElevatedButton(
+                                          ElevatedButton(//move person up
                                             onPressed: () {
                                               if (i > 0) {
                                                 setState(() {
@@ -124,7 +123,7 @@ class _AdminPageState extends State<AdminPage> {
                                                     fontWeight: FontWeight.bold,
                                                     fontSize: 10)),
                                           ),
-                                          ElevatedButton(
+                                          ElevatedButton(//move person down
                                             onPressed: () {
                                               if (i < peopleInQueue.length) {
                                                 setState(() {
@@ -142,7 +141,7 @@ class _AdminPageState extends State<AdminPage> {
                                                     fontWeight: FontWeight.bold,
                                                     fontSize: 10)),
                                           ),
-                                          ElevatedButton(
+                                          ElevatedButton(//remove person
                                             onPressed: () {
                                               setState(() {
                                                 peopleInQueue.removeAt(i);
