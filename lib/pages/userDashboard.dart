@@ -176,13 +176,20 @@ class QueuesListView extends StatelessWidget {
   }
 }
 
-class QueueCard extends StatelessWidget {
+class QueueCard extends StatefulWidget {
   final Queue queueData;
 
-  const QueueCard({
+  QueueCard({
     required this.queueData,
     Key? key,
   }) : super(key: key);
+
+  @override
+  State<QueueCard> createState() => _QueueCardState();
+}
+
+class _QueueCardState extends State<QueueCard> {
+  String? error;
 
   @override
   Widget build(BuildContext context) {
@@ -226,7 +233,7 @@ class QueueCard extends StatelessWidget {
                   mainAxisSize: MainAxisSize.max,
                   children: [
                     Text(
-                      queueData.name,
+                      widget.queueData.name,
                       textAlign: TextAlign.start,
                       maxLines: 1,
                       overflow: TextOverflow.clip,
@@ -252,13 +259,31 @@ class QueueCard extends StatelessWidget {
                         ),
                       ),
                     ),
+                    error != null ? Padding(padding: EdgeInsets.fromLTRB(0, 4, 0, 0),
+                      child: Text(
+                        error ?? '',
+                        textAlign: TextAlign.start,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w400,
+                          fontStyle: FontStyle.normal,
+                          fontSize: 14,
+                          color: Color.fromARGB(255, 255, 0, 0),
+                        ),
+                      ),
+                    ) : SizedBox()
                   ],
                 ),
               ),
             ),
             InkWell(
               onTap: () async {
-                final status = await Provider.of<UserQueueController>(context, listen: false).joinQueue(queueData);
+                final status = await Provider.of<UserQueueController>(context, listen: false).joinQueue(widget.queueData);
+                print(status);
+                setState(() {
+                  error = status;
+                });
               },
               child: Container(
                 alignment: Alignment.center,
