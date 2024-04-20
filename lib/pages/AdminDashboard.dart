@@ -6,20 +6,18 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_queue/controllers/adminAccountController.dart';
 import 'package:virtual_queue/models/Queue.dart';
+import 'package:virtual_queue/pages/AdminQueueProgress.dart';
 import 'package:virtual_queue/pages/Settings.dart';
 import 'package:virtual_queue/controllers/AdminQueueController.dart';
 
 class AdminDashboard extends StatefulWidget {
-  const AdminDashboard({
-    super.key
-  });
+  const AdminDashboard({super.key});
 
   @override
   State<AdminDashboard> createState() => _AdminDashboardState();
 }
 
 class _AdminDashboardState extends State<AdminDashboard> {
-
   TextEditingController name = TextEditingController();
   TextEditingController capacity = TextEditingController();
 
@@ -54,18 +52,15 @@ class _AdminDashboardState extends State<AdminDashboard> {
             color: Color(0xffffffff),
             onPressed: () {
               showDialog(
-                context: context, 
-                builder: (context) => QueueCreatorDialog(
-                  onSubmit: (String name, int? capacity) {
-                    adminAccountController.getUserData().then((data) {
-                      if (data == null) {
-                        print('Error getting user data');
-                      }
-                      adminQueueController.addQueue(name, capacity, data!['uid']);                   
-                    });
-                  }
-                )
-              );
+                  context: context,
+                  builder: (context) => QueueCreatorDialog(onSubmit: (String name, int? capacity) {
+                        adminAccountController.getUserData().then((data) {
+                          if (data == null) {
+                            print('Error getting user data');
+                          }
+                          adminQueueController.addQueue(name, capacity, data!['uid']);
+                        });
+                      }));
             },
           ),
 
@@ -131,7 +126,9 @@ class AdminQueueList extends StatelessWidget {
               return Card(
                 child: InkWell(
                   onTap: () {
-                    // TODO: Navigate to queue progress page
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) =>
+                            ChangeNotifierProvider.value(value: adminQueueController, child: AdminQueueProgress(queue: queueData))));
                   },
                   child: ListTile(
                     title: Row(
@@ -146,12 +143,11 @@ class AdminQueueList extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
-                          icon: Icon(queueData.open ? Icons.lock : Icons.lock_open),
-                          onPressed: () {
-                            // Toggle queue open status
-                            adminQueueController.toggleQueueOpenStatus(queueData);
-                          }
-                        ),
+                            icon: Icon(queueData.open ? Icons.lock : Icons.lock_open),
+                            onPressed: () {
+                              // Toggle queue open status
+                              adminQueueController.toggleQueueOpenStatus(queueData);
+                            }),
                         IconButton(
                           icon: Icon(Icons.delete),
                           onPressed: () {
@@ -197,37 +193,32 @@ class _QueueCreatorDialogState extends State<QueueCreatorDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text('Create New Queue'),
-      content: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
+      content: Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize: MainAxisSize.min, children: <Widget>[
+        TextField(
+          autofocus: true,
+          decoration: InputDecoration(hintText: 'Enter Queue Name'),
+          controller: nameController,
+        ),
+        CheckboxListTile(
+          title: const Text('Unlimited Capacity'),
+          value: isUnlimitedCapacity,
+          onChanged: (bool? value) {
+            setState(() {
+              isUnlimitedCapacity = value!;
+            });
+          },
+        ),
+        if (!isUnlimitedCapacity)
           TextField(
-            autofocus: true,
-            decoration: InputDecoration(hintText: 'Enter Queue Name'),
-            controller: nameController,
-          ),
-          CheckboxListTile(
-              title: const Text('Unlimited Capacity'),
-              value: isUnlimitedCapacity,
-              onChanged: (bool? value) {
-                setState(() {
-                  isUnlimitedCapacity = value!;
-                });
-              },
-          ),
-    
-          if (!isUnlimitedCapacity) TextField(
             keyboardType: TextInputType.number,
             autofocus: false,
-            decoration: const InputDecoration(hintText: 'Enter Max Users',),
-            inputFormatters: <TextInputFormatter>[
-              FilteringTextInputFormatter.digitsOnly
-            ],
-            controller: capacityController,   
+            decoration: const InputDecoration(
+              hintText: 'Enter Max Users',
+            ),
+            inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly],
+            controller: capacityController,
           )
-        ]
-      ),
-
+      ]),
       actions: [
         TextButton(
             child: Text("SUBMIT"),
@@ -242,8 +233,7 @@ class _QueueCreatorDialogState extends State<QueueCreatorDialog> {
               widget.onSubmit(name, capacity);
 
               Navigator.of(context).pop();
-            }
-        ),
+            }),
       ],
     );
   }

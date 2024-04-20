@@ -247,7 +247,7 @@ class _QueueCardState extends State<QueueCard> {
                     Padding(
                       padding: EdgeInsets.fromLTRB(0, 4, 0, 0),
                       child: Text(
-                        'test',
+                        'Users in queue: ${widget.queueData.users.length}',
                         textAlign: TextAlign.start,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -259,20 +259,23 @@ class _QueueCardState extends State<QueueCard> {
                         ),
                       ),
                     ),
-                    error != null ? Padding(padding: EdgeInsets.fromLTRB(0, 4, 0, 0),
-                      child: Text(
-                        error ?? '',
-                        textAlign: TextAlign.start,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w400,
-                          fontStyle: FontStyle.normal,
-                          fontSize: 14,
-                          color: Color.fromARGB(255, 255, 0, 0),
-                        ),
-                      ),
-                    ) : SizedBox()
+                    error != null
+                        ? Padding(
+                            padding: EdgeInsets.fromLTRB(0, 4, 0, 0),
+                            child: Text(
+                              error ?? '',
+                              textAlign: TextAlign.start,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w400,
+                                fontStyle: FontStyle.normal,
+                                fontSize: 14,
+                                color: Color.fromARGB(255, 255, 0, 0),
+                              ),
+                            ),
+                          )
+                        : SizedBox()
                   ],
                 ),
               ),
@@ -280,10 +283,11 @@ class _QueueCardState extends State<QueueCard> {
             InkWell(
               onTap: () async {
                 final status = await Provider.of<UserQueueController>(context, listen: false).joinQueue(widget.queueData);
-                print(status);
-                setState(() {
-                  error = status;
-                });
+                if (mounted) {
+                  setState(() {
+                    error = status;
+                  });
+                }
               },
               child: Container(
                 alignment: Alignment.center,

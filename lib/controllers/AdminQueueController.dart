@@ -23,10 +23,10 @@ class AdminQueueController extends ChangeNotifier {
     final adminUID = _firebaseProvider.FIREBASE_AUTH.currentUser!.uid;
 
     return _firebaseProvider.FIREBASE_FIRESTORE
-    .collection('queues')
-    .where('owner', isEqualTo: adminUID)
-    .snapshots()
-      .map((snapshot) => snapshot.docs.map((doc) => Queue.fromJson(doc.data())).toList());
+        .collection('queues')
+        .where('owner', isEqualTo: adminUID)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => Queue.fromJson(doc.data())).toList());
   }
 
   /// Toggle the open status of a queue
@@ -44,28 +44,14 @@ class AdminQueueController extends ChangeNotifier {
   }
 
   /// Get list of people in a queue
-  Future<List<String>> getUsersInQueue() async{
-    final adminUID = _firebaseProvider.FIREBASE_AUTH.currentUser!.uid;
-
-    QuerySnapshot querySnapshot = await _firebaseProvider.FIREBASE_FIRESTORE
-          .collection('queues')
-          .where('owner', isEqualTo: adminUID)
-          .get();
-
-      List<String> users = [];
-      for (var doc in querySnapshot.docs) {
-        List userList = doc['users'];
-        users.addAll(userList.map((user) => user.toString()));
-      }
-
-      return users;
+  Future<List<String>> getUsersInQueue(Queue queue) async {
+    final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
+    final queueData = await queueReference.get();
+    final users = queueData.data()!['users'] as List<dynamic>;
+    return users.map((e) => e['userId'] as String).toList();
   }
 
-  Future<int> getLengthOfQueue() async{
-    Future<List<String>> getUsers = getUsersInQueue();
-
-    List<String> users = await getUsers;
-
-    return users.length;
+  Stream<Queue> getQueue(String queueID) {
+    return _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queueID).snapshots().map((doc) => Queue.fromJson(doc.data()!));
   }
 }
