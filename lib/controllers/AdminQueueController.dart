@@ -42,5 +42,30 @@ class AdminQueueController extends ChangeNotifier {
     await queueReference.delete();
     return null;
   }
-  
+
+  /// Get list of people in a queue
+  Future<List<String>> getUsersInQueue() async{
+    final adminUID = _firebaseProvider.FIREBASE_AUTH.currentUser!.uid;
+
+    QuerySnapshot querySnapshot = await _firebaseProvider.FIREBASE_FIRESTORE
+          .collection('queues')
+          .where('owner', isEqualTo: adminUID)
+          .get();
+
+      List<String> users = [];
+      for (var doc in querySnapshot.docs) {
+        List userList = doc['users'];
+        users.addAll(userList.map((user) => user.toString()));
+      }
+
+      return users;
+  }
+
+  Future<int> getLengthOfQueue() async{
+    Future<List<String>> getUsers = getUsersInQueue();
+
+    List<String> users = await getUsers;
+
+    return users.length;
+  }
 }
