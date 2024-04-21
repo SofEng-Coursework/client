@@ -3,13 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:virtual_queue/controllers/AdminQueueController.dart';
 import 'package:virtual_queue/models/Queue.dart';
 
-List<String> getPeopleInQueue() {
-  return ["Harry", "Elliott", "Andrew", "Ilyas", "Tommy", "Antoine", "idk"];
-}
-
-void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  // runApp(const Directionality(textDirection: TextDirection.rtl, child: MaterialApp(home: AdminQueueProgress())));
+List<String> getPeopleInQueue(AdminQueueController adminQueueController, Queue queue) {
+  return adminQueueController.getUsersInQueue(queue) as List<String>;
 }
 
 class AdminQueueProgress extends StatefulWidget {
@@ -38,7 +33,6 @@ class _AdminQueueProgressState extends State<AdminQueueProgress> {
 
   TextEditingController addToQueue = TextEditingController();
 
-  List peopleInQueue = getPeopleInQueue();
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +94,7 @@ class _AdminQueueProgressState extends State<AdminQueueProgress> {
                         ),
                       ),
                       child: ListView.builder(
-                          itemCount: peopleInQueue.length,
+                          itemCount: getPeopleInQueue(adminQueueController, queue).length,
                           itemBuilder: (BuildContext context, int i) {
                             return Container(
                                 padding: const EdgeInsets.all(1),
@@ -113,7 +107,7 @@ class _AdminQueueProgressState extends State<AdminQueueProgress> {
                                   ),
                                 ),
                                 child: ListTile(
-                                    title: Text(peopleInQueue[i],
+                                    title: Text(getPeopleInQueue(adminQueueController, queue)[i],
                                         textAlign: TextAlign.center,
                                         style: const TextStyle(color: Color(0xFFFFFFFF), fontWeight: FontWeight.bold, fontSize: 20)),
                                     trailing: isEditingQueue
@@ -123,9 +117,9 @@ class _AdminQueueProgressState extends State<AdminQueueProgress> {
                                               onPressed: () {
                                                 if (i > 0) {
                                                   setState(() {
-                                                    var temp = peopleInQueue[i];
-                                                    peopleInQueue[i] = peopleInQueue[i - 1];
-                                                    peopleInQueue[i - 1] = temp;
+                                                    var temp = getPeopleInQueue(adminQueueController, queue)[i];
+                                                    getPeopleInQueue(adminQueueController, queue)[i] = getPeopleInQueue(adminQueueController, queue)[i - 1];
+                                                    getPeopleInQueue(adminQueueController, queue)[i - 1] = temp;
                                                   });
                                                 }
                                               },
@@ -136,11 +130,11 @@ class _AdminQueueProgressState extends State<AdminQueueProgress> {
                                             ElevatedButton(
                                               //move person down
                                               onPressed: () {
-                                                if (i < peopleInQueue.length) {
+                                                if (i < getPeopleInQueue(adminQueueController, queue).length) {
                                                   setState(() {
-                                                    var temp = peopleInQueue[i];
-                                                    peopleInQueue[i] = peopleInQueue[i + 1];
-                                                    peopleInQueue[i + 1] = temp;
+                                                    var temp = getPeopleInQueue(adminQueueController, queue)[i];
+                                                    getPeopleInQueue(adminQueueController, queue)[i] = getPeopleInQueue(adminQueueController, queue)[i + 1];
+                                                    getPeopleInQueue(adminQueueController, queue)[i + 1] = temp;
                                                   });
                                                 }
                                               },
@@ -152,7 +146,7 @@ class _AdminQueueProgressState extends State<AdminQueueProgress> {
                                               //remove person
                                               onPressed: () {
                                                 setState(() {
-                                                  peopleInQueue.removeAt(i);
+                                                  getPeopleInQueue(adminQueueController, queue).removeAt(i);
                                                 });
                                               },
                                               style: editStyle,
@@ -226,7 +220,7 @@ class _AdminQueueProgressState extends State<AdminQueueProgress> {
                                                 onPressed: () {
                                                   setState(() {
                                                     if (addToQueue.text != "") {
-                                                      peopleInQueue.add(addToQueue.text);
+                                                      getPeopleInQueue(adminQueueController, queue).add(addToQueue.text);
                                                       addToQueue.clear();
                                                     }
                                                     Navigator.of(context).pop();

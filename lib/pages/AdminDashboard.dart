@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:virtual_queue/controllers/FirebaseProvider.dart';
 import 'package:virtual_queue/controllers/adminAccountController.dart';
 import 'package:virtual_queue/models/Queue.dart';
 import 'package:virtual_queue/pages/AdminQueueProgress.dart';
 import 'package:virtual_queue/pages/Settings.dart';
 import 'package:virtual_queue/controllers/AdminQueueController.dart';
+import 'AdminQueueProgress.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
