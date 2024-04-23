@@ -22,7 +22,7 @@ class _QueueStatsState extends State<QueueStats> {
       WidgetsBinding.instance.platformDispatcher.views.first.physicalSize.width;
   double screenHeight = WidgetsBinding
       .instance.platformDispatcher.views.first.physicalSize.height;
-  List<double> data = [
+  List<double> dayData = [
     0,
     0,
     0,
@@ -57,7 +57,7 @@ class _QueueStatsState extends State<QueueStats> {
     super.initState();
     final averageToday = [];
     for (int i = 0; i < 24; i++) {
-      averageToday.add(makeBar(i, data[i]));
+      averageToday.add(makeBar(i, dayData[i]));
     }
 
     todayData = averageToday.cast<BarChartGroupData>();
@@ -210,7 +210,7 @@ class _QueueStatsState extends State<QueueStats> {
                         drawVerticalLine: false,
                       ),
                       alignment: BarChartAlignment.spaceAround,
-                      maxY: data.reduce(max)))),
+                      maxY: dayData.reduce(max)))),
             ])));
   }
 
@@ -275,9 +275,9 @@ class _QueueStatsState extends State<QueueStats> {
       fontSize: 14,
     );
     String text;
-    if (value % (data.reduce(max) % 10) == 0 || value == data.reduce(max)) {
-      if (value > data.reduce(max) - (data.reduce(max) % 10) &&
-          value != data.reduce(max)) {
+    if (value % (dayData.reduce(max) % 10) == 0 || value == dayData.reduce(max)) {
+      if (value > dayData.reduce(max) - (dayData.reduce(max) % 10) &&
+          value != dayData.reduce(max)) {
         text = "";
       } else {
         text = value.toString();
