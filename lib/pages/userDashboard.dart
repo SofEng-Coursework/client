@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_queue/controllers/UserQueueController.dart';
@@ -64,6 +65,27 @@ class QueueProgressView extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+          Container(
+              height: 250,
+              child: Row( children: [
+                for (var i in [1,2,3,4,5,6,7,8,9,10])
+                  StreamBuilder(
+                      stream: Provider.of<UserQueueController>(context, listen: false).getCurrentQueuePosition(),
+                      builder: (context, snapshot) {
+                        if (i == snapshot.data) {
+                          return Container(
+                              height: 250,
+                              child: Image.asset('assets/images/greenuser.png')
+                          );
+                        }
+                        return Container(
+                          height: 150,
+                          child: Image.asset('assets/images/user.png')
+                        );
+                      }
+                  )
+              ])
           ),
           ElevatedButton(
             onPressed: () {
@@ -310,3 +332,5 @@ class _QueueCardState extends State<QueueCard> {
     );
   }
 }
+
+
