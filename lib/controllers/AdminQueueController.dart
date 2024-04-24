@@ -32,7 +32,16 @@ class AdminQueueController extends ChangeNotifier {
   /// Toggle the open status of a queue
   Future<String?> toggleQueueOpenStatus(Queue queue) async {
     final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
-    await queueReference.update({'open': !queue.open});
+    await queueReference.update({
+      'open': !queue.open,
+    });
+
+    // If the queue is being closed, remove all users from the queue
+    if (queue.open) {
+      await queueReference.update({
+        'users': [],
+      });
+    }
     return null;
   }
 
@@ -48,7 +57,7 @@ class AdminQueueController extends ChangeNotifier {
     final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
     final queueData = await queueReference.get();
     final users = queueData.data()!['users'] as List<dynamic>;
-    return users.map((e) => e['userId'] as String).toList();
+    return users.map((e) => e['name'] as String).toList();
   }
 
   Stream<Queue> getQueue(String queueID) {
