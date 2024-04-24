@@ -65,6 +65,7 @@ class UserQueueController extends ChangeNotifier {
         .map((snapshot) => snapshot.docs.map((doc) => Queue.fromJson(doc.data())).toList());
   }
 
+
   Stream<Queue?> getCurrentQueue() {
     final userUID = _firebaseProvider.FIREBASE_AUTH.currentUser?.uid;
     if (userUID == null) {
@@ -81,6 +82,23 @@ class UserQueueController extends ChangeNotifier {
       }
       return null; // Return null if the user is not found in any queue
     });
+  }
+
+  Future<Queue?> getCurrentQueueFuture() async {
+    final userUID = _firebaseProvider.FIREBASE_AUTH.currentUser?.uid;
+    if (userUID == null) {
+      return null;
+    }
+
+    final snapshot = await _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').get();
+    for (DocumentSnapshot doc in snapshot.docs) {
+      Queue queue = Queue.fromJson(doc.data() as Map<String, dynamic>);
+      int position = queue.users.indexWhere((element) => element.userId == userUID);
+      if (position != -1) {
+        return queue; // Return the Queue object if the user is found in the queue
+      }
+    }
+    return null; // Return null if the user is not found in any queue
   }
 
   Stream<int> getCurrentQueuePosition() {
