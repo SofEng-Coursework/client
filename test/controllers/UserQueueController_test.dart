@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:virtual_queue/controllers/FirebaseProvider.dart';
 import 'package:virtual_queue/controllers/UserQueueController.dart';
 import 'package:virtual_queue/pages/RegisterForm.dart';
+import 'package:virtual_queue/models/Queue.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -28,7 +29,7 @@ void main() {
 
     test('join and leave queue', () async {
       // Creating a mock queue
-      final fakeQueue = Queue(id: '1', maxCapacity: 10, open: true, users: []);
+      final fakeQueue = Queue(id: '1', name: 'test', open: true, users: []);
       await firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc('1').set(fakeQueue.toJson());
 
       // Joining the queue
@@ -51,8 +52,8 @@ void main() {
 
     test('get queues', () async {
       // Creating some mock queues
-      final fakeQueue1 = Queue(id: '1', maxCapacity: 10, open: true, users: []);
-      final fakeQueue2 = Queue(id: '2', maxCapacity: 5, open: false, users: []);
+      final fakeQueue1 = Queue(id: '1', name: 'test1', open: true, users: []);
+      final fakeQueue2 = Queue(id: '2', name: 'test2', open: true, users: []);
       await firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc('1').set(fakeQueue1.toJson());
       await firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc('2').set(fakeQueue2.toJson());
 
