@@ -27,8 +27,14 @@ class UserQueueController extends ChangeNotifier {
       return ("An error occurred: User already in queue");
     }
 
+    final name = await _firebaseProvider.FIREBASE_FIRESTORE.collection('users').doc(userUID).get().then((value) => value.data()?['name']);
+
     final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
-    queue.users.add(QueueUserEntry(userId: userUID, timestamp: DateTime.now().millisecondsSinceEpoch));
+    queue.users.add(QueueUserEntry(
+      userId: userUID, 
+      name: name,
+      timestamp: DateTime.now().millisecondsSinceEpoch
+    ));
 
     await queueReference.update({'users': queue.users.map((e) => e.toJson()).toList()});
 
