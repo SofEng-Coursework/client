@@ -68,25 +68,28 @@ class QueueProgressView extends StatelessWidget {
           ),
           Container(
               height: 250,
-              child: Row( children: [
-                for (var i in [1,2,3,4,5,6,7,8,9,10])
-                  StreamBuilder(
-                      stream: Provider.of<UserQueueController>(context, listen: false).getCurrentQueuePosition(),
-                      builder: (context, snapshot) {
-                        if (i == snapshot.data) {
-                          return Container(
-                              height: 250,
-                              child: Image.asset('assets/images/greenuser.png')
-                          );
-                        }
-                        return Container(
-                          height: 150,
-                          child: Image.asset('assets/images/user.png')
-                        );
-                      }
-                  )
-              ])
-          ),
+              child: StreamBuilder<int>(
+                  stream: Provider.of<UserQueueController>(context, listen: false).getCurrentQueuePosition(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) return CircularProgressIndicator();
+                    final position = snapshot.data!;
+                    return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                      if (position > 2) Container(height: 125, child: Image.asset('assets/images/user.png')),
+                      if (position > 1) Container(height: 150, child: Image.asset('assets/images/user.png')),
+                      Container(height: 180, child: Image.asset('assets/images/greenuser.png')),
+                      Container(height: 150, child: Image.asset('assets/images/user.png')),
+                      Container(height: 125, child: Image.asset('assets/images/user.png')),
+                      // for (var i in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+                      //   StreamBuilder(
+                      //       stream: Provider.of<UserQueueController>(context, listen: false).getCurrentQueuePosition(),
+                      //       builder: (context, snapshot) {
+                      //         if (i == snapshot.data) {
+                      //           return Container(height: 250, child: Image.asset('assets/images/greenuser.png'));
+                      //         }
+                      //         return Container(height: 150, child: Image.asset('assets/images/user.png'));
+                      //       })
+                    ]);
+                  })),
           ElevatedButton(
             onPressed: () {
               Provider.of<UserQueueController>(context, listen: false).leaveQueue(queue);
@@ -332,5 +335,3 @@ class _QueueCardState extends State<QueueCard> {
     );
   }
 }
-
-
