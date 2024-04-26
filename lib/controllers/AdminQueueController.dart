@@ -63,4 +63,14 @@ class AdminQueueController extends ChangeNotifier {
   Stream<Queue> getQueue(String queueID) {
     return _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queueID).snapshots().map((doc) => Queue.fromJson(doc.data()!));
   }
+
+  Future<void> removeUserFromQueue(Queue queue, QueueUserEntry user) async {
+    final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
+    final queueData = await queueReference.get();
+    final users = queueData.data()!['users'] as List<dynamic>;
+    users.removeWhere((element) => element['userId'] == user.userId);
+    await queueReference.update({
+      'users': users,
+    });
+  }
 }
