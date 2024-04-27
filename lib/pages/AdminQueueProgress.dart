@@ -25,7 +25,7 @@ class _AdminQueueProgressState extends State<AdminQueueProgress> {
       backgroundColor:
           MaterialStateProperty.all<Color>(const Color(0x00000000)));
 
-  TextEditingController addToQueue = TextEditingController();
+  TextEditingController addToQueueName = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
