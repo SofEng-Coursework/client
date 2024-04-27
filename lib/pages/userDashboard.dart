@@ -74,25 +74,19 @@ class QueueProgressView extends StatelessWidget {
                     if (!snapshot.hasData) return CircularProgressIndicator();
                     final position = snapshot.data!;
                     return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      if (position > 2) Container(height: 125, child: Image.asset('assets/images/user.png')),
-                      if (position > 1) Container(height: 150, child: Image.asset('assets/images/user.png')),
-                      Container(height: 180, child: Image.asset('assets/images/greenuser.png')),
-                      Container(height: 150, child: Image.asset('assets/images/user.png')),
-                      Container(height: 125, child: Image.asset('assets/images/user.png')),
-                      // for (var i in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-                      //   StreamBuilder(
-                      //       stream: Provider.of<UserQueueController>(context, listen: false).getCurrentQueuePosition(),
-                      //       builder: (context, snapshot) {
-                      //         if (i == snapshot.data) {
-                      //           return Container(height: 250, child: Image.asset('assets/images/greenuser.png'));
-                      //         }
-                      //         return Container(height: 150, child: Image.asset('assets/images/user.png'));
-                      //       })
+                      if (position > 2) SizedBox(height: 125, child: Image.asset('assets/images/user.png')),
+                      if (position > 1) SizedBox(height: 150, child: Image.asset('assets/images/user.png')),
+                      SizedBox(height: 180, child: Image.asset('assets/images/greenuser.png')),
+                      SizedBox(height: 150, child: Image.asset('assets/images/user.png')),
+                      SizedBox(height: 125, child: Image.asset('assets/images/user.png')),
                     ]);
                   })),
           ElevatedButton(
             onPressed: () {
-              Provider.of<UserQueueController>(context, listen: false).leaveQueue(queue);
+              Provider.of<UserQueueController>(context, listen: false).leaveQueue(queue).then((status) {
+                if (status.success) return;
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(status.message!)));
+              });
             },
             child: Text("Leave queue"),
           )
@@ -176,7 +170,7 @@ class QueuesListView extends StatelessWidget {
                     return Text("Error: ${snapshot.error}");
                   }
                   final queues = snapshot.data!;
-                  
+
                   return ListView.builder(
                     scrollDirection: Axis.vertical,
                     padding: EdgeInsets.all(0),
@@ -214,8 +208,6 @@ class QueueCard extends StatefulWidget {
 }
 
 class _QueueCardState extends State<QueueCard> {
-  String? error;
-
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -284,35 +276,16 @@ class _QueueCardState extends State<QueueCard> {
                         ),
                       ),
                     ),
-                    error != null
-                        ? Padding(
-                            padding: EdgeInsets.fromLTRB(0, 4, 0, 0),
-                            child: Text(
-                              error ?? '',
-                              textAlign: TextAlign.start,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w400,
-                                fontStyle: FontStyle.normal,
-                                fontSize: 14,
-                                color: Color.fromARGB(255, 255, 0, 0),
-                              ),
-                            ),
-                          )
-                        : SizedBox()
                   ],
                 ),
               ),
             ),
             InkWell(
               onTap: () async {
-                final status = await Provider.of<UserQueueController>(context, listen: false).joinQueue(widget.queueData);
-                if (mounted) {
-                  setState(() {
-                    error = status;
-                  });
-                }
+                Provider.of<UserQueueController>(context, listen: false).joinQueue(widget.queueData).then((status) {
+                  if (status.success) return;
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(status.message!)));
+                });
               },
               child: Container(
                 alignment: Alignment.center,

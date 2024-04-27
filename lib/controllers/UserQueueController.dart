@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:virtual_queue/controllers/FirebaseProvider.dart';
+import 'package:virtual_queue/models/ErrorStatus.dart';
 import 'package:virtual_queue/models/Queue.dart';
 import 'package:virtual_queue/pages/RegisterForm.dart';
 import 'dart:async';
@@ -12,42 +13,37 @@ class UserQueueController extends ChangeNotifier {
     _firebaseProvider = firebaseProvider;
   }
 
-  Future<String?> joinQueue(Queue queue) async {
+  Future<ErrorStatus> joinQueue(Queue queue) async {
     String? userUID = _firebaseProvider.FIREBASE_AUTH.currentUser?.uid;
     if (userUID == null) {
-      return ("An error occurred: User not logged in");
+      return ErrorStatus(success: false, message: "An error occurred: User not logged in");
     }
     if (queue.isFull()) {
-      return ("An error occurred: Queue full");
+      return ErrorStatus(success: false, message: "An error occurred: Queue is full");
     }
     if (!queue.open) {
-      return ("An error occurred: Queue not opened");
+      return ErrorStatus(success: false, message: "An error occurred: Queue is closed");
     }
     if (queue.users.indexWhere((element) => element.userId == userUID) != -1) {
-      return ("An error occurred: User already in queue");
+      return ErrorStatus(success: false, message: "An error occurred: User already in queue");
     }
 
     final name = await _firebaseProvider.FIREBASE_FIRESTORE.collection('users').doc(userUID).get().then((value) => value.data()?['name']);
 
     final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
-    queue.users.add(QueueUserEntry(
-      userId: userUID, 
-      name: name,
-      timestamp: DateTime.now().millisecondsSinceEpoch
-    ));
-
+    queue.users.add(QueueUserEntry(userId: userUID, name: name, timestamp: DateTime.now().millisecondsSinceEpoch));
     await queueReference.update({'users': queue.users.map((e) => e.toJson()).toList()});
 
-    return null;
+    return ErrorStatus(success: true);
   }
 
-  Future<String?> leaveQueue(Queue queue) async {
+  Future<ErrorStatus> leaveQueue(Queue queue) async {
     String? userUID = _firebaseProvider.FIREBASE_AUTH.currentUser?.uid;
     if (userUID == null) {
-      return ("An error occurred: User not logged in");
+      return ErrorStatus(success: false, message: "An error occurred: User not logged in");
     }
     if (queue.users.indexWhere((element) => element.userId == userUID) == -1) {
-      return ("An error occurred: User not in queue");
+      return ErrorStatus(success: false, message: "An error occurred: User not in queue");
     }
 
     final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
@@ -55,7 +51,7 @@ class UserQueueController extends ChangeNotifier {
 
     await queueReference.update({'users': queue.users.map((e) => e.toJson()).toList()});
 
-    return null;
+    return ErrorStatus(success: true);
   }
 
   Stream<List<Queue>> getQueues() {
@@ -64,7 +60,6 @@ class UserQueueController extends ChangeNotifier {
         .snapshots()
         .map((snapshot) => snapshot.docs.map((doc) => Queue.fromJson(doc.data())).toList());
   }
-
 
   Stream<Queue?> getCurrentQueue() {
     final userUID = _firebaseProvider.FIREBASE_AUTH.currentUser?.uid;

@@ -4,8 +4,8 @@ import 'package:virtual_queue/controllers/AdminQueueController.dart';
 import 'package:virtual_queue/models/Queue.dart';
 
 class AdminQueueProgress extends StatefulWidget {
-  Queue queue;
-  AdminQueueProgress({
+  final Queue queue;
+  const AdminQueueProgress({
     Key? key,
     required this.queue,
   }) : super(key: key);
@@ -15,31 +15,12 @@ class AdminQueueProgress extends StatefulWidget {
 }
 
 class _AdminQueueProgressState extends State<AdminQueueProgress> {
-  Future<List<String>> getPeopleInQueue(
-      AdminQueueController adminQueueController, Queue queue) async {
-    List<String> users = await adminQueueController.getUsersInQueue(queue);
-    return users;
-  }
-
   int waitTime = 15;
-
-  ButtonStyle editStyle = ButtonStyle(
-      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-          RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-              side: const BorderSide(color: Color(0xFFFFFFFF), width: 3))),
-      backgroundColor:
-          MaterialStateProperty.all<Color>(const Color(0x00000000)));
-
-  bool isEditingQueue = false;
-  bool isAddingPersonToQueue = false;
-
-  TextEditingController addToQueue = TextEditingController();
+  TextEditingController addToQueueName = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    final adminQueueController =
-        Provider.of<AdminQueueController>(context, listen: false);
+    final adminQueueController = Provider.of<AdminQueueController>(context, listen: false);
     return Scaffold(
         appBar: AppBar(
           backgroundColor: const Color(0xFF017A08),
@@ -82,69 +63,76 @@ class _AdminQueueProgressState extends State<AdminQueueProgress> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const Padding(
-                      padding: EdgeInsets.all(12.0),
-                      child: Text("Queue", style: TextStyle(fontSize: 28),),
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        "Queue",
+                        style: TextStyle(fontSize: 28),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Text("Wait Time: $waitTime minutes", style: const TextStyle(fontSize: 18)),
                     ),
                     Container(
                       width: MediaQuery.of(context).size.width * 0.8,
                       height: MediaQuery.of(context).size.height * 0.6,
                       decoration: BoxDecoration(
-                        border: Border.all(color: const Color(0xFF017A08), width: 3),
-                        borderRadius: BorderRadius.circular(12)
-                      ),
+                          border: Border.all(color: const Color(0xFF017A08), width: 3), borderRadius: BorderRadius.circular(12)),
                       child: ListView.builder(
-                        itemCount: queue.users.length,
-                        itemBuilder: (context, index) {
-                          final user = queue.users[index];
-                          return Card(
-                            child: ListTile(
-                              title: Text(user.name!),
-                              trailing: IconButton(
-                                icon: const Icon(Icons.delete),
-                                onPressed: () {
-                                  adminQueueController.removeUserFromQueue(queue, user);      
-                                },
+                          itemCount: queue.users.length,
+                          itemBuilder: (context, index) {
+                            final user = queue.users[index];
+                            return Card(
+                              child: ListTile(
+                                title: Text(user.name!),
+                                trailing: IconButton(
+                                  icon: const Icon(Icons.delete),
+                                  onPressed: () {
+                                    adminQueueController.removeUserFromQueue(queue, user);
+                                  },
+                                ),
                               ),
-                            ),
-                          );
-                        }),
+                            );
+                          }),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: ElevatedButton(
                         onPressed: () {
                           showDialog(
-                            context: context, 
-                            builder: (context) {
-                              return AlertDialog(
-                                title: const Text("Add Person to Queue"),
-                                content: TextField(
-                                  controller: addToQueue,
-                                  decoration: const InputDecoration(
-                                    hintText: "Name",
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: const Text("Add Person to Queue"),
+                                  content: TextField(
+                                    controller: addToQueueName,
+                                    decoration: const InputDecoration(
+                                      hintText: "Name",
+                                    ),
                                   ),
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      addToQueue.clear();
-                                      Navigator.pop(context);
-                                    },
-                                    child: const Text("Cancel"),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      final user = addToQueue.text;
-                                      adminQueueController.addUserToQueue(queue, user);
-                                      addToQueue.clear();
-                                      Navigator.pop(context);
-                                    },
-                                    child: const Text("Add"),
-                                  ),
-                                ],
-                              );
-                            }
-                          );
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        addToQueueName.clear();
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text("Cancel"),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        final user = addToQueueName.text;
+                                        adminQueueController.addUserToQueue(queue, user).then((status) {
+                                          if (status.success) return;
+                                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(status.message!)));
+                                        });
+                                        addToQueueName.clear();
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text("Add"),
+                                    ),
+                                  ],
+                                );
+                              });
                         },
                         child: Text("Add New Person"),
                       ),

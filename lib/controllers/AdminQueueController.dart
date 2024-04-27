@@ -2,9 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:virtual_queue/controllers/FirebaseProvider.dart';
+import 'package:virtual_queue/models/ErrorStatus.dart';
 import 'package:virtual_queue/models/Queue.dart';
 import 'package:virtual_queue/controllers/userQueueController.dart';
 import 'package:uuid/uuid.dart';
+
+const uuid = Uuid();
 
 class AdminQueueController extends ChangeNotifier {
   late FirebaseProvider _firebaseProvider;
@@ -76,25 +79,21 @@ class AdminQueueController extends ChangeNotifier {
     });
   }
 
-  Future<void> addUserToQueue(Queue queue, String user) async {
-    final uuid = Uuid();
+  Future<ErrorStatus> addUserToQueue(Queue queue, String user) async {
+    if (user.isEmpty) {
+      return ErrorStatus(success: false, message: 'Name cannot be empty');
+    }
     final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
     final queueData = await queueReference.get();
     final capacity = queueData.data()!['capacity'];
-    final currentQueueLength = (await getUsersInQueue(queue)).length;
-
-
+    final currentQueueLength = queue.users.length;
 
     if (capacity == null || currentQueueLength < capacity) {
       final uid = uuid.v1();
-
-      queue.users.add(QueueUserEntry(
-        userId: uid, 
-        name: user,
-        timestamp: DateTime.now().millisecondsSinceEpoch
-      ));
-
+      queue.users.add(QueueUserEntry(userId: uid, name: user, timestamp: DateTime.now().millisecondsSinceEpoch));
       await queueReference.update({'users': queue.users.map((e) => e.toJson()).toList()});
+      return ErrorStatus(success: true);
     }
+    return ErrorStatus(success: false, message: 'Queue is full');
   }
 }
