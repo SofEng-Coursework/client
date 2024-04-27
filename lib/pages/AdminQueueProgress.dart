@@ -19,11 +19,8 @@ class _AdminQueueProgressState extends State<AdminQueueProgress> {
 
   ButtonStyle editStyle = ButtonStyle(
       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-          RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-              side: const BorderSide(color: Color(0xFFFFFFFF), width: 3))),
-      backgroundColor:
-          MaterialStateProperty.all<Color>(const Color(0x00000000)));
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: const BorderSide(color: Color(0xFFFFFFFF), width: 3))),
+      backgroundColor: MaterialStateProperty.all<Color>(const Color(0x00000000)));
 
   TextEditingController addToQueueName = TextEditingController();
 
@@ -33,7 +30,7 @@ class _AdminQueueProgressState extends State<AdminQueueProgress> {
     return Scaffold(
         appBar: AppBar(
           backgroundColor: const Color(0xFF017A08),
-          title: Text(widget.queue.name, style: const TextStyle(color:Color(0xFFFFFFFF))),
+          title: Text(widget.queue.name, style: const TextStyle(color: Color(0xFFFFFFFF))),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () {
@@ -94,31 +91,37 @@ class _AdminQueueProgressState extends State<AdminQueueProgress> {
                             return Card(
                               child: ListTile(
                                   title: Text(user.name!),
-                                  trailing: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
+                                  trailing: Row(mainAxisSize: MainAxisSize.min, children: [
                                     IconButton(
                                       icon: const Icon(Icons.arrow_drop_up),
                                       onPressed: () {
-                                        adminQueueController.moveUserUp(queue, user);
+                                        adminQueueController.moveUserUp(queue, user).then((status) {
+                                          if (status.success) return;
+                                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(status.message!)));
+                                        });
                                       },
                                     ),
                                     IconButton(
                                       icon: const Icon(Icons.arrow_drop_down),
                                       onPressed: () {
-                                        adminQueueController.moveUserDown(queue, user);
+                                        adminQueueController.moveUserDown(queue, user).then((status) {
+                                          if (status.success) return;
+                                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(status.message!)));
+                                        });
                                       },
                                     ),
                                     IconButton(
                                       icon: const Icon(Icons.delete),
                                       onPressed: () {
-                                        adminQueueController
-                                            .removeUserFromQueue(queue, user);
+                                        adminQueueController.removeUserFromQueue(queue, user).then((status) {
+                                          if (status.success) return;
+                                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(status.message!)));
+                                        });
                                       },
                                     )
                                   ])),
-                          );
-                        }),
+                            );
+                          }),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(12.0),

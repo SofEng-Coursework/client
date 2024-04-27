@@ -68,7 +68,7 @@ class AdminQueueController extends ChangeNotifier {
     return _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queueID).snapshots().map((doc) => Queue.fromJson(doc.data()!));
   }
 
-  Future<void> removeUserFromQueue(Queue queue, QueueUserEntry user) async {
+  Future<ErrorStatus> removeUserFromQueue(Queue queue, QueueUserEntry user) async {
     final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
     final queueData = await queueReference.get();
     final users = queueData.data()!['users'] as List<dynamic>;
@@ -76,6 +76,7 @@ class AdminQueueController extends ChangeNotifier {
     await queueReference.update({
       'users': users,
     });
+    return ErrorStatus(success: true);
   }
 
   Future<ErrorStatus> addUserToQueue(Queue queue, String user) async {
@@ -96,14 +97,14 @@ class AdminQueueController extends ChangeNotifier {
     return ErrorStatus(success: false, message: 'Queue is full');
   }
 
-  Future<void> moveUserUp(Queue queue, QueueUserEntry user) async{
+  Future<ErrorStatus> moveUserUp(Queue queue, QueueUserEntry user) async {
     final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
     final queueData = await queueReference.get();
     final users = queueData.data()!['users'];
     int indexOfUser = 0;
-    
+
     for (int i = 0; i < users.length; i++) {
-      if (users[i]["userId"] == user.userId){
+      if (users[i]["userId"] == user.userId) {
         indexOfUser = i;
         break;
       }
@@ -114,18 +115,20 @@ class AdminQueueController extends ChangeNotifier {
       users[indexOfUser] = aboveUser;
       users[indexOfUser - 1] = {"name": user.name, "timestamp": user.timestamp, "userId": user.userId};
       await queueReference.update({'users': users});
+      return ErrorStatus(success: true);
+    } else {
+      return ErrorStatus(success: false, message: 'User is already at the top of the queue');
     }
-    
   }
 
-  Future<void> moveUserDown(Queue queue, QueueUserEntry user) async{
+  Future<ErrorStatus> moveUserDown(Queue queue, QueueUserEntry user) async {
     final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
     final queueData = await queueReference.get();
     final users = queueData.data()!['users'];
     int indexOfUser = 0;
-    
+
     for (int i = 0; i < users.length; i++) {
-      if (users[i]["userId"] == user.userId){
+      if (users[i]["userId"] == user.userId) {
         indexOfUser = i;
         break;
       }
@@ -136,7 +139,9 @@ class AdminQueueController extends ChangeNotifier {
       users[indexOfUser] = aboveUser;
       users[indexOfUser + 1] = {"name": user.name, "timestamp": user.timestamp, "userId": user.userId};
       await queueReference.update({'users': users});
+      return ErrorStatus(success: true);
+    } else {
+      return ErrorStatus(success: false, message: 'User is already at the bottom of the queue');
     }
-    
   }
 }
