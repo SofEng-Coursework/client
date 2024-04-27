@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:virtual_queue/controllers/FirebaseProvider.dart';
 import 'package:virtual_queue/models/Queue.dart';
-import 'package:virtual_queue/controllers/userQueueController.dart';
 import 'package:uuid/uuid.dart';
 
 class AdminQueueController extends ChangeNotifier {
@@ -96,5 +95,49 @@ class AdminQueueController extends ChangeNotifier {
 
       await queueReference.update({'users': queue.users.map((e) => e.toJson()).toList()});
     }
+  }
+
+  Future<void> moveUserUp(Queue queue, QueueUserEntry user) async{
+    final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
+    final queueData = await queueReference.get();
+    final users = queueData.data()!['users'];
+    int indexOfUser = 0;
+    
+    for (int i = 0; i < users.length; i++) {
+      if (users[i]["userId"] == user.userId){
+        indexOfUser = i;
+        break;
+      }
+    }
+
+    if (indexOfUser > 0) {
+      var aboveUser = users[indexOfUser - 1];
+      users[indexOfUser] = aboveUser;
+      users[indexOfUser - 1] = {"name": user.name, "timestamp": user.timestamp, "userId": user.userId};
+      await queueReference.update({'users': users});
+    }
+    
+  }
+
+  Future<void> moveUserDown(Queue queue, QueueUserEntry user) async{
+    final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
+    final queueData = await queueReference.get();
+    final users = queueData.data()!['users'];
+    int indexOfUser = 0;
+    
+    for (int i = 0; i < users.length; i++) {
+      if (users[i]["userId"] == user.userId){
+        indexOfUser = i;
+        break;
+      }
+    }
+
+    if (indexOfUser < users.length - 1) {
+      var aboveUser = users[indexOfUser + 1];
+      users[indexOfUser] = aboveUser;
+      users[indexOfUser + 1] = {"name": user.name, "timestamp": user.timestamp, "userId": user.userId};
+      await queueReference.update({'users': users});
+    }
+    
   }
 }

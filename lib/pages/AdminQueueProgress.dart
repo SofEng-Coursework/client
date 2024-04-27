@@ -31,9 +31,6 @@ class _AdminQueueProgressState extends State<AdminQueueProgress> {
       backgroundColor:
           MaterialStateProperty.all<Color>(const Color(0x00000000)));
 
-  bool isEditingQueue = false;
-  bool isAddingPersonToQueue = false;
-
   TextEditingController addToQueue = TextEditingController();
 
   @override
@@ -43,7 +40,7 @@ class _AdminQueueProgressState extends State<AdminQueueProgress> {
     return Scaffold(
         appBar: AppBar(
           backgroundColor: const Color(0xFF017A08),
-          title: Text(widget.queue.name),
+          title: Text(widget.queue.name, style: const TextStyle(color:Color(0xFFFFFFFF))),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () {
@@ -93,19 +90,35 @@ class _AdminQueueProgressState extends State<AdminQueueProgress> {
                         borderRadius: BorderRadius.circular(12)
                       ),
                       child: ListView.builder(
-                        itemCount: queue.users.length,
-                        itemBuilder: (context, index) {
-                          final user = queue.users[index];
-                          return Card(
-                            child: ListTile(
-                              title: Text(user.name!),
-                              trailing: IconButton(
-                                icon: const Icon(Icons.delete),
-                                onPressed: () {
-                                  adminQueueController.removeUserFromQueue(queue, user);      
-                                },
-                              ),
-                            ),
+                          itemCount: queue.users.length,
+                          itemBuilder: (context, index) {
+                            final user = queue.users[index];
+                            return Card(
+                              child: ListTile(
+                                  title: Text(user.name!),
+                                  trailing: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.arrow_drop_up),
+                                      onPressed: () {
+                                        adminQueueController.moveUserUp(queue, user);
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.arrow_drop_down),
+                                      onPressed: () {
+                                        adminQueueController.moveUserDown(queue, user);
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete),
+                                      onPressed: () {
+                                        adminQueueController
+                                            .removeUserFromQueue(queue, user);
+                                      },
+                                    )
+                                  ])),
                           );
                         }),
                     ),
