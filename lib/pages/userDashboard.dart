@@ -176,7 +176,7 @@ class QueuesListView extends StatelessWidget {
                     return Text("Error: ${snapshot.error}");
                   }
                   final queues = snapshot.data!;
-                  print(queues);
+                  
                   return ListView.builder(
                     scrollDirection: Axis.vertical,
                     padding: EdgeInsets.all(0),

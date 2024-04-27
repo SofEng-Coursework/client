@@ -81,9 +81,9 @@ class _AdminQueueProgressState extends State<AdminQueueProgress> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: const Text("Queue", style: TextStyle(fontSize: 28),),
+                    const Padding(
+                      padding: EdgeInsets.all(12.0),
+                      child: Text("Queue", style: TextStyle(fontSize: 28),),
                     ),
                     Container(
                       width: MediaQuery.of(context).size.width * 0.8,
@@ -127,13 +127,16 @@ class _AdminQueueProgressState extends State<AdminQueueProgress> {
                                 actions: [
                                   TextButton(
                                     onPressed: () {
+                                      addToQueue.clear();
                                       Navigator.pop(context);
                                     },
                                     child: const Text("Cancel"),
                                   ),
                                   TextButton(
                                     onPressed: () {
-
+                                      final user = addToQueue.text;
+                                      adminQueueController.addUserToQueue(queue, user);
+                                      addToQueue.clear();
                                       Navigator.pop(context);
                                     },
                                     child: const Text("Add"),

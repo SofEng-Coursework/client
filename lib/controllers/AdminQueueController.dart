@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:virtual_queue/controllers/FirebaseProvider.dart';
 import 'package:virtual_queue/models/Queue.dart';
+import 'package:virtual_queue/controllers/userQueueController.dart';
+import 'package:uuid/uuid.dart';
 
 class AdminQueueController extends ChangeNotifier {
   late FirebaseProvider _firebaseProvider;
@@ -72,5 +74,27 @@ class AdminQueueController extends ChangeNotifier {
     await queueReference.update({
       'users': users,
     });
+  }
+
+  Future<void> addUserToQueue(Queue queue, String user) async {
+    final uuid = Uuid();
+    final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
+    final queueData = await queueReference.get();
+    final capacity = queueData.data()!['capacity'];
+    final currentQueueLength = (await getUsersInQueue(queue)).length;
+
+
+
+    if (capacity == null || currentQueueLength < capacity) {
+      final uid = uuid.v1();
+
+      queue.users.add(QueueUserEntry(
+        userId: uid, 
+        name: user,
+        timestamp: DateTime.now().millisecondsSinceEpoch
+      ));
+
+      await queueReference.update({'users': queue.users.map((e) => e.toJson()).toList()});
+    }
   }
 }
