@@ -119,12 +119,9 @@ class _LoginFormState extends State<LoginForm> {
                     if (_formKey.currentState!.validate()) {
                       _formKey.currentState!.save();
                       final error = await userAccountController.login(_email, _password);
-                      if (error != null) {
-                        // TODO: show error message
-                        setState(() {
-                          errorMesssage = error;
-                        });
-                      }
+                      setState(() {
+                        errorMesssage = error.message;
+                      });
                     }
                   }),
               SizedBox(

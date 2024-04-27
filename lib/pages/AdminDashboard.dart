@@ -140,7 +140,13 @@ class AdminQueueList extends StatelessWidget {
                         if (!queueData.open) Icon(Icons.close, color: Colors.red),
                       ],
                     ),
-                    subtitle: Text(queueData.capacity == null ? 'Unlimited' : 'Capacity: ${queueData.capacity}'),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Users: ${queueData.users.length}'),
+                        Text(queueData.capacity == null ? 'Capacity: Unlimited' : 'Capacity: ${queueData.capacity}'),
+                      ],
+                    ),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
