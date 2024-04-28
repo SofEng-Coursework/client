@@ -87,20 +87,21 @@ class _AdminQueueProgressState extends State<AdminQueueProgress> {
                     ),
                     //Being served
                     Container(
-                      width: MediaQuery.of(context).size.width * 0.5,
-                      height: MediaQuery.of(context).size.height * 0.1,
-                      decoration: BoxDecoration(
-                          border: Border.all(
-                              color: const Color(0xFF017A08), width: 3),
-                          borderRadius: BorderRadius.circular(12)),
-                      child: Center(
-                        child: queue.users.isNotEmpty
-                            ? Text(queue.users[0].name as String,
-                                style: const TextStyle(fontSize: 20))
-                            : const Text("Queue empty",
-                                style: TextStyle(fontSize: 20)),
-                      ),
-                    ),
+                        width: MediaQuery.of(context).size.width * 0.5,
+                        height: MediaQuery.of(context).size.height * 0.1,
+                        decoration: BoxDecoration(
+                            border: Border.all(
+                                color: const Color(0xFF017A08), width: 3),
+                            borderRadius: BorderRadius.circular(12)),
+                        child: Center(
+                          child: SingleChildScrollView(
+                            child: queue.users.isNotEmpty
+                                ? Text(queue.users[0].name as String,
+                                    style: const TextStyle(fontSize: 20))
+                                : const Text("Queue empty",
+                                    style: TextStyle(fontSize: 20)),
+                          ),
+                        )),
                     //Advance button
                     Padding(
                         padding: const EdgeInsets.all(12),
@@ -108,7 +109,9 @@ class _AdminQueueProgressState extends State<AdminQueueProgress> {
                           child: const Text("Advance"),
                           onPressed: () {
                             if (queue.users.isNotEmpty) {
-                              adminQueueController.removeUserFromQueue(queue, queue.users[0]);}
+                              adminQueueController.removeUserFromQueue(
+                                  queue, queue.users[0]);
+                            }
                           },
                         )),
                     Padding(
