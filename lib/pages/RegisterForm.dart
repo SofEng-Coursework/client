@@ -186,23 +186,15 @@ class _RegisterFormState extends State<RegisterForm> {
                         _name,
                         _phone,
                       );
-                      if (errStatus != null) {
-                        setState(() {
-                          errorMesssage = errStatus;
-                        });
-                      }
+                      setState(() {
+                        errorMesssage = errStatus.message;
+                      });
                     } else {
-                      final errStatus = await Provider.of<AdminAccountController>(context, listen: false).signUp(
-                        _email,
-                        _password,
-                        _name,
-                        _phone
-                      );
-                      if (errStatus != null) {
-                        setState(() {
-                          errorMesssage = errStatus;
-                        });
-                      }
+                      final errStatus =
+                          await Provider.of<AdminAccountController>(context, listen: false).signUp(_email, _password, _name, _phone);
+                      setState(() {
+                        errorMesssage = errStatus.message;
+                      });
                     }
                   }
                 },

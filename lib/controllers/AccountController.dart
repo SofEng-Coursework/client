@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:virtual_queue/controllers/FirebaseProvider.dart';
+import 'package:virtual_queue/models/ErrorStatus.dart';
 import 'package:virtual_queue/pages/RegisterForm.dart';
 
 class AccountController extends ChangeNotifier {
@@ -12,7 +13,7 @@ class AccountController extends ChangeNotifier {
     _firebaseProvider = firebaseProvider;
   }
 
-  Future<String?> signUp(String email, String password, String name, String phone) async {
+  Future<ErrorStatus> signUp(String email, String password, String name, String phone) async {
     try {
       UserCredential credential = await _firebaseProvider.FIREBASE_AUTH.createUserWithEmailAndPassword(
         email: email,
@@ -28,20 +29,21 @@ class AccountController extends ChangeNotifier {
         'email': email,
         'uid': uid,
       });
-      return null;
+      return ErrorStatus(success: true);
     } on FirebaseAuthException catch (e) {
-      return "An error occurred: ${e.message}";
+      return ErrorStatus(success: false, message: 'An error occurred: ${e.message}');
     }
   }
-  Future<String?> login(String email, String password) async {
+
+  Future<ErrorStatus> login(String email, String password) async {
     try {
       UserCredential credential = await _firebaseProvider.FIREBASE_AUTH.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-      return null;
+      return ErrorStatus(success: true);
     } on FirebaseAuthException catch (e) {
-      return 'An error occurred: ${e.message}';
+      return ErrorStatus(success: false, message: 'An error occurred: ${e.message}');
     }
   }
 
@@ -50,8 +52,10 @@ class AccountController extends ChangeNotifier {
     if (user != null) {
       final response = await _firebaseProvider.FIREBASE_FIRESTORE.collection(collectionName).doc(user.uid).get();
       Map<String, dynamic>? data = response.data();
-      if (data == null) { return null; }
-      data['accountType'] = collectionName == 'users' ? AccountType.User : AccountType.Admin; 
+      if (data == null) {
+        return null;
+      }
+      data['accountType'] = collectionName == 'users' ? AccountType.User : AccountType.Admin;
       return data;
     }
     return null;
