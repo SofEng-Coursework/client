@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:virtual_queue/controllers/FirebaseProvider.dart';
 import 'package:virtual_queue/models/ErrorStatus.dart';
+import 'package:virtual_queue/models/FeedbackEntry.dart';
 import 'package:virtual_queue/models/Queue.dart';
 import 'package:virtual_queue/pages/RegisterForm.dart';
 import 'dart:async';
@@ -28,7 +29,12 @@ class UserQueueController extends ChangeNotifier {
       return ErrorStatus(success: false, message: "An error occurred: User already in queue");
     }
 
-    final name = await _firebaseProvider.FIREBASE_FIRESTORE.collection('users').doc(userUID).get().then((value) => value.data()?['name']);
+    final userReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('users').doc(userUID);
+    final name = await userReference.get().then((value) => value.data()?['name']);
+
+    userReference.update({
+      'feedbackPrompt': FieldValue.arrayUnion([queue.id]), // Add the queue ID to the user's feedback prompt list
+    });
 
     final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
     queue.users.add(QueueUserEntry(userId: userUID, name: name, timestamp: DateTime.now().millisecondsSinceEpoch));
@@ -109,5 +115,33 @@ class UserQueueController extends ChangeNotifier {
       int position = queue.users.indexWhere((element) => element.userId == userUID);
       return position == -1 ? -1 : position + 1;
     });
+  }
+
+  Future<ErrorStatus> submitFeedback(String queueId, FeedbackEntry entry) async {
+    final userUID = _firebaseProvider.FIREBASE_AUTH.currentUser?.uid;
+    if (userUID == null) {
+      return ErrorStatus(success: false, message: "An error occurred: User not logged in");
+    }
+
+    final queueFeedbackRef = _firebaseProvider.FIREBASE_FIRESTORE.collection('feedback').doc(queueId);
+    // Create a new document if it doesn't exist, otherwise update the existing document
+    await queueFeedbackRef.set({
+      'queueId': queueId,
+      'ratings': [],
+      'entries': [],
+    }, SetOptions(merge: true));
+
+    // Update the ratings and comments arrays with the new feedback
+    await queueFeedbackRef.update({
+      'ratings': FieldValue.arrayUnion([entry.rating]),
+      'comments': FieldValue.arrayUnion([entry.toJson()]),
+    });
+
+    final userReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('users').doc(userUID);
+    await userReference.update({
+      'feedbackPrompt': FieldValue.arrayRemove([queueId])
+    });
+
+    return ErrorStatus(success: true);
   }
 }
