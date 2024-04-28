@@ -117,6 +117,13 @@ class UserQueueController extends ChangeNotifier {
     });
   }
 
+  Future<void> removeFeedbackPrompt(String queueId, String userId) {
+    final userReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('users').doc(userId);
+    return userReference.update({
+      'feedbackPrompt': FieldValue.arrayRemove([queueId])
+    });
+  }
+
   Future<ErrorStatus> submitFeedback(String queueId, FeedbackEntry entry) async {
     final userUID = _firebaseProvider.FIREBASE_AUTH.currentUser?.uid;
     if (userUID == null) {
@@ -135,11 +142,6 @@ class UserQueueController extends ChangeNotifier {
     await queueFeedbackRef.update({
       'ratings': FieldValue.arrayUnion([entry.rating]),
       'comments': FieldValue.arrayUnion([entry.toJson()]),
-    });
-
-    final userReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('users').doc(userUID);
-    await userReference.update({
-      'feedbackPrompt': FieldValue.arrayRemove([queueId])
     });
 
     return ErrorStatus(success: true);

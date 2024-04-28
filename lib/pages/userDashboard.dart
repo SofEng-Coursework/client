@@ -16,29 +16,25 @@ class UserDashboard extends StatelessWidget {
     final userAccountController = Provider.of<UserAccountController>(context, listen: false);
 
     return StreamBuilder(
-      stream: userQueueController.getCurrentQueue(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
-        }
-        if (snapshot.hasError) {
-          return Text("Error: ${snapshot.error}");
-        }
-        final queue = snapshot.data;
-          
-        return queue == null ? QueuesListView() : QueueProgressView(queue: queue);
-      });
+        stream: userQueueController.getCurrentQueue(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return CircularProgressIndicator();
+          }
+          if (snapshot.hasError) {
+            return Text("Error: ${snapshot.error}");
+          }
+          final queue = snapshot.data;
+
+          return queue == null ? QueuesListView() : QueueProgressView(queue: queue);
+        });
   }
 }
 
 class FeedbackView extends StatefulWidget {
   final List<dynamic> feedbackPrompts;
   final Map<String, dynamic> userData;
-  FeedbackView({
-    required this.feedbackPrompts,
-    required this.userData,
-    super.key
-  });
+  FeedbackView({required this.feedbackPrompts, required this.userData, super.key});
 
   @override
   State<FeedbackView> createState() => _FeedbackViewState();
@@ -51,8 +47,17 @@ class _FeedbackViewState extends State<FeedbackView> {
 
   @override
   Widget build(BuildContext context) {
+    final userQueueController = Provider.of<UserQueueController>(context, listen: false);
+    final queueId = widget.feedbackPrompts[0] as String;
+    final userId = widget.userData['uid'] as String;
     return Scaffold(
       appBar: AppBar(
+        leading: BackButton(
+          onPressed: () {
+            userQueueController.removeFeedbackPrompt(queueId, userId);
+            Navigator.of(context).pop();
+          },
+        ),
         title: Text("Rate Experience"),
       ),
       body: Center(
@@ -63,43 +68,43 @@ class _FeedbackViewState extends State<FeedbackView> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: RatingBar.builder(
-                  itemCount: 5,
-                  itemBuilder: (context, index) {
-                    switch (index) {
-                        case 0:
-                          return Icon(
-                              Icons.sentiment_very_dissatisfied,
-                              color: Colors.red,
-                          );
-                        case 1:
-                          return Icon(
-                              Icons.sentiment_dissatisfied,
-                              color: Colors.redAccent,
-                          );
-                        case 2:
-                          return Icon(
-                              Icons.sentiment_neutral,
-                              color: Colors.amber,
-                          );
-                        case 3:
-                          return Icon(
-                              Icons.sentiment_satisfied,
-                              color: Colors.lightGreen,
-                          );
-                        case 4:
-                            return Icon(
-                              Icons.sentiment_very_satisfied,
-                              color: Colors.green,
-                            );
-                        default:
-                            return Container();
-                    }
-                  },
-                  onRatingUpdate: (newRating) {
-                    setState(() {
-                      rating = newRating.toInt();
-                    });
-                  },
+                itemCount: 5,
+                itemBuilder: (context, index) {
+                  switch (index) {
+                    case 0:
+                      return Icon(
+                        Icons.sentiment_very_dissatisfied,
+                        color: Colors.red,
+                      );
+                    case 1:
+                      return Icon(
+                        Icons.sentiment_dissatisfied,
+                        color: Colors.redAccent,
+                      );
+                    case 2:
+                      return Icon(
+                        Icons.sentiment_neutral,
+                        color: Colors.amber,
+                      );
+                    case 3:
+                      return Icon(
+                        Icons.sentiment_satisfied,
+                        color: Colors.lightGreen,
+                      );
+                    case 4:
+                      return Icon(
+                        Icons.sentiment_very_satisfied,
+                        color: Colors.green,
+                      );
+                    default:
+                      return Container();
+                  }
+                },
+                onRatingUpdate: (newRating) {
+                  setState(() {
+                    rating = newRating.toInt();
+                  });
+                },
               ),
             ),
             Padding(
@@ -110,7 +115,7 @@ class _FeedbackViewState extends State<FeedbackView> {
                   decoration: InputDecoration(
                     hintText: "Additional comments",
                     border: OutlineInputBorder(),
-                  ),  
+                  ),
                   expands: true,
                   controller: commentsController,
                   keyboardType: TextInputType.multiline,
@@ -122,11 +127,12 @@ class _FeedbackViewState extends State<FeedbackView> {
               onPressed: () {
                 // Submit feedback
                 final FeedbackEntry entry = FeedbackEntry(
-                  userId: widget.userData['uid'] as String,
+                  userId: userId,
                   comments: commentsController.text,
                   rating: rating,
                 );
-                Provider.of<UserQueueController>(context, listen: false).submitFeedback(widget.feedbackPrompts[0], entry).then((status) {
+                userQueueController.removeFeedbackPrompt(queueId, userId);
+                userQueueController.submitFeedback(widget.feedbackPrompts[0], entry).then((status) {
                   if (status.success) {
                     Navigator.of(context).pop();
                     return;
@@ -221,14 +227,14 @@ class QueuesListView extends StatelessWidget {
     final userQueueContorller = Provider.of<UserQueueController>(context, listen: false);
 
     userAccountController.getUserData().then((userData) {
-      if (userData == null) { return; }
+      if (userData == null) {
+        return;
+      }
       final feedbackPrompts = userData['feedbackPrompt'] as List<dynamic>;
       if (feedbackPrompts.isNotEmpty) {
         Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => ChangeNotifierProvider.value(
-            value: userQueueContorller,
-            child: FeedbackView(feedbackPrompts: feedbackPrompts, userData: userData)
-          ),
+              value: userQueueContorller, child: FeedbackView(feedbackPrompts: feedbackPrompts, userData: userData)),
         ));
       }
     });
