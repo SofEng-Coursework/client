@@ -78,10 +78,19 @@ class AdminQueueController extends ChangeNotifier {
   Future<ErrorStatus> removeUserFromQueue(Queue queue, QueueUserEntry user) async {
     final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
     final queueData = await queueReference.get();
+
     final users = queueData.data()!['users'] as List<dynamic>;
+    final startTime = user.timestamp;
+    final endTime = DateTime.now().millisecondsSinceEpoch;
+
+    // Add the user to the logs
+    final logs = queueData.data()!['logs'] as List<dynamic>;
+    logs.add({"userId": user.userId, "start": startTime, "end": endTime});
+
     users.removeWhere((element) => element['userId'] == user.userId);
     await queueReference.update({
       'users': users,
+      'logs': logs,
     });
     return ErrorStatus(success: true);
   }

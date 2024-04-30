@@ -43,6 +43,17 @@ class UserQueueController extends ChangeNotifier {
     return ErrorStatus(success: true);
   }
 
+  List<int> getWaitTimes(Queue queue) {
+    final logs = queue.logs;
+    return logs.map((e) => e.end - e.start).toList();
+  }
+
+  int getMedianWaitTime(Queue queue) {
+    final waitTimes = getWaitTimes(queue);
+    waitTimes.sort();
+    return waitTimes[waitTimes.length ~/ 2];
+  }
+
   Future<ErrorStatus> leaveQueue(Queue queue) async {
     String? userUID = _firebaseProvider.FIREBASE_AUTH.currentUser?.uid;
     if (userUID == null) {
@@ -52,10 +63,20 @@ class UserQueueController extends ChangeNotifier {
       return ErrorStatus(success: false, message: "An error occurred: User not in queue");
     }
 
+    // Add a log entry for the user leaving the queue
+    final startTime = queue.users.firstWhere((element) => element.userId == userUID).timestamp;
+    final endTime = DateTime.now().millisecondsSinceEpoch;
+
+    final logs = queue.logs;
+    logs.add(QueueLog(userId: userUID, start: startTime, end: endTime));
+
     final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
     queue.users.removeWhere((element) => element.userId == userUID);
 
-    await queueReference.update({'users': queue.users.map((e) => e.toJson()).toList()});
+    await queueReference.update({
+      'users': queue.users.map((e) => e.toJson()).toList(),
+      'logs': logs.map((e) => e.toJson()).toList(),
+    });
 
     return ErrorStatus(success: true);
   }
