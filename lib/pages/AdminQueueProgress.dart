@@ -13,7 +13,7 @@ class AdminQueueProgress extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _AdminQueueProgressState();
 }
-
+/// This screen is used to show the occupants of a queue and allow their positions to be managed by the admin
 class _AdminQueueProgressState extends State<AdminQueueProgress> {
   int waitTime = 15;
 
@@ -36,23 +36,25 @@ class _AdminQueueProgressState extends State<AdminQueueProgress> {
           backgroundColor: const Color(0xFF017A08),
           title: Text(widget.queue.name,
               style: const TextStyle(color: Color(0xFFFFFFFF))),
+          /// This button will allow you to leave the queue management screen
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () {
               Navigator.pop(context);
             },
           ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.settings),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const SettingsPage()),
-                );
-              },
-            )
-          ],
+          /// This will open a queue settings page - currently not in use
+          // actions: [
+          //   IconButton(
+          //     icon: const Icon(Icons.settings),
+          //     onPressed: () {
+          //       Navigator.push(
+          //         context,
+          //         MaterialPageRoute(builder: (context) => const SettingsPage()),
+          //       );
+          //     },
+          //   )
+          // ],
         ),
         drawer: const Drawer(),
         body: StreamBuilder<Object>(
@@ -76,7 +78,7 @@ class _AdminQueueProgressState extends State<AdminQueueProgress> {
                     const Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Text(
-                        "Queue",
+                        "Queue:",
                         style: TextStyle(fontSize: 28),
                       ),
                     ),
@@ -119,7 +121,7 @@ class _AdminQueueProgressState extends State<AdminQueueProgress> {
                       child: Text("Wait Time: $waitTime minutes",
                           style: const TextStyle(fontSize: 18)),
                     ),
-                    //Main queue
+                    /// This is where the main body of the queue is shown and can be managed
                     Container(
                       width: MediaQuery.of(context).size.width * 0.6,
                       height: MediaQuery.of(context).size.height * 0.4,
@@ -137,6 +139,7 @@ class _AdminQueueProgressState extends State<AdminQueueProgress> {
                                   trailing: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
+                                        /// The following three buttons move users up, down and out respectively
                                         IconButton(
                                           icon: const Icon(Icons.arrow_drop_up),
                                           onPressed: () {
@@ -185,6 +188,7 @@ class _AdminQueueProgressState extends State<AdminQueueProgress> {
                             );
                           }),
                     ),
+                    /// This button allows the admin to manually add a user to the queue
                     Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: ElevatedButton(
