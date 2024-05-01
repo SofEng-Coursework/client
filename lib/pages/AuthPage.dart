@@ -10,7 +10,7 @@ class AuthPage extends StatefulWidget {
   @override
   State<AuthPage> createState() => _AuthPageState();
 }
-
+/// This is the page that allows the user to decide whether to login or signup and will then open the appropriate widget
 class _AuthPageState extends State<AuthPage> {
   AuthPageType _authPageType = AuthPageType.SignIn;
 
