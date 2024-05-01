@@ -58,7 +58,7 @@ class Queue {
   final String id;
   final String name;
   final bool open;
-  final double? capacity;
+  final int? capacity;
   final List<QueueUserEntry> users;
   final List<QueueLog> logs;
 
@@ -80,7 +80,7 @@ class Queue {
       id: json['id'] as String,
       name: json['name'] as String,
       open: json['open'] as bool,
-      capacity: json['capacity'] as double?,
+      capacity: json['capacity'] as int?,
       users: (json['users'] as List).map((e) => QueueUserEntry.fromJson(e)).toList(),
       logs: (json['logs'] as List).map((e) => QueueLog.fromJson(e)).toList(),
     );

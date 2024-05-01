@@ -7,12 +7,9 @@ import 'package:virtual_queue/controllers/AccountController.dart';
 import 'package:virtual_queue/controllers/FirebaseProvider.dart';
 
 class UserAccountController extends AccountController {
-  late FirebaseProvider _firebaseProvider;
-
   late Map<String, dynamic> _notificationSettings;
 
-  UserAccountController({required FirebaseProvider firebaseProvider})
-      : super(collectionName: 'users', firebaseProvider: firebaseProvider) {
+  UserAccountController({required FirebaseProvider firebaseProvider}) : super(collectionName: 'users', firebaseProvider: firebaseProvider) {
     // Initialize notification settings when the controller is created
     _notificationSettings = {'push_enabled': true, 'chat_enabled': true, 'email_enabled': false};
     _initializeNotificationSettings();
@@ -41,18 +38,18 @@ class UserAccountController extends AccountController {
   }
 
   void _initializeNotificationSettings() async {
-    final user = _firebaseProvider.FIREBASE_AUTH.currentUser;
+    final user = firebaseProvider.FIREBASE_AUTH.currentUser;
     if (user != null) {
-      final docSnapshot = await _firebaseProvider.FIREBASE_FIRESTORE.collection('users').doc(user.uid).get();
+      final docSnapshot = await firebaseProvider.FIREBASE_FIRESTORE.collection('users').doc(user.uid).get();
       _notificationSettings = Map<String, dynamic>.from(docSnapshot.data()?['notification_settings'] ?? {});
       notifyListeners();
     }
   }
 
   void _updateNotificationSettings() async {
-    final user = _firebaseProvider.FIREBASE_AUTH.currentUser;
+    final user = firebaseProvider.FIREBASE_AUTH.currentUser;
     if (user != null) {
-      await _firebaseProvider.FIREBASE_FIRESTORE.collection('users').doc(user.uid).update({'notification_settings': _notificationSettings});
+      await firebaseProvider.FIREBASE_FIRESTORE.collection('users').doc(user.uid).update({'notification_settings': _notificationSettings});
     }
   }
 }
