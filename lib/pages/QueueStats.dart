@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'dart:math';
-
-void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  runApp(const Directionality(
-      textDirection: TextDirection.rtl,
-      child: MaterialApp(home: QueueStats())));
-}
+import 'package:provider/provider.dart';
+import 'package:virtual_queue/controllers/AdminQueueController.dart';
+import 'package:virtual_queue/models/Queue.dart';
 
 class QueueStats extends StatefulWidget {
-  const QueueStats({Key? key}) : super(key: key);
+  final Queue queue;
+  const QueueStats({
+    Key? key,
+    required this.queue,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _QueueStatsState();
@@ -65,134 +65,160 @@ class _QueueStatsState extends State<QueueStats> {
 
   @override
   Widget build(BuildContext context) {
+    final adminQueueController =
+        Provider.of<AdminQueueController>(context, listen: false);
     return Scaffold(
         appBar: AppBar(
           backgroundColor: const Color(0xFF017A08),
-          title: const Text("*app name*"),
+          title: Text(widget.queue.name,
+              style: const TextStyle(color: Color(0xFFFFFFFF))),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
         ),
-        body: Center(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              /*average daily*/ Container(
-                width: screenWidth * 0.1,
-                height: screenHeight * 0.2,
-                padding: const EdgeInsets.fromLTRB(0, 10, 5, 5),
-                child: BarChart(BarChartData(
-                    barTouchData: BarTouchData(
-                      enabled: false,
-                      touchTooltipData: BarTouchTooltipData(
-                        tooltipBgColor: Colors.transparent,
-                        tooltipPadding: EdgeInsets.zero,
-                        tooltipMargin: 8,
-                        getTooltipItem: (
-                          BarChartGroupData group,
-                          int groupIndex,
-                          BarChartRodData rod,
-                          int rodIndex,
-                        ) {
-                          return BarTooltipItem(
-                            rod.toY.round().toString(),
-                            const TextStyle(
-                              color: Color(0xFF0065B7),
-                              fontWeight: FontWeight.bold,
+        drawer: const Drawer(),
+        body: StreamBuilder<Object>(
+            stream: adminQueueController.getQueue(widget.queue.id),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return const Text("Error");
+              }
+              if (!snapshot.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              // This is the live queue data
+              Queue queue = snapshot.data as Queue;
+              
+              return Center(
+                  child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                    /*average daily*/ Container(
+                      width: screenWidth * 0.1,
+                      height: screenHeight * 0.2,
+                      padding: const EdgeInsets.fromLTRB(0, 10, 5, 5),
+                      child: BarChart(BarChartData(
+                          barTouchData: BarTouchData(
+                            enabled: false,
+                            touchTooltipData: BarTouchTooltipData(
+                              tooltipBgColor: Colors.transparent,
+                              tooltipPadding: EdgeInsets.zero,
+                              tooltipMargin: 8,
+                              getTooltipItem: (
+                                BarChartGroupData group,
+                                int groupIndex,
+                                BarChartRodData rod,
+                                int rodIndex,
+                              ) {
+                                return BarTooltipItem(
+                                  rod.toY.round().toString(),
+                                  const TextStyle(
+                                    color: Color(0xFF0065B7),
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                );
+                              },
                             ),
-                          );
-                        },
-                      ),
-                    ),
-                    titlesData: FlTitlesData(
-                      show: true,
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 30,
-                          getTitlesWidget: getTitles,
-                        ),
-                      ),
-                      leftTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      topTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: true,),
-                      ),
-                      rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                    ),
-                    borderData: FlBorderData(show: false),
-                    barGroups: [
-                      makeBar(0, averageDay[0]),
-                      makeBar(1, averageDay[1]),
-                      makeBar(2, averageDay[2]),
-                      makeBar(3, averageDay[3]),
-                      makeBar(4, averageDay[4]),
-                      makeBar(5, averageDay[5]),
-                      makeBar(6, averageDay[6]),
-                    ],
-                    gridData: const FlGridData(
-                        drawVerticalLine: false, drawHorizontalLine: true),
-                    alignment: BarChartAlignment.spaceAround,
-                    maxY: averageDay.reduce(max))),
-              ),
-              /*average today*/ Container(
-                  width: screenWidth * 0.3,
-                  height: screenHeight * 0.25,
-                  padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
-                  child: BarChart(BarChartData(
-                      barTouchData: BarTouchData(
-                        enabled: false,
-                        touchTooltipData: BarTouchTooltipData(
-                          tooltipBgColor: Colors.transparent,
-                          tooltipPadding: EdgeInsets.zero,
-                          tooltipMargin: 8,
-                          getTooltipItem: (
-                            BarChartGroupData group,
-                            int groupIndex,
-                            BarChartRodData rod,
-                            int rodIndex,
-                          ) {
-                            return BarTooltipItem(
-                              rod.toY.round().toString(),
-                              const TextStyle(
-                                color: Color(0xFF0065B7),
-                                fontWeight: FontWeight.bold,
+                          ),
+                          titlesData: FlTitlesData(
+                            show: true,
+                            bottomTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 30,
+                                getTitlesWidget: getTitles,
                               ),
-                            );
-                          },
-                        ),
-                      ),
-                      titlesData: FlTitlesData(
-                        show: true,
-                        rightTitles: const AxisTitles(
-                          sideTitles: SideTitles(showTitles: false),
-                        ),
-                        topTitles: const AxisTitles(
-                          sideTitles: SideTitles(showTitles: false),
-                        ),
-                        bottomTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            getTitlesWidget: bottomTitles,
-                            reservedSize: 42,
+                            ),
+                            leftTitles: const AxisTitles(
+                              sideTitles: SideTitles(showTitles: false),
+                            ),
+                            topTitles: const AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                              ),
+                            ),
+                            rightTitles: const AxisTitles(
+                              sideTitles: SideTitles(showTitles: false),
+                            ),
                           ),
-                        ),
-                        leftTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            reservedSize: 28,
-                            interval: 1,
-                            getTitlesWidget: leftTitles,
-                          ),
-                        ),
-                      ),
-                      borderData: FlBorderData(show: true),
-                      barGroups: todayData,
-                      gridData: FlGridData(
-                        show: true,
-                        /*checkToShowHorizontalLine: (value) {
+                          borderData: FlBorderData(show: false),
+                          barGroups: [
+                            makeBar(0, averageDay[0]),
+                            makeBar(1, averageDay[1]),
+                            makeBar(2, averageDay[2]),
+                            makeBar(3, averageDay[3]),
+                            makeBar(4, averageDay[4]),
+                            makeBar(5, averageDay[5]),
+                            makeBar(6, averageDay[6]),
+                          ],
+                          gridData: const FlGridData(
+                              drawVerticalLine: false,
+                              drawHorizontalLine: true),
+                          alignment: BarChartAlignment.spaceAround,
+                          maxY: averageDay.reduce(max))),
+                    ),
+                    /*average today*/ Container(
+                        width: screenWidth * 0.3,
+                        height: screenHeight * 0.25,
+                        padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
+                        child: BarChart(BarChartData(
+                            barTouchData: BarTouchData(
+                              enabled: false,
+                              touchTooltipData: BarTouchTooltipData(
+                                tooltipBgColor: Colors.transparent,
+                                tooltipPadding: EdgeInsets.zero,
+                                tooltipMargin: 8,
+                                getTooltipItem: (
+                                  BarChartGroupData group,
+                                  int groupIndex,
+                                  BarChartRodData rod,
+                                  int rodIndex,
+                                ) {
+                                  return BarTooltipItem(
+                                    rod.toY.round().toString(),
+                                    const TextStyle(
+                                      color: Color(0xFF0065B7),
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            titlesData: FlTitlesData(
+                              show: true,
+                              rightTitles: const AxisTitles(
+                                sideTitles: SideTitles(showTitles: false),
+                              ),
+                              topTitles: const AxisTitles(
+                                sideTitles: SideTitles(showTitles: false),
+                              ),
+                              bottomTitles: AxisTitles(
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  getTitlesWidget: bottomTitles,
+                                  reservedSize: 42,
+                                ),
+                              ),
+                              leftTitles: AxisTitles(
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  reservedSize: 28,
+                                  interval: 1,
+                                  getTitlesWidget: leftTitles,
+                                ),
+                              ),
+                            ),
+                            borderData: FlBorderData(show: true),
+                            barGroups: todayData,
+                            gridData: FlGridData(
+                              show: true,
+                              /*checkToShowHorizontalLine: (value) {
                         if (value % (data.reduce(max) % 10) == 0 || value == data.reduce(max)){
                           if (value > data.reduce(max) - (data.reduce(max) % 10) && value != data.reduce(max)){
                             return false;
@@ -203,15 +229,16 @@ class _QueueStatsState extends State<QueueStats> {
                           return false;
                         }
                       },*/
-                        getDrawingHorizontalLine: (value) => const FlLine(
-                          color: Color(0xFF979797),
-                          strokeWidth: 1,
-                        ),
-                        drawVerticalLine: false,
-                      ),
-                      alignment: BarChartAlignment.spaceAround,
-                      maxY: dayData.reduce(max)))),
-            ])));
+                              getDrawingHorizontalLine: (value) => const FlLine(
+                                color: Color(0xFF979797),
+                                strokeWidth: 1,
+                              ),
+                              drawVerticalLine: false,
+                            ),
+                            alignment: BarChartAlignment.spaceAround,
+                            maxY: dayData.reduce(max)))),
+                  ]));
+            }));
   }
 
   Widget getTitles(double value, TitleMeta meta) {
@@ -275,7 +302,8 @@ class _QueueStatsState extends State<QueueStats> {
       fontSize: 14,
     );
     String text;
-    if (value % (dayData.reduce(max) % 10) == 0 || value == dayData.reduce(max)) {
+    if (value % (dayData.reduce(max) % 10) == 0 ||
+        value == dayData.reduce(max)) {
       if (value > dayData.reduce(max) - (dayData.reduce(max) % 10) &&
           value != dayData.reduce(max)) {
         text = "";

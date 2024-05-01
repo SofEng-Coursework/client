@@ -7,13 +7,13 @@ import 'package:virtual_queue/controllers/userAccountController.dart';
 import 'package:virtual_queue/models/FeedbackEntry.dart';
 import 'package:virtual_queue/models/Queue.dart';
 import 'package:virtual_queue/pages/Settings.dart';
+import 'package:virtual_queue/controllers/dataController.dart';
 
 class UserDashboard extends StatelessWidget {
   const UserDashboard({super.key});
   @override
   Widget build(BuildContext context) {
     final userQueueController = Provider.of<UserQueueController>(context, listen: false);
-    final userAccountController = Provider.of<UserAccountController>(context, listen: false);
 
     return StreamBuilder(
         stream: userQueueController.getCurrentQueue(),
@@ -169,7 +169,7 @@ class QueueProgressView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userQueueController = Provider.of<UserQueueController>(context, listen: false);
+    final dataController = Provider.of<DataController>(context, listen: false);
     return Scaffold(
       body: Center(
           child: Column(
@@ -178,7 +178,7 @@ class QueueProgressView extends StatelessWidget {
           SizedBox(),
           Column(
             children: [
-              Text("Average Wait Time: ${formatTime(userQueueController.getMedianWaitTime(queue))}"),
+              Text("Average Wait Time: ${formatTime(dataController.getMedianWaitTime(queue))}"),
               Text("Your position in the queue"),
               SizedBox(
                 height: 10,

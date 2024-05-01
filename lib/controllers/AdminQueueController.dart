@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:virtual_queue/controllers/FirebaseProvider.dart';
+import 'package:virtual_queue/controllers/dataController.dart';
 import 'package:virtual_queue/models/ErrorStatus.dart';
 import 'package:virtual_queue/models/Queue.dart';
 import 'package:uuid/uuid.dart';
@@ -10,6 +11,7 @@ const uuid = Uuid();
 
 class AdminQueueController extends ChangeNotifier {
   late FirebaseProvider _firebaseProvider;
+  late DataController dataController;
   AdminQueueController({required FirebaseProvider firebaseProvider}) {
     _firebaseProvider = firebaseProvider;
   }

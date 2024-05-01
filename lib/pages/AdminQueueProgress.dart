@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_queue/controllers/AdminQueueController.dart';
+import 'package:virtual_queue/controllers/dataController.dart';
 import 'package:virtual_queue/models/Queue.dart';
 
 class AdminQueueProgress extends StatefulWidget {
@@ -29,6 +30,8 @@ class _AdminQueueProgressState extends State<AdminQueueProgress> {
 
   @override
   Widget build(BuildContext context) {
+    final dataController =
+        Provider.of<DataController>(context, listen: false);
     final adminQueueController =
         Provider.of<AdminQueueController>(context, listen: false);
     return Scaffold(
@@ -116,7 +119,8 @@ class _AdminQueueProgressState extends State<AdminQueueProgress> {
                         )),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(0, 15, 15, 0),
-                      child: Text("Wait Time: $waitTime minutes",
+                      child: Text(
+                          "Wait Time: ${dataController.getMedianWaitTime(queue)} minutes",
                           style: const TextStyle(fontSize: 18)),
                     ),
                     //Main queue
@@ -229,7 +233,7 @@ class _AdminQueueProgressState extends State<AdminQueueProgress> {
                                 );
                               });
                         },
-                        child: Text("Add New Person"),
+                        child: const Text("Add New Person"),
                       ),
                     ),
                   ],
