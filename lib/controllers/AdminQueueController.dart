@@ -18,7 +18,7 @@ class AdminQueueController extends ChangeNotifier {
   Future<String?> addQueue(String name, int? capacity, String owner) async {
     CollectionReference collection = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues');
     final id = collection.doc().id;
-    await collection.doc(id).set({'id': id, 'name': name, 'open': true, 'capacity': capacity, 'owner': owner, 'users': []});
+    await collection.doc(id).set({'id': id, 'name': name, 'open': true, 'capacity': capacity, 'owner': owner, 'users': [], 'logs': []});
     return null;
   }
 
@@ -64,6 +64,13 @@ class AdminQueueController extends ChangeNotifier {
     return users.map((e) => e['name'] as String).toList();
   }
 
+  Future<String> getFirstUserInQueue(Queue queue) async {
+    final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
+    final queueData = await queueReference.get();
+    final users = queueData.data()!['users'] as List<dynamic>;
+    return await users[0];
+  }
+
   Stream<Queue> getQueue(String queueID) {
     return _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queueID).snapshots().map((doc) => Queue.fromJson(doc.data()!));
   }
@@ -71,10 +78,19 @@ class AdminQueueController extends ChangeNotifier {
   Future<ErrorStatus> removeUserFromQueue(Queue queue, QueueUserEntry user) async {
     final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
     final queueData = await queueReference.get();
+
     final users = queueData.data()!['users'] as List<dynamic>;
+    final startTime = user.timestamp;
+    final endTime = DateTime.now().millisecondsSinceEpoch;
+
+    // Add the user to the logs
+    final logs = queueData.data()!['logs'] as List<dynamic>;
+    logs.add({"userId": user.userId, "start": startTime, "end": endTime});
+
     users.removeWhere((element) => element['userId'] == user.userId);
     await queueReference.update({
       'users': users,
+      'logs': logs,
     });
     return ErrorStatus(success: true);
   }

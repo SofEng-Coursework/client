@@ -19,18 +19,23 @@ class _AdminQueueProgressState extends State<AdminQueueProgress> {
 
   ButtonStyle editStyle = ButtonStyle(
       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: const BorderSide(color: Color(0xFFFFFFFF), width: 3))),
-      backgroundColor: MaterialStateProperty.all<Color>(const Color(0x00000000)));
+          RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+              side: const BorderSide(color: Color(0xFFFFFFFF), width: 3))),
+      backgroundColor:
+          MaterialStateProperty.all<Color>(const Color(0x00000000)));
 
   TextEditingController addToQueueName = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    final adminQueueController = Provider.of<AdminQueueController>(context, listen: false);
+    final adminQueueController =
+        Provider.of<AdminQueueController>(context, listen: false);
     return Scaffold(
         appBar: AppBar(
           backgroundColor: const Color(0xFF017A08),
-          title: Text(widget.queue.name, style: const TextStyle(color: Color(0xFFFFFFFF))),
+          title: Text(widget.queue.name,
+              style: const TextStyle(color: Color(0xFFFFFFFF))),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () {
@@ -75,15 +80,53 @@ class _AdminQueueProgressState extends State<AdminQueueProgress> {
                         style: TextStyle(fontSize: 28),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Text("Wait Time: $waitTime minutes", style: const TextStyle(fontSize: 18)),
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 8),
+                      child:
+                          Text("Being served", style: TextStyle(fontSize: 18)),
                     ),
+                    //Being served
                     Container(
-                      width: MediaQuery.of(context).size.width * 0.8,
-                      height: MediaQuery.of(context).size.height * 0.6,
+                        width: MediaQuery.of(context).size.width * 0.5,
+                        height: MediaQuery.of(context).size.height * 0.1,
+                        decoration: BoxDecoration(
+                            border: Border.all(
+                                color: const Color(0xFF017A08), width: 3),
+                            borderRadius: BorderRadius.circular(12)),
+                        child: Center(
+                          child: SingleChildScrollView(
+                            child: queue.users.isNotEmpty
+                                ? Text(queue.users[0].name as String,
+                                    style: const TextStyle(fontSize: 20))
+                                : const Text("Queue empty",
+                                    style: TextStyle(fontSize: 20)),
+                          ),
+                        )),
+                    //Advance button
+                    Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: ElevatedButton(
+                          child: const Text("Advance"),
+                          onPressed: () {
+                            if (queue.users.isNotEmpty) {
+                              adminQueueController.removeUserFromQueue(
+                                  queue, queue.users[0]);
+                            }
+                          },
+                        )),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 15, 15, 0),
+                      child: Text("Wait Time: $waitTime minutes",
+                          style: const TextStyle(fontSize: 18)),
+                    ),
+                    //Main queue
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.6,
+                      height: MediaQuery.of(context).size.height * 0.4,
                       decoration: BoxDecoration(
-                          border: Border.all(color: const Color(0xFF017A08), width: 3), borderRadius: BorderRadius.circular(12)),
+                          border: Border.all(
+                              color: const Color(0xFF017A08), width: 3),
+                          borderRadius: BorderRadius.circular(12)),
                       child: ListView.builder(
                           itemCount: queue.users.length,
                           itemBuilder: (context, index) {
@@ -91,35 +134,54 @@ class _AdminQueueProgressState extends State<AdminQueueProgress> {
                             return Card(
                               child: ListTile(
                                   title: Text(user.name!),
-                                  trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                                    IconButton(
-                                      icon: const Icon(Icons.arrow_drop_up),
-                                      onPressed: () {
-                                        adminQueueController.moveUserUp(queue, user).then((status) {
-                                          if (status.success) return;
-                                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(status.message!)));
-                                        });
-                                      },
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(Icons.arrow_drop_down),
-                                      onPressed: () {
-                                        adminQueueController.moveUserDown(queue, user).then((status) {
-                                          if (status.success) return;
-                                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(status.message!)));
-                                        });
-                                      },
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(Icons.delete),
-                                      onPressed: () {
-                                        adminQueueController.removeUserFromQueue(queue, user).then((status) {
-                                          if (status.success) return;
-                                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(status.message!)));
-                                        });
-                                      },
-                                    )
-                                  ])),
+                                  trailing: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        IconButton(
+                                          icon: const Icon(Icons.arrow_drop_up),
+                                          onPressed: () {
+                                            adminQueueController
+                                                .moveUserUp(queue, user)
+                                                .then((status) {
+                                              if (status.success) return;
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(SnackBar(
+                                                      content: Text(
+                                                          status.message!)));
+                                            });
+                                          },
+                                        ),
+                                        IconButton(
+                                          icon:
+                                              const Icon(Icons.arrow_drop_down),
+                                          onPressed: () {
+                                            adminQueueController
+                                                .moveUserDown(queue, user)
+                                                .then((status) {
+                                              if (status.success) return;
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(SnackBar(
+                                                      content: Text(
+                                                          status.message!)));
+                                            });
+                                          },
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.delete),
+                                          onPressed: () {
+                                            adminQueueController
+                                                .removeUserFromQueue(
+                                                    queue, user)
+                                                .then((status) {
+                                              if (status.success) return;
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(SnackBar(
+                                                      content: Text(
+                                                          status.message!)));
+                                            });
+                                          },
+                                        )
+                                      ])),
                             );
                           }),
                     ),
@@ -149,9 +211,14 @@ class _AdminQueueProgressState extends State<AdminQueueProgress> {
                                     TextButton(
                                       onPressed: () {
                                         final user = addToQueueName.text;
-                                        adminQueueController.addUserToQueue(queue, user).then((status) {
+                                        adminQueueController
+                                            .addUserToQueue(queue, user)
+                                            .then((status) {
                                           if (status.success) return;
-                                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(status.message!)));
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(SnackBar(
+                                                  content:
+                                                      Text(status.message!)));
                                         });
                                         addToQueueName.clear();
                                         Navigator.pop(context);

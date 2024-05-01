@@ -210,7 +210,10 @@ class Settings extends StatelessWidget {
                     Padding(
                       padding: EdgeInsets.fromLTRB(0, 30, 0, 0),
                       child: SwitchListTile(
-                        value: true,
+                        value: Provider.of<UserAccountController>(context).pushNotificationEnabled,
+                        onChanged: (value) {
+                          Provider.of<UserAccountController>(context, listen: false).togglePushNotification(value);
+                        },
                         title: Text(
                           "Push Notification",
                           style: TextStyle(
@@ -234,7 +237,6 @@ class Settings extends StatelessWidget {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.zero,
                         ),
-                        onChanged: (value) {},
                         tileColor: Color(0x00ffffff),
                         activeColor: Color(0xff017a08),
                         activeTrackColor: Color(0x41017a08),
