@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_queue/controllers/FirebaseProvider.dart';
 import 'package:virtual_queue/controllers/adminAccountController.dart';
+import 'package:virtual_queue/controllers/dataController.dart';
 import 'package:virtual_queue/models/Queue.dart';
 import 'package:virtual_queue/pages/AdminQueueProgress.dart';
 import 'package:virtual_queue/pages/Settings.dart';
@@ -18,6 +19,7 @@ class AdminDashboard extends StatefulWidget {
   @override
   State<AdminDashboard> createState() => _AdminDashboardState();
 }
+
 /// This will build the main screen for the admin to view and access their queues
 class _AdminDashboardState extends State<AdminDashboard> {
   TextEditingController name = TextEditingController();
@@ -37,6 +39,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.zero,
         ),
+
         /// Button to logout and send User back to the menu
         leading: IconButton(
           icon: Icon(
@@ -102,10 +105,12 @@ class AdminQueueList extends StatelessWidget {
   });
 
   @override
+
   /// This is a Widget that lists the queues owned by the User and allows them to be accessed
   /// It utilises a [stream] to fetch real time data on the status of the queues and their occupants
   Widget build(BuildContext context) {
     final adminQueueController = Provider.of<AdminQueueController>(context, listen: false);
+    final dataController = Provider.of<DataController>(context, listen: false);
     return Padding(
       padding: EdgeInsets.fromLTRB(0, 16, 0, 20),
       child: StreamBuilder(
@@ -131,8 +136,10 @@ class AdminQueueList extends StatelessWidget {
                 child: InkWell(
                   onTap: () {
                     Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) =>
-                            ChangeNotifierProvider.value(value: adminQueueController, child: AdminQueueProgress(queue: queueData))));
+                        builder: (context) => MultiProvider(providers: [
+                              ChangeNotifierProvider.value(value: adminQueueController),
+                              ChangeNotifierProvider.value(value: dataController)
+                            ], child: AdminQueueProgress(queue: queueData))));
                   },
                   child: ListTile(
                     title: Row(
@@ -200,6 +207,7 @@ class _QueueCreatorDialogState extends State<QueueCreatorDialog> {
   bool isUnlimitedCapacity = true;
 
   @override
+
   /// This builds the window that is used to set parameters for a new queue
   Widget build(BuildContext context) {
     return AlertDialog(
