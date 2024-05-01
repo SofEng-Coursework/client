@@ -18,7 +18,7 @@ class AdminQueueController extends ChangeNotifier {
   Future<String?> addQueue(String name, int? capacity, String owner) async {
     CollectionReference collection = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues');
     final id = collection.doc().id;
-    await collection.doc(id).set({'id': id, 'name': name, 'open': true, 'capacity': capacity, 'owner': owner, 'users': []});
+    await collection.doc(id).set({'id': id, 'name': name, 'open': true, 'capacity': capacity, 'owner': owner, 'users': [], 'logs': []});
     return null;
   }
 

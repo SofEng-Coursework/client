@@ -50,6 +50,9 @@ class UserQueueController extends ChangeNotifier {
 
   int getMedianWaitTime(Queue queue) {
     final waitTimes = getWaitTimes(queue);
+    if (waitTimes.isEmpty) {
+      return 0;
+    }
     waitTimes.sort();
     return waitTimes[waitTimes.length ~/ 2];
   }
