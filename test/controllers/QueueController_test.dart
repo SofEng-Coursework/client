@@ -1,8 +1,11 @@
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:virtual_queue/controllers/AdminQueueController.dart';
 import 'package:virtual_queue/controllers/FirebaseProvider.dart';
 import 'package:virtual_queue/controllers/UserQueueController.dart';
+import 'package:virtual_queue/controllers/adminAccountController.dart';
+import 'package:virtual_queue/controllers/userAccountController.dart';
 import 'package:virtual_queue/pages/RegisterForm.dart';
 import 'package:virtual_queue/models/Queue.dart';
 
@@ -11,16 +14,17 @@ void main() {
   
   group("UserQueueController", () {
     late UserQueueController userQueueController;
+    late UserAccountController userAccountController;
     late FirebaseProvider firebaseProvider;
 
-    setUpAll(() {
+    setUpAll(() async {
       firebaseProvider = FirebaseProvider();
       firebaseProvider.initializeMock();
       userQueueController = UserQueueController(firebaseProvider: firebaseProvider);
-    });
 
-    setUp(() {
-      firebaseProvider.FIREBASE_AUTH.signOut();
+      // Must be signed in to join a queue
+      userAccountController = UserAccountController(firebaseProvider: firebaseProvider);
+      await userAccountController.signUp('email', 'password', 'name', 'phone');
     });
 
     test('is initialized', () {
@@ -34,7 +38,8 @@ void main() {
 
       // Joining the queue
       final joinResult = await userQueueController.joinQueue(fakeQueue);
-      expect(joinResult, isNull);
+      print(joinResult.message);
+      expect(joinResult.success, true);
 
       // Getting current queue
       final currentQueue = await userQueueController.getCurrentQueue().first;
@@ -47,7 +52,7 @@ void main() {
 
       // Leaving the queue
       final leaveResult = await userQueueController.leaveQueue(currentQueue);
-      expect(leaveResult, isNull);
+      expect(leaveResult.success, true);
     });
 
     test('get queues', () async {
@@ -64,6 +69,40 @@ void main() {
       expect(queues.length, 2);
       expect(queues[0].id, '1');
       expect(queues[1].id, '2');
+    });
+  });
+
+  group("AdminQueueController", () {
+    late UserQueueController userQueueController;
+    late AdminQueueController adminQueueController;
+    late AdminAccountController adminAccountController;
+    late FirebaseProvider firebaseProvider;
+
+    setUpAll(() async {
+      firebaseProvider = FirebaseProvider();
+      firebaseProvider.initializeMock();
+      userQueueController = UserQueueController(firebaseProvider: firebaseProvider);
+      adminQueueController = AdminQueueController(firebaseProvider: firebaseProvider);
+      
+      // Must be signed in
+      adminAccountController = AdminAccountController(firebaseProvider: firebaseProvider);
+      await adminAccountController.signUp('email', 'password', 'name', 'phone');
+    });
+
+    test('is initialized', () {
+      expect(adminQueueController, isA<AdminQueueController>());
+    });
+
+    test('add and delete queue', () async {
+      // Adding a queue
+      final addResult = await adminQueueController.addQueue('test', 10, '1');
+      expect(addResult.success, true);
+
+      // Getting queues
+      final queuesStream = adminQueueController.getQueues();
+      final queues = await queuesStream.first;
+      print(firebaseProvider.FIREBASE_AUTH.currentUser);
+      print(queues);
     });
   });
 }
