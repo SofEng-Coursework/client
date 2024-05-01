@@ -125,6 +125,10 @@ class _FeedbackViewState extends State<FeedbackView> {
             ),
             ElevatedButton(
               onPressed: () {
+                if (rating == 0) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please select a rating")));
+                  return;
+                }
                 // Submit feedback
                 final FeedbackEntry entry = FeedbackEntry(
                   userId: userId,

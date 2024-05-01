@@ -18,7 +18,7 @@ class AdminDashboard extends StatefulWidget {
   @override
   State<AdminDashboard> createState() => _AdminDashboardState();
 }
-
+/// This will build the main screen for the admin to view and access their queues
 class _AdminDashboardState extends State<AdminDashboard> {
   TextEditingController name = TextEditingController();
   TextEditingController capacity = TextEditingController();
@@ -37,6 +37,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.zero,
         ),
+        /// Button to logout and send User back to the menu
         leading: IconButton(
           icon: Icon(
             Icons.logout,
@@ -48,7 +49,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
           },
         ),
         actions: [
-          // Button to add a new queue
+          /// Button to add a new queue
           IconButton(
             icon: Icon(Icons.add),
             color: Color(0xffffffff),
@@ -66,7 +67,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             },
           ),
 
-          // Button to navigate to the admin account settings page
+          /// Button to navigate to the admin account settings page - currently not in use
           // IconButton(
           //   icon: Icon(Icons.settings),
           //   color: Color(0xffffffff),
@@ -101,6 +102,8 @@ class AdminQueueList extends StatelessWidget {
   });
 
   @override
+  /// This is a Widget that lists the queues owned by the User and allows them to be accessed
+  /// It utilises a [stream] to fetch real time data on the status of the queues and their occupants
   Widget build(BuildContext context) {
     final adminQueueController = Provider.of<AdminQueueController>(context, listen: false);
     return Padding(
@@ -119,7 +122,6 @@ class AdminQueueList extends StatelessWidget {
           if (snapshot.data!.isEmpty) {
             return Center(child: Text('No queues found'));
           }
-
           return ListView.builder(
             shrinkWrap: true,
             itemCount: snapshot.data!.length,
@@ -198,6 +200,7 @@ class _QueueCreatorDialogState extends State<QueueCreatorDialog> {
   bool isUnlimitedCapacity = true;
 
   @override
+  /// This builds the window that is used to set parameters for a new queue
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text('Create New Queue'),

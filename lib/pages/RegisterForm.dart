@@ -5,6 +5,7 @@ import 'package:virtual_queue/controllers/userAccountController.dart';
 
 enum AccountType { User, Admin }
 
+/// This builds the widget hosted on the [AuthPage] for registering a new user
 class RegisterForm extends StatefulWidget {
   const RegisterForm({
     super.key,
@@ -31,7 +32,6 @@ class _RegisterFormState extends State<RegisterForm> {
     _passwordVisible = false;
     super.initState();
   }
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -74,10 +74,12 @@ class _RegisterFormState extends State<RegisterForm> {
             ],
           ),
         ),
+        /// This is the area where all inputs are gathered and validated before being submitted to firebase
         Form(
           key: _formKey,
           child: Column(
             children: <Widget>[
+              /// This section will take a string and confirm it is a valid email
               TextFormField(
                 onSaved: (value) {
                   _email = value!;
@@ -100,6 +102,7 @@ class _RegisterFormState extends State<RegisterForm> {
               SizedBox(
                 height: 16,
               ),
+              /// This section will take a password and confirm it has at least 6 characters
               TextFormField(
                 onSaved: (value) {
                   _password = value!;
@@ -135,6 +138,7 @@ class _RegisterFormState extends State<RegisterForm> {
               SizedBox(
                 height: 16,
               ),
+              /// This will take the user or company name
               TextFormField(
                 onSaved: (value) {
                   _name = value!;
@@ -154,6 +158,7 @@ class _RegisterFormState extends State<RegisterForm> {
               SizedBox(
                 height: 16,
               ),
+              /// This section will take a phone number and ensure it is valid
               TextFormField(
                 onSaved: (value) {
                   _phone = value!;
@@ -172,6 +177,7 @@ class _RegisterFormState extends State<RegisterForm> {
               SizedBox(
                 height: 16,
               ),
+              /// This section will check that there are no errors before uploading the data to firebase
               if (errorMesssage != null)
                 Padding(padding: EdgeInsets.all(8), child: Text(errorMesssage!, style: TextStyle(color: Colors.red))),
               ElevatedButton(

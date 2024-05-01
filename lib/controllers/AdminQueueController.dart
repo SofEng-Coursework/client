@@ -17,11 +17,11 @@ class AdminQueueController extends ChangeNotifier {
   }
 
   /// Adds a new queue to the Firestore database
-  Future<String?> addQueue(String name, int? capacity, String owner) async {
+  Future<ErrorStatus> addQueue(String name, int? capacity, String owner) async {
     CollectionReference collection = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues');
     final id = collection.doc().id;
     await collection.doc(id).set({'id': id, 'name': name, 'open': true, 'capacity': capacity, 'owner': owner, 'users': [], 'logs': []});
-    return null;
+    return ErrorStatus(success: true);
   }
 
   /// Returns a Stream of all queues owned by the current admin
@@ -36,7 +36,7 @@ class AdminQueueController extends ChangeNotifier {
   }
 
   /// Toggle the open status of a queue
-  Future<String?> toggleQueueOpenStatus(Queue queue) async {
+  Future<ErrorStatus> toggleQueueOpenStatus(Queue queue) async {
     final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
     await queueReference.update({
       'open': !queue.open,
@@ -48,14 +48,14 @@ class AdminQueueController extends ChangeNotifier {
         'users': [],
       });
     }
-    return null;
+    return ErrorStatus(success: true);
   }
 
   /// Deletes a queue from the Firestore database
-  Future<String?> deleteQueue(Queue queue) async {
+  Future<ErrorStatus> deleteQueue(Queue queue) async {
     final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
     await queueReference.delete();
-    return null;
+    return ErrorStatus(success: true);
   }
 
   /// Get list of people in a queue
