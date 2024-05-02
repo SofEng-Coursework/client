@@ -3,6 +3,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'dart:math';
 import 'package:provider/provider.dart';
 import 'package:virtual_queue/controllers/AdminQueueController.dart';
+import 'package:virtual_queue/controllers/dataController.dart';
 import 'package:virtual_queue/models/Queue.dart';
 
 class QueueStats extends StatefulWidget {
@@ -22,51 +23,16 @@ class _QueueStatsState extends State<QueueStats> {
       WidgetsBinding.instance.platformDispatcher.views.first.physicalSize.width;
   double screenHeight = WidgetsBinding
       .instance.platformDispatcher.views.first.physicalSize.height;
-  List<double> dayData = [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    7,
-    9,
-    13,
-    20,
-    25,
-    37,
-    35,
-    34,
-    27,
-    24,
-    19,
-    14,
-    9,
-    0,
-    0,
-    0,
-    0
-  ];
 
   int touchedGroupIndex = -1;
 
   List<double> averageDay = [1, 2, 3, 4, 5, 6, 7];
-  @override
-  void initState() {
-    super.initState();
-    final averageToday = [];
-    for (int i = 0; i < 24; i++) {
-      averageToday.add(makeBar(i, dayData[i]));
-    }
-
-    todayData = averageToday.cast<BarChartGroupData>();
-  }
 
   @override
   Widget build(BuildContext context) {
     final adminQueueController =
         Provider.of<AdminQueueController>(context, listen: false);
+    final dataController = Provider.of<DataController>(context, listen: false);
     return Scaffold(
         appBar: AppBar(
           backgroundColor: const Color(0xFF017A08),
@@ -132,7 +98,7 @@ class _QueueStatsState extends State<QueueStats> {
                               sideTitles: SideTitles(
                                 showTitles: true,
                                 reservedSize: 30,
-                                getTitlesWidget: getTitles,
+                                getTitlesWidget: bottomTitlesWeek,
                               ),
                             ),
                             leftTitles: const AxisTitles(
@@ -140,7 +106,7 @@ class _QueueStatsState extends State<QueueStats> {
                             ),
                             topTitles: const AxisTitles(
                               sideTitles: SideTitles(
-                                showTitles: true,
+                                showTitles: false,
                               ),
                             ),
                             rightTitles: const AxisTitles(
@@ -159,7 +125,7 @@ class _QueueStatsState extends State<QueueStats> {
                           ],
                           gridData: const FlGridData(
                               drawVerticalLine: false,
-                              drawHorizontalLine: true),
+                              drawHorizontalLine: false),
                           alignment: BarChartAlignment.spaceAround,
                           maxY: averageDay.reduce(max))),
                     ),
@@ -201,47 +167,25 @@ class _QueueStatsState extends State<QueueStats> {
                               bottomTitles: AxisTitles(
                                 sideTitles: SideTitles(
                                   showTitles: true,
-                                  getTitlesWidget: bottomTitles,
+                                  getTitlesWidget: bottomTitlesToday,
                                   reservedSize: 42,
                                 ),
                               ),
-                              leftTitles: AxisTitles(
-                                sideTitles: SideTitles(
-                                  showTitles: true,
-                                  reservedSize: 28,
-                                  interval: 1,
-                                  getTitlesWidget: leftTitles,
-                                ),
+                              leftTitles: const AxisTitles(
+                                sideTitles: SideTitles(showTitles: false),
                               ),
                             ),
-                            borderData: FlBorderData(show: true),
-                            barGroups: todayData,
-                            gridData: FlGridData(
-                              show: true,
-                              /*checkToShowHorizontalLine: (value) {
-                        if (value % (data.reduce(max) % 10) == 0 || value == data.reduce(max)){
-                          if (value > data.reduce(max) - (data.reduce(max) % 10) && value != data.reduce(max)){
-                            return false;
-                          }else{
-                            return true;
-                          }
-                        }else{
-                          return false;
-                        }
-                      },*/
-                              getDrawingHorizontalLine: (value) => const FlLine(
-                                color: Color(0xFF979797),
-                                strokeWidth: 1,
-                              ),
-                              drawVerticalLine: false,
-                            ),
+                            borderData: FlBorderData(show: false),
+                            barGroups: List.generate(24, (i) => makeBar(i, dataController.getDayData(queue)[i])),
+                            gridData: const FlGridData(show: false,),
                             alignment: BarChartAlignment.spaceAround,
-                            maxY: dayData.reduce(max)))),
+                            maxY: dataController.getDayData(queue).reduce(max)))),
+
                   ]));
             }));
   }
 
-  Widget getTitles(double value, TitleMeta meta) {
+  Widget bottomTitlesWeek(double value, TitleMeta meta) {
     String text;
     switch (value.toInt()) {
       case 0:
@@ -292,36 +236,11 @@ class _QueueStatsState extends State<QueueStats> {
           width: 7,
         ),
       ],
+      showingTooltipIndicators: [0]
     );
   }
 
-  Widget leftTitles(double value, TitleMeta meta) {
-    const style = TextStyle(
-      color: Color(0xff7589a2),
-      fontWeight: FontWeight.bold,
-      fontSize: 14,
-    );
-    String text;
-    if (value % (dayData.reduce(max) % 10) == 0 ||
-        value == dayData.reduce(max)) {
-      if (value > dayData.reduce(max) - (dayData.reduce(max) % 10) &&
-          value != dayData.reduce(max)) {
-        text = "";
-      } else {
-        text = value.toString();
-      }
-    } else {
-      return Container();
-    }
-
-    return SideTitleWidget(
-      axisSide: meta.axisSide,
-      space: 0,
-      child: Text(text, style: style),
-    );
-  }
-
-  Widget bottomTitles(double value, TitleMeta meta) {
+  Widget bottomTitlesToday(double value, TitleMeta meta) {
     List<String> titles = [
       "00:00",
       "01:00",

@@ -16,16 +16,6 @@ class AdminQueueProgress extends StatefulWidget {
 }
 /// This screen is used to show the occupants of a queue and allow their positions to be managed by the admin
 class _AdminQueueProgressState extends State<AdminQueueProgress> {
-  int waitTime = 15;
-
-  ButtonStyle editStyle = ButtonStyle(
-      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-          RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-              side: const BorderSide(color: Color(0xFFFFFFFF), width: 3))),
-      backgroundColor:
-          MaterialStateProperty.all<Color>(const Color(0x00000000)));
-
   TextEditingController addToQueueName = TextEditingController();
 
   @override
