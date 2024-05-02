@@ -158,19 +158,6 @@ class QueueProgressView extends StatelessWidget {
 
   const QueueProgressView({required this.queue, super.key});
 
-  String formatTime(int milliseconds) {
-    final seconds = (milliseconds / 1000).round();
-    final minutes = (seconds / 60).round();
-    final hours = (minutes / 60).round();
-    if (hours > 0) {
-      return "$hours hours";
-    }
-    if (minutes > 0) {
-      return "$minutes minutes";
-    }
-    return "$seconds seconds";
-  }
-
   @override
   Widget build(BuildContext context) {
     final dataController = Provider.of<DataController>(context, listen: false);
@@ -182,7 +169,7 @@ class QueueProgressView extends StatelessWidget {
           SizedBox(),
           Column(
             children: [
-              Text("Average Wait Time: ${formatTime(dataController.getMedianWaitTime(queue))}"),
+              Text("Average Wait Time: ${dataController.formatTime(dataController.getMedianWaitTime(queue))}"),
               Text("Your position in the queue"),
               SizedBox(
                 height: 10,

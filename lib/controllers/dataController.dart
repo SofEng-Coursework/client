@@ -30,9 +30,7 @@ class DataController extends ChangeNotifier {
     List<int> times = logs.map((e) => e.start).toList();
     int dayNow = DateTime.now().day;
 
-    Map<int, double> listOfTimes = {
-      for (var hour in List<int>.generate(24, (i) => i)) hour: 0
-    };
+    Map<int, double> listOfTimes = {for (var hour in List<int>.generate(24, (i) => i)) hour: 0};
 
     for (int time in times) {
       int hour = DateTime.fromMillisecondsSinceEpoch(time).hour;
@@ -42,5 +40,18 @@ class DataController extends ChangeNotifier {
       }
     }
     return listOfTimes.values.toList();
+  }
+
+  String formatTime(int milliseconds) {
+    final seconds = (milliseconds / 1000).round();
+    final minutes = (seconds / 60).round();
+    final hours = (minutes / 60).round();
+    if (hours > 0) {
+      return "$hours hours";
+    }
+    if (minutes > 0) {
+      return "$minutes minutes";
+    }
+    return "$seconds seconds";
   }
 }
