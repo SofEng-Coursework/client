@@ -7,7 +7,9 @@ import 'package:virtual_queue/pages/userDashboard.dart';
 import 'package:virtual_queue/pages/AdminDashboard.dart';
 import 'package:virtual_queue/controllers/FirebaseProvider.dart';
 
-
+/// This is the barrier between the login / signup page and the user's dashboard
+/// It will use [UserAccountController] and [AdminAccountController] to determine the type of user
+/// It then uses this data to pass them to the appropriate dashboard page
 class Dashboard extends StatelessWidget {
   const Dashboard({super.key});
 
