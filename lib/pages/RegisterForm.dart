@@ -177,7 +177,7 @@ class _RegisterFormState extends State<RegisterForm> {
               SizedBox(
                 height: 16,
               ),
-              /// This section will check that there are no errors before uploading the data to firebase
+              /// This section will check that there are no errors within the data before uploading the data to firebase
               if (errorMesssage != null)
                 Padding(padding: EdgeInsets.all(8), child: Text(errorMesssage!, style: TextStyle(color: Colors.red))),
               ElevatedButton(
