@@ -9,35 +9,50 @@ import 'package:virtual_queue/controllers/FirebaseProvider.dart';
 class UserAccountController extends AccountController {
   late FirebaseProvider _firebaseProvider;
 
-  bool _pushNotificationEnabled = true;
-  bool _chatNotificationEnabled = true;
-  bool _emailNotificationEnabled = false;
+  late Map<String, dynamic> _notificationSettings;
 
   UserAccountController({required FirebaseProvider firebaseProvider})
-    : super(collectionName: 'users', firebaseProvider: firebaseProvider);
+      : super(collectionName: 'users', firebaseProvider: firebaseProvider) {
+    // Initialize notification settings when the controller is created
+    _notificationSettings = {'push_enabled': true, 'chat_enabled': true, 'email_enabled': false};
+    _initializeNotificationSettings();
+  }
 
+  bool get pushNotificationEnabled => _notificationSettings['push_enabled'] ?? true;
+  bool get chatNotificationEnabled => _notificationSettings['chat_enabled'] ?? true;
+  bool get emailNotificationEnabled => _notificationSettings['email_enabled'] ?? false;
 
-  bool get pushNotificationEnabled => _pushNotificationEnabled;
-  bool get chatNotificationEnabled => _chatNotificationEnabled;
-  bool get emailNotificationEnabled => _emailNotificationEnabled;
-
-// Methods to toggle notification settings
   void togglePushNotification(bool value) {
-    _pushNotificationEnabled = value;
-    // Add logic to update push notification settings in the database
+    _notificationSettings['push_enabled'] = value;
+    _updateNotificationSettings();
     notifyListeners();
   }
 
   void toggleChatNotification(bool value) {
-    _chatNotificationEnabled = value;
-    // Add logic to update chat notification settings in the database
+    _notificationSettings['chat_enabled'] = value;
+    _updateNotificationSettings();
     notifyListeners();
   }
 
   void toggleEmailNotification(bool value) {
-    _emailNotificationEnabled = value;
-    // Add logic to update email notification settings in the database
+    _notificationSettings['email_enabled'] = value;
+    _updateNotificationSettings();
     notifyListeners();
   }
-}
 
+  void _initializeNotificationSettings() async {
+    final user = _firebaseProvider.FIREBASE_AUTH.currentUser;
+    if (user != null) {
+      final docSnapshot = await _firebaseProvider.FIREBASE_FIRESTORE.collection('users').doc(user.uid).get();
+      _notificationSettings = Map<String, dynamic>.from(docSnapshot.data()?['notification_settings'] ?? {});
+      notifyListeners();
+    }
+  }
+
+  void _updateNotificationSettings() async {
+    final user = _firebaseProvider.FIREBASE_AUTH.currentUser;
+    if (user != null) {
+      await _firebaseProvider.FIREBASE_FIRESTORE.collection('users').doc(user.uid).update({'notification_settings': _notificationSettings});
+    }
+  }
+}
