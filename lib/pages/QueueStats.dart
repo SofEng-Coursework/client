@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:provider/provider.dart';
 import 'package:virtual_queue/controllers/AdminQueueController.dart';
 import 'package:virtual_queue/controllers/dataController.dart';
+import 'package:virtual_queue/models/FeedbackEntry.dart';
 import 'package:virtual_queue/models/Queue.dart';
 
 class QueueStats extends StatefulWidget {
@@ -25,12 +26,14 @@ class _QueueStatsState extends State<QueueStats> {
 
   @override
   Widget build(BuildContext context) {
-    final adminQueueController = Provider.of<AdminQueueController>(context, listen: false);
+    final adminQueueController =
+        Provider.of<AdminQueueController>(context, listen: false);
     final dataController = Provider.of<DataController>(context, listen: false);
     return Scaffold(
         appBar: AppBar(
           backgroundColor: const Color(0xFF017A08),
-          title: Text(widget.queue.name, style: const TextStyle(color: Color(0xFFFFFFFF))),
+          title: Text(widget.queue.name,
+              style: const TextStyle(color: Color(0xFFFFFFFF))),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () {
@@ -52,12 +55,13 @@ class _QueueStatsState extends State<QueueStats> {
               // This is the live queue data
               Queue queue = snapshot.data as Queue;
 
-              return Center(
-                  child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
+              return Scrollbar(
+                  child: Center(
+                      child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
                     // /*average daily*/ Container(
                     //   width: 300,
                     //   height: 200,
@@ -120,7 +124,8 @@ class _QueueStatsState extends State<QueueStats> {
                     //       alignment: BarChartAlignment.spaceAround,
                     //       maxY: averageDay.reduce(max))),
                     // ),
-                    /*average today*/ Container(
+                    /*average today*/
+                    Container(
                         width: MediaQuery.of(context).size.width - 100,
                         height: MediaQuery.of(context).size.height * 0.5,
                         padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
@@ -167,13 +172,45 @@ class _QueueStatsState extends State<QueueStats> {
                               ),
                             ),
                             borderData: FlBorderData(show: false),
-                            barGroups: List.generate(24, (i) => makeBar(i, dataController.getDayData(queue)[i])),
+                            barGroups: List.generate(
+                                24,
+                                (i) => makeBar(
+                                    i, dataController.getDayData(queue)[i])),
                             gridData: const FlGridData(
                               show: false,
                             ),
                             alignment: BarChartAlignment.spaceAround,
-                            maxY: dataController.getDayData(queue).reduce(max)))),
-                  ]));
+                            maxY:
+                                dataController.getDayData(queue).reduce(max)))),
+                    StreamBuilder(
+                        stream: adminQueueController.getFeedback(queue.id),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasError) {
+                            return const Text("Error");
+                          }
+                          if (!snapshot.hasData) {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          }
+
+                          // This is the live queue data
+                          List<FeedbackEntry> feedback =
+                              snapshot.data as List<FeedbackEntry>;
+                          if (feedback.isEmpty) {
+                            return const Text("No feedback");
+                          } else {
+                            return ListView.builder(
+                              itemCount: feedback.length,
+                              itemBuilder: (context, index) {
+                                return Card(
+                                  child: Text(
+                                      "Rating:\n${feedback[index].rating}\n\nFeedback:${feedback[index].comments}"),
+                                );
+                              },
+                            );
+                          }
+                        })
+                  ])));
             }));
   }
 
