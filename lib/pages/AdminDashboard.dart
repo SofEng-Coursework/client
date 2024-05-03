@@ -240,8 +240,8 @@ class _QueueCreatorDialogState extends State<QueueCreatorDialog> {
               }
 
               int? capacity = isUnlimitedCapacity ? null : int.tryParse(capacityController.text);
-
-              widget.onSubmit(name, capacity);
+              int? newcapacity = (capacity == 0) ? null : capacity;
+              widget.onSubmit(name, newcapacity);
 
               Navigator.of(context).pop();
             }),
