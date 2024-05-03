@@ -222,10 +222,17 @@ class QueueProgressView extends StatelessWidget {
   }
 }
 
-class QueuesListView extends StatelessWidget {
+class QueuesListView extends StatefulWidget {
   const QueuesListView({
     super.key,
   });
+
+  @override
+  State<QueuesListView> createState() => _QueuesListViewState();
+}
+
+class _QueuesListViewState extends State<QueuesListView> {
+  final feedbackViewPushed = ValueNotifier<bool>(false);
 
   @override
   Widget build(BuildContext context) {
@@ -237,11 +244,12 @@ class QueuesListView extends StatelessWidget {
         return;
       }
       final feedbackPrompts = userData['feedbackPrompt'] as List<dynamic>;
-      if (feedbackPrompts.isNotEmpty) {
+      if (feedbackPrompts.isNotEmpty && !feedbackViewPushed.value) {
+        feedbackViewPushed.value = true;
         Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => ChangeNotifierProvider.value(
               value: userQueueContorller, child: FeedbackView(feedbackPrompts: feedbackPrompts, userData: userData)),
-        ));
+        )).then((value) => feedbackViewPushed.value = false);
       }
     });
 

@@ -33,11 +33,15 @@ class UserQueueController extends ChangeNotifier {
     final userReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('users').doc(userUID);
     final name = await userReference.get().then((value) => value.data()?['name']);
 
-    userReference.update({
-      'feedbackPrompt': FieldValue.arrayUnion([queue.id]), // Add the queue ID to the user's feedback prompt list
-    });
-
+    // Check if queue with this ID still exists
     final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
+    final queueDoc = await queueReference.get();
+    if (queueDoc.exists) {
+      userReference.update({
+        'feedbackPrompt': FieldValue.arrayUnion([queue.id]), // Add the queue ID to the user's feedback prompt list
+      });
+    }
+
     queue.users.add(QueueUserEntry(userId: userUID, name: name, timestamp: DateTime.now().millisecondsSinceEpoch));
     await queueReference.update({'users': queue.users.map((e) => e.toJson()).toList()});
 

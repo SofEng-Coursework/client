@@ -53,6 +53,11 @@ class AdminQueueController extends ChangeNotifier {
   Future<ErrorStatus> deleteQueue(Queue queue) async {
     final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
     await queueReference.delete();
+    
+    // Delete feedback
+    final feedbackReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('feedback').doc(queue.id);
+    await feedbackReference.delete();
+
     return ErrorStatus(success: true);
   }
 
