@@ -6,23 +6,21 @@ import 'package:virtual_queue/models/ErrorStatus.dart';
 import 'package:virtual_queue/pages/RegisterForm.dart';
 
 class AccountController extends ChangeNotifier {
-  late FirebaseProvider _firebaseProvider;
+  late FirebaseProvider firebaseProvider;
   final String collectionName;
 
-  AccountController({required this.collectionName, required FirebaseProvider firebaseProvider}) {
-    _firebaseProvider = firebaseProvider;
-  }
+  AccountController({required this.collectionName, required this.firebaseProvider});
 
   Future<ErrorStatus> signUp(String email, String password, String name, String phone) async {
     try {
-      UserCredential credential = await _firebaseProvider.FIREBASE_AUTH.createUserWithEmailAndPassword(
+      UserCredential credential = await firebaseProvider.FIREBASE_AUTH.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
 
       final uid = credential.user!.uid;
 
-      CollectionReference collection = _firebaseProvider.FIREBASE_FIRESTORE.collection(collectionName);
+      CollectionReference collection = firebaseProvider.FIREBASE_FIRESTORE.collection(collectionName);
       await collection.doc(uid).set({
         'name': name,
         'phone': phone,
@@ -37,7 +35,7 @@ class AccountController extends ChangeNotifier {
 
   Future<ErrorStatus> login(String email, String password) async {
     try {
-      UserCredential credential = await _firebaseProvider.FIREBASE_AUTH.signInWithEmailAndPassword(
+      UserCredential credential = await firebaseProvider.FIREBASE_AUTH.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -48,9 +46,9 @@ class AccountController extends ChangeNotifier {
   }
 
   Future<Map<String, dynamic>?> getUserData() async {
-    final user = _firebaseProvider.FIREBASE_AUTH.currentUser;
+    final user = firebaseProvider.FIREBASE_AUTH.currentUser;
     if (user != null) {
-      final response = await _firebaseProvider.FIREBASE_FIRESTORE.collection(collectionName).doc(user.uid).get();
+      final response = await firebaseProvider.FIREBASE_FIRESTORE.collection(collectionName).doc(user.uid).get();
       Map<String, dynamic>? data = response.data();
       if (data == null) {
         return null;
@@ -62,6 +60,6 @@ class AccountController extends ChangeNotifier {
   }
 
   Future<void> signOut() async {
-    await _firebaseProvider.FIREBASE_AUTH.signOut();
+    await firebaseProvider.FIREBASE_AUTH.signOut();
   }
 }

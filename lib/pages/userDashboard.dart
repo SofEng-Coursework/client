@@ -7,13 +7,13 @@ import 'package:virtual_queue/controllers/userAccountController.dart';
 import 'package:virtual_queue/models/FeedbackEntry.dart';
 import 'package:virtual_queue/models/Queue.dart';
 import 'package:virtual_queue/pages/Settings.dart';
+import 'package:virtual_queue/controllers/dataController.dart';
 
 class UserDashboard extends StatelessWidget {
   const UserDashboard({super.key});
   @override
   Widget build(BuildContext context) {
     final userQueueController = Provider.of<UserQueueController>(context, listen: false);
-    final userAccountController = Provider.of<UserAccountController>(context, listen: false);
 
     return StreamBuilder(
         stream: userQueueController.getCurrentQueue(),
@@ -125,6 +125,10 @@ class _FeedbackViewState extends State<FeedbackView> {
             ),
             ElevatedButton(
               onPressed: () {
+                if (rating == 0) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please select a rating")));
+                  return;
+                }
                 // Submit feedback
                 final FeedbackEntry entry = FeedbackEntry(
                   userId: userId,
@@ -154,22 +158,9 @@ class QueueProgressView extends StatelessWidget {
 
   const QueueProgressView({required this.queue, super.key});
 
-  String formatTime(int milliseconds) {
-    final seconds = (milliseconds / 1000).round();
-    final minutes = (seconds / 60).round();
-    final hours = (minutes / 60).round();
-    if (hours > 0) {
-      return "$hours hours";
-    }
-    if (minutes > 0) {
-      return "$minutes minutes";
-    }
-    return "$seconds seconds";
-  }
-
   @override
   Widget build(BuildContext context) {
-    final userQueueController = Provider.of<UserQueueController>(context, listen: false);
+    final dataController = Provider.of<DataController>(context, listen: false);
     return Scaffold(
       body: Center(
           child: Column(
@@ -178,7 +169,7 @@ class QueueProgressView extends StatelessWidget {
           SizedBox(),
           Column(
             children: [
-              Text("Average Wait Time: ${formatTime(userQueueController.getMedianWaitTime(queue))}"),
+              Text("Average Wait Time: ${dataController.formatTime(dataController.getMedianWaitTime(queue))}"),
               Text("Your position in the queue"),
               SizedBox(
                 height: 10,

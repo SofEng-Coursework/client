@@ -7,6 +7,7 @@ import 'package:virtual_queue/controllers/AdminQueueController.dart';
 import 'package:virtual_queue/controllers/UserQueueController.dart';
 import 'package:virtual_queue/controllers/adminAccountController.dart';
 import 'package:virtual_queue/controllers/FirebaseProvider.dart';
+import 'package:virtual_queue/controllers/dataController.dart';
 import 'package:virtual_queue/pages/AuthPage.dart';
 import 'package:virtual_queue/pages/Dashboard.dart';
 import 'package:virtual_queue/pages/LoginForm.dart';
@@ -58,6 +59,9 @@ class FirebaseLoadingWidget extends StatelessWidget {
               ),
               ChangeNotifierProvider<UserQueueController>(
                   create: (context) => UserQueueController(firebaseProvider: firebaseProvider)
+              ),
+              ChangeNotifierProvider<DataController>(
+                  create: (context) => DataController()
               )
             ],
             child: Consumer<FirebaseProvider>(builder: (context, firebaseProvider, child) {

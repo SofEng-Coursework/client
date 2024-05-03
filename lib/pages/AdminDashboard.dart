@@ -6,8 +6,10 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_queue/controllers/FirebaseProvider.dart';
 import 'package:virtual_queue/controllers/adminAccountController.dart';
+import 'package:virtual_queue/controllers/dataController.dart';
 import 'package:virtual_queue/models/Queue.dart';
 import 'package:virtual_queue/pages/AdminQueueProgress.dart';
+import 'package:virtual_queue/pages/QueueStats.dart';
 import 'package:virtual_queue/pages/Settings.dart';
 import 'package:virtual_queue/controllers/AdminQueueController.dart';
 import 'AdminQueueProgress.dart';
@@ -18,6 +20,7 @@ class AdminDashboard extends StatefulWidget {
   @override
   State<AdminDashboard> createState() => _AdminDashboardState();
 }
+
 /// This will build the main screen for the admin to view and access their queues
 class _AdminDashboardState extends State<AdminDashboard> {
   TextEditingController name = TextEditingController();
@@ -28,18 +31,19 @@ class _AdminDashboardState extends State<AdminDashboard> {
     final adminAccountController = Provider.of<AdminAccountController>(context, listen: false);
     final adminQueueController = Provider.of<AdminQueueController>(context, listen: false);
     return Scaffold(
-      backgroundColor: Color(0xffffffff),
+      backgroundColor: const Color(0xffffffff),
       appBar: AppBar(
         elevation: 0,
         centerTitle: false,
         automaticallyImplyLeading: false,
-        backgroundColor: Color(0xff017a08),
-        shape: RoundedRectangleBorder(
+        backgroundColor: const Color(0xff017a08),
+        shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.zero,
         ),
+
         /// Button to logout and send User back to the menu
         leading: IconButton(
-          icon: Icon(
+          icon: const Icon(
             Icons.logout,
             color: Color(0xffffffff),
             size: 24,
@@ -51,8 +55,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
         actions: [
           /// Button to add a new queue
           IconButton(
-            icon: Icon(Icons.add),
-            color: Color(0xffffffff),
+            icon: const Icon(Icons.add),
+            color: const Color(0xffffffff),
             onPressed: () {
               showDialog(
                   context: context,
@@ -102,17 +106,19 @@ class AdminQueueList extends StatelessWidget {
   });
 
   @override
+
   /// This is a Widget that lists the queues owned by the User and allows them to be accessed
   /// It utilises a [stream] to fetch real time data on the status of the queues and their occupants
   Widget build(BuildContext context) {
     final adminQueueController = Provider.of<AdminQueueController>(context, listen: false);
+    final dataController = Provider.of<DataController>(context, listen: false);
     return Padding(
-      padding: EdgeInsets.fromLTRB(0, 16, 0, 20),
+      padding: const EdgeInsets.fromLTRB(0, 16, 0, 20),
       child: StreamBuilder(
         stream: adminQueueController.getQueues(),
         builder: (BuildContext context, AsyncSnapshot<List<Queue>> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (snapshot.hasError) {
@@ -120,7 +126,7 @@ class AdminQueueList extends StatelessWidget {
           }
 
           if (snapshot.data!.isEmpty) {
-            return Center(child: Text('No queues found'));
+            return const Center(child: Text('No queues found'));
           }
           return ListView.builder(
             shrinkWrap: true,
@@ -131,15 +137,17 @@ class AdminQueueList extends StatelessWidget {
                 child: InkWell(
                   onTap: () {
                     Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) =>
-                            ChangeNotifierProvider.value(value: adminQueueController, child: AdminQueueProgress(queue: queueData))));
+                        builder: (context) => MultiProvider(providers: [
+                              ChangeNotifierProvider.value(value: adminQueueController),
+                              ChangeNotifierProvider.value(value: dataController)
+                            ], child: AdminQueueProgress(queue: queueData))));
                   },
                   child: ListTile(
                     title: Row(
                       children: [
                         Text(queueData.name),
-                        if (queueData.open) Icon(Icons.check, color: Colors.green),
-                        if (!queueData.open) Icon(Icons.close, color: Colors.red),
+                        if (queueData.open) const Icon(Icons.check, color: Colors.green),
+                        if (!queueData.open) const Icon(Icons.close, color: Colors.red),
                       ],
                     ),
                     subtitle: Column(
@@ -153,13 +161,23 @@ class AdminQueueList extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
-                            icon: Icon(queueData.open ? Icons.lock : Icons.lock_open),
+                            icon: const Icon(Icons.bar_chart),
+                            onPressed: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => MultiProvider(providers: [
+                              ChangeNotifierProvider.value(value: adminQueueController),
+                              ChangeNotifierProvider.value(value: dataController)
+                            ], child: QueueStats(queue: queueData))));
+                            }),
+                        IconButton(
+                            icon: Icon(
+                                queueData.open ? Icons.lock : Icons.lock_open),
                             onPressed: () {
                               // Toggle queue open status
                               adminQueueController.toggleQueueOpenStatus(queueData);
                             }),
                         IconButton(
-                          icon: Icon(Icons.delete),
+                          icon: const Icon(Icons.delete),
                           onPressed: () {
                             // Delete queue
                             adminQueueController.deleteQueue(queueData);
@@ -200,14 +218,15 @@ class _QueueCreatorDialogState extends State<QueueCreatorDialog> {
   bool isUnlimitedCapacity = true;
 
   @override
+
   /// This builds the window that is used to set parameters for a new queue
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Create New Queue'),
+      title: const Text('Create New Queue'),
       content: Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize: MainAxisSize.min, children: <Widget>[
         TextField(
           autofocus: true,
-          decoration: InputDecoration(hintText: 'Enter Queue Name'),
+          decoration: const InputDecoration(hintText: 'Enter Queue Name'),
           controller: nameController,
         ),
         CheckboxListTile(
@@ -232,7 +251,7 @@ class _QueueCreatorDialogState extends State<QueueCreatorDialog> {
       ]),
       actions: [
         TextButton(
-            child: Text("SUBMIT"),
+            child: const Text("SUBMIT"),
             onPressed: () {
               String name = nameController.text;
               if (name.isEmpty) {
