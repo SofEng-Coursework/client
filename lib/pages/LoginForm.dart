@@ -11,7 +11,7 @@ class LoginForm extends StatefulWidget {
   @override
   State<LoginForm> createState() => _LoginFormState();
 }
-
+/// This builds the widget hosted on the [AuthPage] for logging into the user's account
 class _LoginFormState extends State<LoginForm> {
   final _formKey = GlobalKey<FormState>();
   bool _passwordVisible = false;
@@ -45,6 +45,8 @@ class _LoginFormState extends State<LoginForm> {
             ),
           ),
         ),
+        /// This Form is used to receive inputted data from the user and
+        /// check that the data matches in a format that the system expects
         Form(
           key: _formKey,
           child: Column(
@@ -114,7 +116,8 @@ class _LoginFormState extends State<LoginForm> {
               ElevatedButton(
                   child: Text('Sign In'),
                   onPressed: () async {
-                    //check if details are correct
+                    /// This will pass the login details to userAccountController
+                    /// Which will then use firebase to validate and return either a success or error message
                     final userAccountController = Provider.of<UserAccountController>(context, listen: false);
                     if (_formKey.currentState!.validate()) {
                       _formKey.currentState!.save();
