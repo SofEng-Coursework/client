@@ -196,6 +196,7 @@ class _QueueStatsState extends State<QueueStats> {
                           // This is the live queue data
                           List<FeedbackEntry> feedback =
                               snapshot.data as List<FeedbackEntry>;
+                              
                           if (feedback.isEmpty) {
                             return const Text("No feedback");
                           } else {

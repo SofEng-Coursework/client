@@ -54,11 +54,4 @@ class DataController extends ChangeNotifier {
     }
     return "$seconds seconds";
   }
-
-  Future<List> getFeedback(Queue queue) async {
-    final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
-    final queueData = await queueReference.get();
-    final feedback = queueData.data()!['feedback'] as List<dynamic>;
-    return feedback.map((e) => [e['rating'], e['comments']]).toList();
-  }
 }

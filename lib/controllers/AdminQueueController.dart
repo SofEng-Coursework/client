@@ -36,7 +36,7 @@ class AdminQueueController extends ChangeNotifier {
   }
 
 
-    Stream<List<FeedbackEntry>> getFeedback(String queueID) {
+  Stream<List<FeedbackEntry>> getFeedback(String queueID) {
     return _firebaseProvider.FIREBASE_FIRESTORE.collection('feedback').doc(queueID).collection('entries').snapshots().map((snapshot) {
       return snapshot.docs.map((doc) => FeedbackEntry.fromJson(doc.data())).toList();
     });
