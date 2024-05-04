@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'dart:math';
 import 'package:provider/provider.dart';
 import 'package:virtual_queue/controllers/AdminQueueController.dart';
@@ -26,14 +27,12 @@ class _QueueStatsState extends State<QueueStats> {
 
   @override
   Widget build(BuildContext context) {
-    final adminQueueController =
-        Provider.of<AdminQueueController>(context, listen: false);
+    final adminQueueController = Provider.of<AdminQueueController>(context, listen: false);
     final dataController = Provider.of<DataController>(context, listen: false);
     return Scaffold(
         appBar: AppBar(
           backgroundColor: const Color(0xFF017A08),
-          title: Text(widget.queue.name,
-              style: const TextStyle(color: Color(0xFFFFFFFF))),
+          title: Text(widget.queue.name, style: const TextStyle(color: Color(0xFFFFFFFF))),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () {
@@ -172,16 +171,12 @@ class _QueueStatsState extends State<QueueStats> {
                               ),
                             ),
                             borderData: FlBorderData(show: false),
-                            barGroups: List.generate(
-                                24,
-                                (i) => makeBar(
-                                    i, dataController.getDayData(queue)[i])),
+                            barGroups: List.generate(24, (i) => makeBar(i, dataController.getDayData(queue)[i])),
                             gridData: const FlGridData(
                               show: false,
                             ),
                             alignment: BarChartAlignment.spaceAround,
-                            maxY:
-                                dataController.getDayData(queue).reduce(max)))),
+                            maxY: dataController.getDayData(queue).reduce(max)))),
                     StreamBuilder(
                         stream: adminQueueController.getFeedback(queue.id),
                         builder: (context, snapshot) {
@@ -189,25 +184,48 @@ class _QueueStatsState extends State<QueueStats> {
                             return const Text("Error");
                           }
                           if (!snapshot.hasData) {
-                            return const Center(
-                                child: CircularProgressIndicator());
+                            return const Center(child: CircularProgressIndicator());
                           }
 
                           // This is the live queue data
-                          List<FeedbackEntry> feedback =
-                              snapshot.data as List<FeedbackEntry>;
-                              
+                          List<FeedbackEntry> feedback = snapshot.data as List<FeedbackEntry>;
+
                           if (feedback.isEmpty) {
                             return const Text("No feedback");
                           } else {
-                            return ListView.builder(
-                              itemCount: feedback.length,
-                              itemBuilder: (context, index) {
-                                return Card(
-                                  child: Text(
-                                      "Rating:\n${feedback[index].rating}\n\nFeedback:${feedback[index].comments}"),
-                                );
-                              },
+                            return Expanded(
+                              child: ListView.builder(
+                                itemCount: feedback.length,
+                                itemBuilder: (context, index) {
+                                  return Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Card(
+                                      child: ListTile(
+                                        title: RatingBar.builder(
+                                            initialRating: feedback[index].rating.toDouble(),
+                                            minRating: 1,
+                                            ignoreGestures: true,
+                                            direction: Axis.horizontal,
+                                            allowHalfRating: true,
+                                            itemCount: 5,
+                                            itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+                                            itemBuilder: (context, _) => const Icon(
+                                                  Icons.star,
+                                                  color: Colors.amber,
+                                                ),
+                                            onRatingUpdate: (rating) {}),
+                                        subtitle: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text(
+                                            feedback[index].comments,
+                                            style: TextStyle(fontSize: 20),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
                             );
                           }
                         })

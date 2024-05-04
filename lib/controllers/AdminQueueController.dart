@@ -11,7 +11,7 @@ const uuid = Uuid();
 
 class AdminQueueController extends ChangeNotifier {
   late FirebaseProvider _firebaseProvider;
-  
+
   AdminQueueController({required FirebaseProvider firebaseProvider}) {
     _firebaseProvider = firebaseProvider;
   }
@@ -35,12 +35,17 @@ class AdminQueueController extends ChangeNotifier {
         .map((snapshot) => snapshot.docs.map((doc) => Queue.fromJson(doc.data())).toList());
   }
 
-
   Stream<List<FeedbackEntry>> getFeedback(String queueID) {
-    return _firebaseProvider.FIREBASE_FIRESTORE.collection('feedback').doc(queueID).collection('entries').snapshots().map((snapshot) {
-      return snapshot.docs.map((doc) => FeedbackEntry.fromJson(doc.data())).toList();
+    final queueDocument = _firebaseProvider.FIREBASE_FIRESTORE.collection('feedback').doc(queueID);
+    return queueDocument.snapshots().map((doc) {
+      if (doc.exists) {
+        return (doc.data()!['entries'] as List).map((e) => FeedbackEntry.fromJson(e)).toList();
+      } else {
+        return <FeedbackEntry>[];
+      }
     });
   }
+
   /// Toggle the open status of a queue
   Future<ErrorStatus> toggleQueueOpenStatus(Queue queue) async {
     final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
@@ -61,7 +66,7 @@ class AdminQueueController extends ChangeNotifier {
   Future<ErrorStatus> deleteQueue(Queue queue) async {
     final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
     await queueReference.delete();
-    
+
     // Delete feedback
     final feedbackReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('feedback').doc(queue.id);
     await feedbackReference.delete();
