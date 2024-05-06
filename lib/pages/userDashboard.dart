@@ -9,12 +9,14 @@ import 'package:virtual_queue/models/Queue.dart';
 import 'package:virtual_queue/pages/Settings.dart';
 import 'package:virtual_queue/controllers/dataController.dart';
 
+/// This builds the main page for users to access a selection of queues
 class UserDashboard extends StatelessWidget {
   const UserDashboard({super.key});
   @override
   Widget build(BuildContext context) {
     final userQueueController = Provider.of<UserQueueController>(context, listen: false);
 
+    /// This StreamBuilder will check if the user is in a queue and will pass the Queue Progress page if so.
     return StreamBuilder(
         stream: userQueueController.getCurrentQueue(),
         builder: (context, snapshot) {
@@ -30,7 +32,7 @@ class UserDashboard extends StatelessWidget {
         });
   }
 }
-
+/// This is where the popup asking for feedback is created and uploaded to Firebase
 class FeedbackView extends StatefulWidget {
   final List<dynamic> feedbackPrompts;
   final Map<String, dynamic> userData;
@@ -152,7 +154,7 @@ class _FeedbackViewState extends State<FeedbackView> {
     );
   }
 }
-
+/// This is the widget that shows the user their position in the queue and the average wait time
 class QueueProgressView extends StatelessWidget {
   final Queue queue;
 
