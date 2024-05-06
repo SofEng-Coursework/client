@@ -19,14 +19,14 @@ class UserDashboard extends StatelessWidget {
         stream: userQueueController.getCurrentQueue(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator();
+            return const CircularProgressIndicator();
           }
           if (snapshot.hasError) {
             return Text("Error: ${snapshot.error}");
           }
           final queue = snapshot.data;
 
-          return queue == null ? QueuesListView() : QueueProgressView(queue: queue);
+          return queue == null ? const QueuesListView() : QueueProgressView(queue: queue);
         });
   }
 }
@@ -34,7 +34,7 @@ class UserDashboard extends StatelessWidget {
 class FeedbackView extends StatefulWidget {
   final List<dynamic> feedbackPrompts;
   final Map<String, dynamic> userData;
-  FeedbackView({required this.feedbackPrompts, required this.userData, super.key});
+  const FeedbackView({required this.feedbackPrompts, required this.userData, super.key});
 
   @override
   State<FeedbackView> createState() => _FeedbackViewState();
@@ -58,13 +58,13 @@ class _FeedbackViewState extends State<FeedbackView> {
             Navigator.of(context).pop();
           },
         ),
-        title: Text("Rate Experience"),
+        title: const Text("Rate Experience"),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text("How would you rate your experience?", style: TextStyle(fontSize: 24)),
+            const Text("How would you rate your experience?", style: TextStyle(fontSize: 24)),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: RatingBar.builder(
@@ -72,27 +72,27 @@ class _FeedbackViewState extends State<FeedbackView> {
                 itemBuilder: (context, index) {
                   switch (index) {
                     case 0:
-                      return Icon(
+                      return const Icon(
                         Icons.sentiment_very_dissatisfied,
                         color: Colors.red,
                       );
                     case 1:
-                      return Icon(
+                      return const Icon(
                         Icons.sentiment_dissatisfied,
                         color: Colors.redAccent,
                       );
                     case 2:
-                      return Icon(
+                      return const Icon(
                         Icons.sentiment_neutral,
                         color: Colors.amber,
                       );
                     case 3:
-                      return Icon(
+                      return const Icon(
                         Icons.sentiment_satisfied,
                         color: Colors.lightGreen,
                       );
                     case 4:
-                      return Icon(
+                      return const Icon(
                         Icons.sentiment_very_satisfied,
                         color: Colors.green,
                       );
@@ -112,7 +112,7 @@ class _FeedbackViewState extends State<FeedbackView> {
               child: SizedBox(
                 height: 120,
                 child: TextField(
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: "Additional comments",
                     border: OutlineInputBorder(),
                   ),
@@ -126,7 +126,7 @@ class _FeedbackViewState extends State<FeedbackView> {
             ElevatedButton(
               onPressed: () {
                 if (rating == 0) {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please select a rating")));
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please select a rating")));
                   return;
                 }
                 // Submit feedback
@@ -144,7 +144,7 @@ class _FeedbackViewState extends State<FeedbackView> {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(status.message!)));
                 });
               },
-              child: Text("Submit"),
+              child: const Text("Submit"),
             ),
           ],
         ),
@@ -166,12 +166,12 @@ class QueueProgressView extends StatelessWidget {
           child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          SizedBox(),
+          const SizedBox(),
           Column(
             children: [
               Text("Average Wait Time: ${dataController.formatTime(dataController.getMedianWaitTime(queue))}"),
-              Text("Your position in the queue"),
-              SizedBox(
+              const Text("Your position in the queue"),
+              const SizedBox(
                 height: 10,
               ),
               CircleAvatar(
@@ -180,7 +180,7 @@ class QueueProgressView extends StatelessWidget {
                   stream: Provider.of<UserQueueController>(context, listen: false).getCurrentQueuePosition(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator();
+                      return const CircularProgressIndicator();
                     }
                     if (snapshot.hasError) {
                       return Text("Error: ${snapshot.error}");
@@ -197,7 +197,7 @@ class QueueProgressView extends StatelessWidget {
               child: StreamBuilder<int>(
                   stream: Provider.of<UserQueueController>(context, listen: false).getCurrentQueuePosition(),
                   builder: (context, snapshot) {
-                    if (!snapshot.hasData) return CircularProgressIndicator();
+                    if (!snapshot.hasData) return const CircularProgressIndicator();
                     final position = snapshot.data!;
                     return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                       if (position > 2) SizedBox(height: 125, child: Image.asset('assets/images/user.png')),
@@ -214,7 +214,7 @@ class QueueProgressView extends StatelessWidget {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(status.message!)));
               });
             },
-            child: Text("Leave queue"),
+            child: const Text("Leave queue"),
           )
         ],
       )),
@@ -222,10 +222,17 @@ class QueueProgressView extends StatelessWidget {
   }
 }
 
-class QueuesListView extends StatelessWidget {
+class QueuesListView extends StatefulWidget {
   const QueuesListView({
     super.key,
   });
+
+  @override
+  State<QueuesListView> createState() => _QueuesListViewState();
+}
+
+class _QueuesListViewState extends State<QueuesListView> {
+  final feedbackViewPushed = ValueNotifier<bool>(false);
 
   @override
   Widget build(BuildContext context) {
@@ -237,26 +244,27 @@ class QueuesListView extends StatelessWidget {
         return;
       }
       final feedbackPrompts = userData['feedbackPrompt'] as List<dynamic>;
-      if (feedbackPrompts.isNotEmpty) {
+      if (feedbackPrompts.isNotEmpty && !feedbackViewPushed.value) {
+        feedbackViewPushed.value = true;
         Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => ChangeNotifierProvider.value(
               value: userQueueContorller, child: FeedbackView(feedbackPrompts: feedbackPrompts, userData: userData)),
-        ));
+        )).then((value) => feedbackViewPushed.value = false);
       }
     });
 
     return Scaffold(
-      backgroundColor: Color(0xffffffff),
+      backgroundColor: const Color(0xffffffff),
       appBar: AppBar(
         elevation: 0,
         centerTitle: false,
         automaticallyImplyLeading: false,
-        backgroundColor: Color(0xff017a08),
-        shape: RoundedRectangleBorder(
+        backgroundColor: const Color(0xff017a08),
+        shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.zero,
         ),
         leading: IconButton(
-          icon: Icon(
+          icon: const Icon(
             Icons.logout,
             color: Color(0xffffffff),
             size: 24,
@@ -267,8 +275,8 @@ class QueuesListView extends StatelessWidget {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.settings),
-            color: Color(0xffffffff),
+            icon: const Icon(Icons.settings),
+            color: const Color(0xffffffff),
             onPressed: () {
               Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) =>
@@ -278,14 +286,14 @@ class QueuesListView extends StatelessWidget {
         ],
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+        padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.max,
             children: [
-              Padding(
+              const Padding(
                 padding: EdgeInsets.fromLTRB(0, 16, 0, 20),
                 child: Text(
                   "Nearby Queues",
@@ -303,7 +311,7 @@ class QueuesListView extends StatelessWidget {
                 stream: userQueueContorller.getQueues(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
+                    return const CircularProgressIndicator();
                   }
                   if (snapshot.hasError) {
                     return Text("Error: ${snapshot.error}");
@@ -312,9 +320,9 @@ class QueuesListView extends StatelessWidget {
 
                   return ListView.builder(
                     scrollDirection: Axis.vertical,
-                    padding: EdgeInsets.all(0),
+                    padding: const EdgeInsets.all(0),
                     shrinkWrap: true,
-                    physics: ScrollPhysics(),
+                    physics: const ScrollPhysics(),
                     itemCount: queues.length,
                     itemBuilder: (context, index) {
                       final queueData = queues[index];
@@ -337,7 +345,7 @@ class QueuesListView extends StatelessWidget {
 class QueueCard extends StatefulWidget {
   final Queue queueData;
 
-  QueueCard({
+  const QueueCard({
     required this.queueData,
     Key? key,
   }) : super(key: key);
@@ -350,16 +358,16 @@ class _QueueCardState extends State<QueueCard> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.fromLTRB(0, 0, 0, 16),
-      color: Color(0xffffffff),
-      shadowColor: Color(0x4d939393),
+      margin: const EdgeInsets.fromLTRB(0, 0, 0, 16),
+      color: const Color(0xffffffff),
+      shadowColor: const Color(0x4d939393),
       elevation: 1,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(4.0),
-        side: BorderSide(color: Color(0x4d9e9e9e), width: 1),
+        side: const BorderSide(color: Color(0x4d9e9e9e), width: 1),
       ),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -367,13 +375,13 @@ class _QueueCardState extends State<QueueCard> {
           children: [
             Container(
               alignment: Alignment.center,
-              margin: EdgeInsets.all(0),
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
+              margin: const EdgeInsets.all(0),
+              padding: const EdgeInsets.all(16),
+              decoration: const BoxDecoration(
                 color: Color(0xfff2f2f2),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.work_outlined,
                 color: Color(0xff212435),
                 size: 16,
@@ -382,7 +390,7 @@ class _QueueCardState extends State<QueueCard> {
             Expanded(
               flex: 1,
               child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -393,7 +401,7 @@ class _QueueCardState extends State<QueueCard> {
                       textAlign: TextAlign.start,
                       maxLines: 1,
                       overflow: TextOverflow.clip,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontWeight: FontWeight.w700,
                         fontStyle: FontStyle.normal,
                         fontSize: 16,
@@ -401,13 +409,13 @@ class _QueueCardState extends State<QueueCard> {
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.fromLTRB(0, 4, 0, 0),
+                      padding: const EdgeInsets.fromLTRB(0, 4, 0, 0),
                       child: Text(
                         'Users in queue: ${widget.queueData.users.length}',
                         textAlign: TextAlign.start,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontWeight: FontWeight.w400,
                           fontStyle: FontStyle.normal,
                           fontSize: 14,
@@ -428,13 +436,13 @@ class _QueueCardState extends State<QueueCard> {
               },
               child: Container(
                 alignment: Alignment.center,
-                margin: EdgeInsets.all(0),
-                padding: EdgeInsets.all(10),
-                decoration: BoxDecoration(
+                margin: const EdgeInsets.all(0),
+                padding: const EdgeInsets.all(10),
+                decoration: const BoxDecoration(
                   color: Color(0xff017a08),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.add_box,
                   color: Color(0xffffffff),
                   size: 16,

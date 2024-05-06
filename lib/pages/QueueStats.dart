@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'dart:math';
 import 'package:provider/provider.dart';
 import 'package:virtual_queue/controllers/AdminQueueController.dart';
 import 'package:virtual_queue/controllers/dataController.dart';
+import 'package:virtual_queue/models/FeedbackEntry.dart';
 import 'package:virtual_queue/models/Queue.dart';
 
 class QueueStats extends StatefulWidget {
@@ -52,12 +54,13 @@ class _QueueStatsState extends State<QueueStats> {
               // This is the live queue data
               Queue queue = snapshot.data as Queue;
 
-              return Center(
-                  child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
+              return Scrollbar(
+                  child: Center(
+                      child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
                     // /*average daily*/ Container(
                     //   width: 300,
                     //   height: 200,
@@ -120,7 +123,8 @@ class _QueueStatsState extends State<QueueStats> {
                     //       alignment: BarChartAlignment.spaceAround,
                     //       maxY: averageDay.reduce(max))),
                     // ),
-                    /*average today*/ Container(
+                    /*average today*/
+                    Container(
                         width: MediaQuery.of(context).size.width - 100,
                         height: MediaQuery.of(context).size.height * 0.5,
                         padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
@@ -173,7 +177,59 @@ class _QueueStatsState extends State<QueueStats> {
                             ),
                             alignment: BarChartAlignment.spaceAround,
                             maxY: dataController.getDayData(queue).reduce(max)))),
-                  ]));
+                    StreamBuilder(
+                        stream: adminQueueController.getFeedback(queue.id),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasError) {
+                            return const Text("Error");
+                          }
+                          if (!snapshot.hasData) {
+                            return const Center(child: CircularProgressIndicator());
+                          }
+
+                          // This is the live queue data
+                          List<FeedbackEntry> feedback = snapshot.data as List<FeedbackEntry>;
+
+                          if (feedback.isEmpty) {
+                            return const Text("No feedback");
+                          } else {
+                            return Expanded(
+                              child: ListView.builder(
+                                itemCount: feedback.length,
+                                itemBuilder: (context, index) {
+                                  return Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Card(
+                                      child: ListTile(
+                                        title: RatingBar.builder(
+                                            initialRating: feedback[index].rating.toDouble(),
+                                            minRating: 1,
+                                            ignoreGestures: true,
+                                            direction: Axis.horizontal,
+                                            allowHalfRating: true,
+                                            itemCount: 5,
+                                            itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+                                            itemBuilder: (context, _) => const Icon(
+                                                  Icons.star,
+                                                  color: Colors.amber,
+                                                ),
+                                            onRatingUpdate: (rating) {}),
+                                        subtitle: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text(
+                                            feedback[index].comments,
+                                            style: TextStyle(fontSize: 20),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            );
+                          }
+                        })
+                  ])));
             }));
   }
 
