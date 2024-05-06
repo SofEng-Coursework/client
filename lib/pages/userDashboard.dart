@@ -345,9 +345,6 @@ class _QueuesListViewState extends State<QueuesListView> {
                               AccountDetailsEditWidget(
                                 accountController: userAccountController,
                               ),
-                              NotificationToggleWidget(
-                                accountController: userAccountController,
-                              ),
                               SignOutButton(
                                 accountController: userAccountController,
                               ),
@@ -459,7 +456,50 @@ class HistoryPage extends StatelessWidget {
           },
         ),
       ),
-      body: Container(),
+      body: FutureBuilder(
+        future: accountController.getHistory(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const CircularProgressIndicator();
+          }
+          if (snapshot.hasError) {
+            return Text("Error: ${snapshot.error}");
+          }
+          final history = snapshot.data as List<dynamic>;
+
+          return ListView.builder(
+            itemCount: history.length,
+            itemBuilder: (context, index) {
+              final entry = history[index];
+              final duration = entry['end'] - entry['start'];
+              final start = DateTime.fromMillisecondsSinceEpoch(entry['start']);
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Card(
+                  child: ListTile(
+                    title: Text(
+                      entry['queue'] as String,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontStyle: FontStyle.normal,
+                        fontSize: 16,
+                        color: Color(0xff000000),
+                      ),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('${start.day}/${start.month}/${start.year}'),
+                        Text('Duration: ${Duration(milliseconds: duration).toString().split('.').first}'),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }
