@@ -11,6 +11,7 @@ class LoginForm extends StatefulWidget {
   @override
   State<LoginForm> createState() => _LoginFormState();
 }
+
 /// This builds the widget hosted on the [AuthPage] for logging into the user's account
 class _LoginFormState extends State<LoginForm> {
   final _formKey = GlobalKey<FormState>();
@@ -45,6 +46,7 @@ class _LoginFormState extends State<LoginForm> {
             ),
           ),
         ),
+
         /// This Form is used to receive inputted data from the user and
         /// check that the data matches in a format that the system expects
         Form(
@@ -122,9 +124,11 @@ class _LoginFormState extends State<LoginForm> {
                     if (_formKey.currentState!.validate()) {
                       _formKey.currentState!.save();
                       final error = await userAccountController.login(_email, _password);
-                      setState(() {
-                        errorMesssage = error.message;
-                      });
+                      if (mounted) {
+                        setState(() {
+                          errorMesssage = error.message;
+                        });
+                      }
                     }
                   }),
               SizedBox(
