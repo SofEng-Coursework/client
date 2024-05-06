@@ -10,7 +10,7 @@ import 'package:virtual_queue/controllers/dataController.dart';
 import 'package:virtual_queue/models/Queue.dart';
 import 'package:virtual_queue/pages/AdminQueueProgress.dart';
 import 'package:virtual_queue/pages/QueueStats.dart';
-import 'package:virtual_queue/pages/Settings.dart';
+import 'package:virtual_queue/pages/settings.dart';
 import 'package:virtual_queue/controllers/AdminQueueController.dart';
 import 'AdminQueueProgress.dart';
 
@@ -71,16 +71,66 @@ class _AdminDashboardState extends State<AdminDashboard> {
             },
           ),
 
-          /// Button to navigate to the admin account settings page - currently not in use
-          // IconButton(
-          //   icon: Icon(Icons.settings),
-          //   color: Color(0xffffffff),
-          //   onPressed: () {
-          //     Navigator.of(context).push(MaterialPageRoute(
-          //         builder: (context) =>
-          //             ChangeNotifierProvider<AdminAccountController>(create: (context) => adminAccountController, child: Settings())));
-          //   },
-          // ),
+          IconButton(
+            icon: Icon(Icons.settings),
+            color: Color(0xffffffff),
+            onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => Scaffold(
+                        backgroundColor: Color(0xffffffff),
+                        appBar: AppBar(
+                          elevation: 0,
+                          centerTitle: true,
+                          automaticallyImplyLeading: false,
+                          backgroundColor: Color(0xff017a08),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.zero,
+                          ),
+                          title: Text(
+                            "Settings",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontStyle: FontStyle.normal,
+                              fontSize: 20,
+                              color: Color(0xffffffff),
+                            ),
+                          ),
+                          leading: IconButton(
+                            icon: Icon(
+                              Icons.arrow_back,
+                              color: Color(0xffffffff),
+                              size: 24,
+                            ),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ),
+                        body: SingleChildScrollView(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              AccountDetailsEditWidget(
+                                accountController: adminAccountController,
+                              ),
+                              SignOutButton(
+                                accountController: adminAccountController,
+                              ),
+                              DeleteAccountButton(
+                                accountController: adminAccountController,
+                              ),
+                              SizedBox(
+                                height: 16,
+                                width: 16,
+                              ),
+                            ],
+                          ),
+                        ),
+                      )));
+            },
+          ),
         ],
       ),
       body: const Padding(
@@ -164,14 +214,13 @@ class AdminQueueList extends StatelessWidget {
                             icon: const Icon(Icons.bar_chart),
                             onPressed: () {
                               Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => MultiProvider(providers: [
-                              ChangeNotifierProvider.value(value: adminQueueController),
-                              ChangeNotifierProvider.value(value: dataController)
-                            ], child: QueueStats(queue: queueData))));
+                                  builder: (context) => MultiProvider(providers: [
+                                        ChangeNotifierProvider.value(value: adminQueueController),
+                                        ChangeNotifierProvider.value(value: dataController)
+                                      ], child: QueueStats(queue: queueData))));
                             }),
                         IconButton(
-                            icon: Icon(
-                                queueData.open ? Icons.lock : Icons.lock_open),
+                            icon: Icon(queueData.open ? Icons.lock : Icons.lock_open),
                             onPressed: () {
                               // Toggle queue open status
                               adminQueueController.toggleQueueOpenStatus(queueData);

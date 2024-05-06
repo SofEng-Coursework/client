@@ -6,8 +6,8 @@ import 'package:virtual_queue/controllers/UserQueueController.dart';
 import 'package:virtual_queue/controllers/userAccountController.dart';
 import 'package:virtual_queue/models/FeedbackEntry.dart';
 import 'package:virtual_queue/models/Queue.dart';
-import 'package:virtual_queue/pages/Settings.dart';
 import 'package:virtual_queue/controllers/dataController.dart';
+import 'package:virtual_queue/pages/settings.dart';
 
 class UserDashboard extends StatelessWidget {
   const UserDashboard({super.key});
@@ -246,10 +246,12 @@ class _QueuesListViewState extends State<QueuesListView> {
       final feedbackPrompts = userData['feedbackPrompt'] as List<dynamic>;
       if (feedbackPrompts.isNotEmpty && !feedbackViewPushed.value) {
         feedbackViewPushed.value = true;
-        Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => ChangeNotifierProvider.value(
-              value: userQueueContorller, child: FeedbackView(feedbackPrompts: feedbackPrompts, userData: userData)),
-        )).then((value) => feedbackViewPushed.value = false);
+        Navigator.of(context)
+            .push(MaterialPageRoute(
+              builder: (context) => ChangeNotifierProvider.value(
+                  value: userQueueContorller, child: FeedbackView(feedbackPrompts: feedbackPrompts, userData: userData)),
+            ))
+            .then((value) => feedbackViewPushed.value = false);
       }
     });
 
@@ -279,8 +281,60 @@ class _QueuesListViewState extends State<QueuesListView> {
             color: const Color(0xffffffff),
             onPressed: () {
               Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) =>
-                      ChangeNotifierProvider<UserAccountController>(create: (context) => userAccountController, child: Settings())));
+                  builder: (context) => Scaffold(
+                        backgroundColor: Color(0xffffffff),
+                        appBar: AppBar(
+                          elevation: 0,
+                          centerTitle: true,
+                          automaticallyImplyLeading: false,
+                          backgroundColor: Color(0xff017a08),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.zero,
+                          ),
+                          title: Text(
+                            "Settings",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontStyle: FontStyle.normal,
+                              fontSize: 20,
+                              color: Color(0xffffffff),
+                            ),
+                          ),
+                          leading: IconButton(
+                            icon: Icon(
+                              Icons.arrow_back,
+                              color: Color(0xffffffff),
+                              size: 24,
+                            ),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ),
+                        body: SingleChildScrollView(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              AccountDetailsEditWidget(
+                                accountController: userAccountController,
+                              ),
+                              NotificationToggleWidget(),
+                              SignOutButton(
+                                accountController: userAccountController,
+                              ),
+                              DeleteAccountButton(
+                                accountController: userAccountController,
+                              ),
+                              SizedBox(
+                                height: 16,
+                                width: 16,
+                              ),
+                            ],
+                          ),
+                        ),
+                      )));
             },
           ),
         ],

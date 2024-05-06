@@ -26,6 +26,12 @@ class AccountController extends ChangeNotifier {
         'phone': phone,
         'email': email,
         'uid': uid,
+        'feedbackPrompt': [],
+        'notificiation_settings': {
+          'chat_enabled': true,
+          'email_enabled': true,
+          'push_enabled': true,
+        }
       });
       return ErrorStatus(success: true);
     } on FirebaseAuthException catch (e) {
@@ -59,7 +65,30 @@ class AccountController extends ChangeNotifier {
     return null;
   }
 
-  Future<void> signOut() async {
+  Future<ErrorStatus> signOut() async {
     await firebaseProvider.FIREBASE_AUTH.signOut();
+    return ErrorStatus(success: true);
+  }
+
+  Future<ErrorStatus> deleteAccount() async {
+    final user = firebaseProvider.FIREBASE_AUTH.currentUser;
+    if (user == null) return ErrorStatus(success: false, message: 'User not found');
+    await firebaseProvider.FIREBASE_FIRESTORE.collection(collectionName).doc(user.uid).delete();
+    await user.delete();
+    return ErrorStatus(success: true);
+  }
+
+  Future<ErrorStatus> updateAccount({String? name, String? phone}) async {
+    final user = firebaseProvider.FIREBASE_AUTH.currentUser;
+    if (user == null) return ErrorStatus(success: false, message: 'User not found');
+    Map<String, dynamic> data = {};
+    if (name != null) {
+      data['name'] = name;
+    }
+    if (phone != null) {
+      data['phone'] = phone;
+    }
+    await firebaseProvider.FIREBASE_FIRESTORE.collection(collectionName).doc(user.uid).update(data);
+    return ErrorStatus(success: true);
   }
 }
