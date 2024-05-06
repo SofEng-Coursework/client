@@ -33,11 +33,15 @@ class UserQueueController extends ChangeNotifier {
     final userReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('users').doc(userUID);
     final name = await userReference.get().then((value) => value.data()?['name']);
 
-    userReference.update({
-      'feedbackPrompt': FieldValue.arrayUnion([queue.id]), // Add the queue ID to the user's feedback prompt list
-    });
-
+    // Check if queue with this ID still exists
     final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
+    final queueDoc = await queueReference.get();
+    if (queueDoc.exists) {
+      userReference.update({
+        'feedbackPrompt': FieldValue.arrayUnion([queue.id]), // Add the queue ID to the user's feedback prompt list
+      });
+    }
+
     queue.users.add(QueueUserEntry(userId: userUID, name: name, timestamp: DateTime.now().millisecondsSinceEpoch));
     await queueReference.update({'users': queue.users.map((e) => e.toJson()).toList()});
 
@@ -145,14 +149,12 @@ class UserQueueController extends ChangeNotifier {
     // Create a new document if it doesn't exist, otherwise update the existing document
     await queueFeedbackRef.set({
       'queueId': queueId,
-      'ratings': [],
       'entries': [],
     }, SetOptions(merge: true));
 
     // Update the ratings and comments arrays with the new feedback
     await queueFeedbackRef.update({
-      'ratings': FieldValue.arrayUnion([entry.rating]),
-      'comments': FieldValue.arrayUnion([entry.toJson()]),
+      'entries': FieldValue.arrayUnion([entry.toJson()]),
     });
 
     return ErrorStatus(success: true);
