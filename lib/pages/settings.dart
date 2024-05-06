@@ -174,8 +174,11 @@ class AccountDetailsEditWidget extends StatelessWidget {
 
 class NotificationToggleWidget extends StatelessWidget {
   const NotificationToggleWidget({
+    required this.accountController,
     super.key,
   });
+
+  final UserAccountController accountController;
 
   @override
   Widget build(BuildContext context) {
@@ -209,9 +212,9 @@ class NotificationToggleWidget extends StatelessWidget {
             Padding(
               padding: EdgeInsets.fromLTRB(0, 30, 0, 0),
               child: SwitchListTile(
-                value: Provider.of<UserAccountController>(context).pushNotificationEnabled,
+                value: accountController.pushNotificationEnabled,
                 onChanged: (value) {
-                  Provider.of<UserAccountController>(context, listen: false).togglePushNotification(value);
+                  accountController.togglePushNotification(value);
                 },
                 title: Text(
                   "Push Notification",

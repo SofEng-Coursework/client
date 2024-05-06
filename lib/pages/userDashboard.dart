@@ -43,6 +43,7 @@ class FeedbackView extends StatefulWidget {
 class _FeedbackViewState extends State<FeedbackView> {
   final commentsController = TextEditingController();
 
+  bool anonymous = false;
   int rating = 0;
 
   @override
@@ -123,6 +124,18 @@ class _FeedbackViewState extends State<FeedbackView> {
                 ),
               ),
             ),
+            // anonymous toggle
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.5,
+              child: CheckboxListTile(
+                  title: const Text("Submit anonymously"),
+                  value: anonymous,
+                  onChanged: (value) {
+                    setState(() {
+                      anonymous = value!;
+                    });
+                  }),
+            ),
             ElevatedButton(
               onPressed: () {
                 if (rating == 0) {
@@ -132,6 +145,7 @@ class _FeedbackViewState extends State<FeedbackView> {
                 // Submit feedback
                 final FeedbackEntry entry = FeedbackEntry(
                   userId: userId,
+                  name: anonymous ? 'Anonymous' : widget.userData['name'] as String,
                   comments: commentsController.text,
                   rating: rating,
                 );
@@ -277,6 +291,17 @@ class _QueuesListViewState extends State<QueuesListView> {
         ),
         actions: [
           IconButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                      builder: (context) => HistoryPage(
+                            accountController: userAccountController,
+                          )),
+                );
+              },
+              icon: const Icon(Icons.history),
+              color: const Color(0xffffffff)),
+          IconButton(
             icon: const Icon(Icons.settings),
             color: const Color(0xffffffff),
             onPressed: () {
@@ -320,7 +345,9 @@ class _QueuesListViewState extends State<QueuesListView> {
                               AccountDetailsEditWidget(
                                 accountController: userAccountController,
                               ),
-                              NotificationToggleWidget(),
+                              NotificationToggleWidget(
+                                accountController: userAccountController,
+                              ),
                               SignOutButton(
                                 accountController: userAccountController,
                               ),
@@ -392,6 +419,47 @@ class _QueuesListViewState extends State<QueuesListView> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class HistoryPage extends StatelessWidget {
+  HistoryPage({required this.accountController, super.key});
+
+  final UserAccountController accountController;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        elevation: 0,
+        centerTitle: true,
+        automaticallyImplyLeading: false,
+        backgroundColor: const Color(0xff017a08),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.zero,
+        ),
+        title: const Text(
+          "History",
+          style: TextStyle(
+            fontWeight: FontWeight.w700,
+            fontStyle: FontStyle.normal,
+            fontSize: 20,
+            color: Color(0xffffffff),
+          ),
+        ),
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back,
+            color: Color(0xffffffff),
+            size: 24,
+          ),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ),
+      body: Container(),
     );
   }
 }

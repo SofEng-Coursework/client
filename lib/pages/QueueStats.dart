@@ -201,24 +201,33 @@ class _QueueStatsState extends State<QueueStats> {
                                     padding: const EdgeInsets.all(8.0),
                                     child: Card(
                                       child: ListTile(
-                                        title: RatingBar.builder(
-                                            initialRating: feedback[index].rating.toDouble(),
-                                            minRating: 1,
-                                            ignoreGestures: true,
-                                            direction: Axis.horizontal,
-                                            allowHalfRating: true,
-                                            itemCount: 5,
-                                            itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
-                                            itemBuilder: (context, _) => const Icon(
-                                                  Icons.star,
-                                                  color: Colors.amber,
-                                                ),
-                                            onRatingUpdate: (rating) {}),
+                                        title: Row(
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              feedback[index].name,
+                                              style: TextStyle(fontWeight: FontWeight.bold),
+                                            ),
+                                            RatingBar.builder(
+                                                initialRating: feedback[index].rating.toDouble(),
+                                                minRating: 1,
+                                                itemSize: 24,
+                                                ignoreGestures: true,
+                                                direction: Axis.horizontal,
+                                                allowHalfRating: true,
+                                                itemCount: 5,
+                                                itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+                                                itemBuilder: (context, _) => const Icon(
+                                                      Icons.star,
+                                                      color: Colors.amber,
+                                                    ),
+                                                onRatingUpdate: (rating) {})
+                                          ],
+                                        ),
                                         subtitle: Padding(
-                                          padding: const EdgeInsets.all(8.0),
+                                          padding: const EdgeInsets.only(top: 8),
                                           child: Text(
                                             feedback[index].comments,
-                                            style: TextStyle(fontSize: 20),
                                           ),
                                         ),
                                       ),
