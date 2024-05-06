@@ -105,7 +105,7 @@ class _AdminQueueProgressState extends State<AdminQueueProgress> {
                         )),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(0, 15, 15, 0),
-                      child: Text("Wait Time: ${dataController.formatTime(dataController.getMedianWaitTime(queue))}",
+                      child: Text("Wait Time: ${dataController.formatTime(dataController.getMedianWaitTime(queue).inMilliseconds)}",
                           style: const TextStyle(fontSize: 18)),
                     ),
 

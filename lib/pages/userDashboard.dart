@@ -183,7 +183,7 @@ class QueueProgressView extends StatelessWidget {
           const SizedBox(),
           Column(
             children: [
-              Text("Average Wait Time: ${dataController.formatTime(dataController.getMedianWaitTime(queue))}"),
+              Text("Average Wait Time: ${dataController.formatTime(dataController.getMedianWaitTime(queue).inMilliseconds)}"),
               const Text("Your position in the queue"),
               const SizedBox(
                 height: 10,

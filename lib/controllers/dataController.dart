@@ -5,41 +5,127 @@ import 'package:virtual_queue/controllers/FirebaseProvider.dart';
 import 'package:virtual_queue/models/ErrorStatus.dart';
 import 'package:virtual_queue/models/Queue.dart';
 
+enum EventType { enter, exit }
+
 class DataController extends ChangeNotifier {
   late FirebaseProvider _firebaseProvider;
   AdminQueueController({required FirebaseProvider firebaseProvider}) {
     _firebaseProvider = firebaseProvider;
   }
 
-  List<int> getWaitTimes(Queue queue) {
+  List<Duration> getWaitTimes(Queue queue) {
     final logs = queue.logs;
-    return logs.map((e) => e.end - e.start).toList();
+    return logs.map((e) => Duration(milliseconds: e.end - e.start)).toList();
   }
 
-  int getMedianWaitTime(Queue queue) {
+  Duration getMedianWaitTime(Queue queue) {
     final waitTimes = getWaitTimes(queue);
     if (waitTimes.isEmpty) {
-      return 0;
+      return Duration.zero;
     }
     waitTimes.sort();
     return waitTimes[waitTimes.length ~/ 2];
   }
 
-  List<double> getDayData(Queue queue) {
+  List<QueueLog> getLogsForHour(List<QueueLog> logsForDay, int hour) {
+    return logsForDay.where((element) {
+      final logDate = DateTime.fromMillisecondsSinceEpoch(element.start);
+      return logDate.hour == hour;
+    }).toList();
+  }
+
+  List<QueueLog> getLogsForDate(Queue queue, DateTime date) {
     final logs = queue.logs;
-    List<int> times = logs.map((e) => e.start).toList();
-    int dayNow = DateTime.now().day;
+    return logs.where((element) {
+      final logDate = DateTime.fromMillisecondsSinceEpoch(element.start);
+      return logDate.year == date.year && logDate.month == date.month && logDate.day == date.day;
+    }).toList();
+  }
 
-    Map<int, double> listOfTimes = {for (var hour in List<int>.generate(24, (i) => i)) hour: 0};
+  Duration getMedianWaitTimeForHour(List<QueueLog> logsForDay, int hour) {
+    final logsForHour = getLogsForHour(logsForDay, hour);
+    final waitTimes = logsForHour.map((e) => Duration(milliseconds: e.end - e.start)).toList();
+    if (waitTimes.isEmpty) {
+      return Duration.zero;
+    }
+    waitTimes.sort();
+    return waitTimes[waitTimes.length ~/ 2];
+  }
 
-    for (int time in times) {
-      int hour = DateTime.fromMillisecondsSinceEpoch(time).hour;
-      int day = DateTime.fromMillisecondsSinceEpoch(time).day;
-      if (dayNow == day) {
-        listOfTimes.update(hour, (value) => value + 1, ifAbsent: () => 1);
+  Duration getMedianWaitTimeForDate(Queue queue, DateTime date) {
+    final logsForDay = getLogsForDate(queue, date);
+    final waitTimes = logsForDay.map((e) => Duration(milliseconds: e.end - e.start)).toList();
+    if (waitTimes.isEmpty) {
+      return Duration.zero;
+    }
+    waitTimes.sort();
+    return waitTimes[waitTimes.length ~/ 2];
+  }
+
+  (int, int) getMinMaxQueueLengthForHour(List<QueueLog> logsForDay, int hour) {
+    final logsForHour = getLogsForHour(logsForDay, hour);
+
+    int minQueueLength = 0;
+    int maxQueueLength = 0;
+    int currentQueueLength = 0;
+
+    // Timeline sweep algorithm
+    // Create a list of events for the hour
+    final List<(EventType, int)> eventTimes = [];
+    for (final log in logsForHour) {
+      eventTimes.add((EventType.enter, log.start));
+      eventTimes.add((EventType.exit, log.end));
+    }
+    eventTimes.sort((a, b) => a.$2.compareTo(b.$2));
+
+    for (final event in eventTimes) {
+      if (event.$1 == EventType.enter) {
+        currentQueueLength++;
+        if (currentQueueLength > maxQueueLength) {
+          maxQueueLength = currentQueueLength;
+        }
+      } else {
+        currentQueueLength--;
+        if (currentQueueLength < minQueueLength) {
+          minQueueLength = currentQueueLength;
+        }
       }
     }
-    return listOfTimes.values.toList();
+
+    return (minQueueLength, maxQueueLength);
+  }
+
+  (int, int) getMinMaxQueueLengthForDate(Queue queue, DateTime date) {
+    final logsForDay = getLogsForDate(queue, date);
+
+    int minQueueLength = 0;
+    int maxQueueLength = 0;
+    int currentQueueLength = 0;
+
+    // Timeline sweep algorithm
+    // Create a list of events for the day
+    final List<(EventType, int)> eventTimes = [];
+    for (final log in logsForDay) {
+      eventTimes.add((EventType.enter, log.start));
+      eventTimes.add((EventType.exit, log.end));
+    }
+    eventTimes.sort((a, b) => a.$2.compareTo(b.$2));
+
+    for (final event in eventTimes) {
+      if (event.$1 == EventType.enter) {
+        currentQueueLength++;
+        if (currentQueueLength > maxQueueLength) {
+          maxQueueLength = currentQueueLength;
+        }
+      } else {
+        currentQueueLength--;
+        if (currentQueueLength < minQueueLength) {
+          minQueueLength = currentQueueLength;
+        }
+      }
+    }
+
+    return (minQueueLength, maxQueueLength);
   }
 
   String formatTime(int milliseconds) {

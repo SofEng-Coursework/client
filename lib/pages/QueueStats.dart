@@ -7,6 +7,7 @@ import 'package:virtual_queue/controllers/AdminQueueController.dart';
 import 'package:virtual_queue/controllers/dataController.dart';
 import 'package:virtual_queue/models/FeedbackEntry.dart';
 import 'package:virtual_queue/models/Queue.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 class QueueStats extends StatefulWidget {
   final Queue queue;
@@ -19,11 +20,21 @@ class QueueStats extends StatefulWidget {
   State<StatefulWidget> createState() => _QueueStatsState();
 }
 
-class _QueueStatsState extends State<QueueStats> {
-  late List<BarChartGroupData> todayData;
-  int touchedGroupIndex = -1;
+class WaitTimeChartData {
+  final DateTime x;
+  final Duration y;
+  WaitTimeChartData(this.x, this.y);
+}
 
-  List<double> averageDay = [1, 2, 3, 4, 5, 6, 7];
+class QueueLengthChartData {
+  final DateTime x;
+  final (int, int) y;
+  QueueLengthChartData(this.x, this.y);
+}
+
+class _QueueStatsState extends State<QueueStats> {
+  int viewType = 0; // 0 for today, 1 for this week
+  int dataType = 0; // 0 for wait time, 1 for queue length
 
   @override
   Widget build(BuildContext context) {
@@ -54,287 +65,267 @@ class _QueueStatsState extends State<QueueStats> {
               // This is the live queue data
               Queue queue = snapshot.data as Queue;
 
+              // Daily data
+
+              final todayLogs = dataController.getLogsForDate(queue, DateTime.now());
+              final hourlyLogs = List.generate(24, (i) => dataController.getLogsForHour(todayLogs, i));
+              final hourlyWaitTimes = List.generate(24, (i) => dataController.getMedianWaitTimeForHour(todayLogs, i));
+
+              final hourlyQueueLengths = List.generate(24, (i) => dataController.getMinMaxQueueLengthForHour(todayLogs, i));
+
+              // Weekly data
+
+              final dailyWaitTimes = List.generate(7,
+                  (i) => dataController.getMedianWaitTimeForDate(queue, DateTime.now().subtract(Duration(days: 6)).add(Duration(days: i))));
+
+              final dailyQueueLengths = List.generate(7, (i) {
+                final (min, max) =
+                    dataController.getMinMaxQueueLengthForDate(queue, DateTime.now().subtract(Duration(days: 6)).add(Duration(days: i)));
+                return (min, max);
+              });
+
+              // Chart data
+
+              final List<WaitTimeChartData> waitTimeChartData = viewType == 0
+                  ? List.generate(24, (i) {
+                      return WaitTimeChartData(
+                          DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, i), hourlyWaitTimes[i]);
+                    })
+                  : List.generate(7, (i) {
+                      return WaitTimeChartData(
+                          DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).subtract(Duration(days: 6 - i)),
+                          dailyWaitTimes[i]);
+                    });
+
+              final List<QueueLengthChartData> queueLengthChartData = viewType == 0
+                  ? List.generate(24, (i) {
+                      return QueueLengthChartData(
+                          DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, i), hourlyQueueLengths[i]);
+                    })
+                  : List.generate(7, (i) {
+                      return QueueLengthChartData(
+                          DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).subtract(Duration(days: 6 - i)),
+                          dailyQueueLengths[i]);
+                    });
+
+              List<CartesianSeries> series = [];
+              if (dataType == 0) {
+                series = [
+                  LineSeries<WaitTimeChartData, DateTime>(
+                    name: 'Wait Time',
+                    animationDuration: 250,
+                    dataSource: waitTimeChartData,
+                    xValueMapper: (data, _) => data.x,
+                    yValueMapper: (data, _) => data.y.inMilliseconds,
+                  )
+                ];
+              } else {
+                series = [
+                  // min queue length column
+                  ColumnSeries<QueueLengthChartData, DateTime>(
+                    enableTooltip: false,
+                    name: 'Min Queue Length',
+                    animationDuration: 250,
+                    dataSource: queueLengthChartData,
+                    xValueMapper: (data, _) => data.x,
+                    yValueMapper: (data, _) => data.y.$1,
+                    dataLabelSettings: DataLabelSettings(isVisible: true),
+                    dataLabelMapper: (datum, index) {
+                      final minLength = datum.y.$1;
+                      if (minLength == 0) return "";
+                      return "Min ${datum.y.$2.toString()}";
+                    },
+                  ),
+                  // max queue length column
+                  ColumnSeries<QueueLengthChartData, DateTime>(
+                    enableTooltip: false,
+                    name: 'Max Queue Length',
+                    animationDuration: 250,
+                    dataSource: queueLengthChartData,
+                    xValueMapper: (data, _) => data.x,
+                    yValueMapper: (data, _) => data.y.$2,
+                    dataLabelSettings: DataLabelSettings(isVisible: true),
+                    dataLabelMapper: (datum, index) {
+                      final maxLength = datum.y.$2;
+                      if (maxLength == 0) return "";
+                      return "Max ${datum.y.$2.toString()}";
+                    },
+                  )
+                ];
+              }
+
               return Scrollbar(
-                  child: Center(
-                      child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                    // /*average daily*/ Container(
-                    //   width: 300,
-                    //   height: 200,
-                    //   padding: const EdgeInsets.fromLTRB(0, 10, 5, 5),
-                    //   child: BarChart(BarChartData(
-                    //       barTouchData: BarTouchData(
-                    //         enabled: false,
-                    //         touchTooltipData: BarTouchTooltipData(
-                    //           tooltipBgColor: Colors.transparent,
-                    //           tooltipPadding: EdgeInsets.zero,
-                    //           tooltipMargin: 8,
-                    //           getTooltipItem: (
-                    //             BarChartGroupData group,
-                    //             int groupIndex,
-                    //             BarChartRodData rod,
-                    //             int rodIndex,
-                    //           ) {
-                    //             return BarTooltipItem(
-                    //               rod.toY.round().toString(),
-                    //               const TextStyle(
-                    //                 color: Color(0xFF0065B7),
-                    //                 fontWeight: FontWeight.bold,
-                    //               ),
-                    //             );
-                    //           },
-                    //         ),
-                    //       ),
-                    //       titlesData: FlTitlesData(
-                    //         show: true,
-                    //         bottomTitles: AxisTitles(
-                    //           sideTitles: SideTitles(
-                    //             showTitles: true,
-                    //             reservedSize: 30,
-                    //             getTitlesWidget: bottomTitlesWeek,
-                    //           ),
-                    //         ),
-                    //         leftTitles: const AxisTitles(
-                    //           sideTitles: SideTitles(showTitles: false),
-                    //         ),
-                    //         topTitles: const AxisTitles(
-                    //           sideTitles: SideTitles(
-                    //             showTitles: false,
-                    //           ),
-                    //         ),
-                    //         rightTitles: const AxisTitles(
-                    //           sideTitles: SideTitles(showTitles: false),
-                    //         ),
-                    //       ),
-                    //       borderData: FlBorderData(show: false),
-                    //       barGroups: [
-                    //         makeBar(0, averageDay[0]),
-                    //         makeBar(1, averageDay[1]),
-                    //         makeBar(2, averageDay[2]),
-                    //         makeBar(3, averageDay[3]),
-                    //         makeBar(4, averageDay[4]),
-                    //         makeBar(5, averageDay[5]),
-                    //         makeBar(6, averageDay[6]),
-                    //       ],
-                    //       gridData: const FlGridData(drawVerticalLine: false, drawHorizontalLine: false),
-                    //       alignment: BarChartAlignment.spaceAround,
-                    //       maxY: averageDay.reduce(max))),
-                    // ),
-                    /*average today*/
+                  child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      //mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        DropdownButton(
+                            value: viewType,
+                            items: [
+                              DropdownMenuItem(
+                                child: Text("Today"),
+                                value: 0,
+                              ),
+                              DropdownMenuItem(
+                                child: Text("Last 7 Days"),
+                                value: 1,
+                              ),
+                            ],
+                            onChanged: (value) {
+                              setState(() {
+                                viewType = value as int;
+                              });
+                            }),
+                        SizedBox(width: 10),
+                        DropdownButton(
+                            value: dataType,
+                            items: [
+                              DropdownMenuItem(
+                                child: Text("Wait Time"),
+                                value: 0,
+                              ),
+                              DropdownMenuItem(
+                                child: Text("Queue Length"),
+                                value: 1,
+                              ),
+                            ],
+                            onChanged: (value) {
+                              setState(() {
+                                dataType = value as int;
+                              });
+                            })
+                      ],
+                    ),
                     Container(
-                        width: MediaQuery.of(context).size.width - 100,
-                        height: MediaQuery.of(context).size.height * 0.5,
-                        padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
-                        child: BarChart(BarChartData(
-                            barTouchData: BarTouchData(
-                              enabled: false,
-                              touchTooltipData: BarTouchTooltipData(
-                                tooltipBgColor: Colors.transparent,
-                                tooltipPadding: EdgeInsets.zero,
-                                tooltipMargin: 8,
-                                getTooltipItem: (
-                                  BarChartGroupData group,
-                                  int groupIndex,
-                                  BarChartRodData rod,
-                                  int rodIndex,
-                                ) {
-                                  return BarTooltipItem(
-                                    rod.toY.round().toString(),
-                                    const TextStyle(
-                                      color: Color(0xFF0065B7),
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                            titlesData: FlTitlesData(
-                              show: true,
-                              rightTitles: const AxisTitles(
-                                sideTitles: SideTitles(showTitles: false),
-                              ),
-                              topTitles: const AxisTitles(
-                                sideTitles: SideTitles(showTitles: false),
-                              ),
-                              bottomTitles: AxisTitles(
-                                sideTitles: SideTitles(
-                                  showTitles: true,
-                                  getTitlesWidget: bottomTitlesToday,
-                                  reservedSize: 42,
+                      width: MediaQuery.of(context).size.width - 100,
+                      height: MediaQuery.of(context).size.height * 0.4,
+                      padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
+                      child: SfCartesianChart(
+                          tooltipBehavior: TooltipBehavior(
+                            duration: 1000,
+                            enable: true,
+                            builder: (data, point, series, pointIndex, seriesIndex) {
+                              return Container(
+                                padding: const EdgeInsets.all(10),
+                                child: Text(
+                                  Duration(milliseconds: point.y!.toInt()).toString().split('.').first,
+                                  style: const TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
                                 ),
-                              ),
-                              leftTitles: const AxisTitles(
-                                sideTitles: SideTitles(showTitles: false),
-                              ),
-                            ),
-                            borderData: FlBorderData(show: false),
-                            barGroups: List.generate(24, (i) => makeBar(i, dataController.getDayData(queue)[i])),
-                            gridData: const FlGridData(
-                              show: false,
-                            ),
-                            alignment: BarChartAlignment.spaceAround,
-                            maxY: dataController.getDayData(queue).reduce(max)))),
-                    StreamBuilder(
-                        stream: adminQueueController.getFeedback(queue.id),
-                        builder: (context, snapshot) {
-                          if (snapshot.hasError) {
-                            return const Text("Error");
-                          }
-                          if (!snapshot.hasData) {
-                            return const Center(child: CircularProgressIndicator());
-                          }
-
-                          // This is the live queue data
-                          List<FeedbackEntry> feedback = snapshot.data as List<FeedbackEntry>;
-
-                          if (feedback.isEmpty) {
-                            return const Text("No feedback");
-                          } else {
-                            return Expanded(
-                              child: ListView.builder(
-                                itemCount: feedback.length,
-                                itemBuilder: (context, index) {
-                                  return Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Card(
-                                      child: ListTile(
-                                        title: Row(
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              feedback[index].name,
-                                              style: TextStyle(fontWeight: FontWeight.bold),
-                                            ),
-                                            RatingBar.builder(
-                                                initialRating: feedback[index].rating.toDouble(),
-                                                minRating: 1,
-                                                itemSize: 24,
-                                                ignoreGestures: true,
-                                                direction: Axis.horizontal,
-                                                allowHalfRating: true,
-                                                itemCount: 5,
-                                                itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
-                                                itemBuilder: (context, _) => const Icon(
-                                                      Icons.star,
-                                                      color: Colors.amber,
-                                                    ),
-                                                onRatingUpdate: (rating) {})
-                                          ],
-                                        ),
-                                        subtitle: Padding(
-                                          padding: const EdgeInsets.only(top: 8),
-                                          child: Text(
-                                            feedback[index].comments,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            );
-                          }
-                        })
-                  ])));
+                              );
+                            },
+                          ),
+                          primaryXAxis: viewType == 0
+                              ? DateTimeAxis(
+                                  title: AxisTitle(text: 'Time Of Day'),
+                                  minimum: DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day),
+                                  maximum: DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 23, 59, 59),
+                                )
+                              : DateTimeAxis(
+                                  title: AxisTitle(text: 'Day'),
+                                  minimum:
+                                      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).subtract(Duration(days: 6)),
+                                  maximum: DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).add(Duration(days: 1)),
+                                ),
+                          primaryYAxis: dataType == 0
+                              ? NumericAxis(
+                                  title: AxisTitle(text: 'Wait Time'),
+                                  axisLabelFormatter: (axisLabelRenderArgs) {
+                                    return ChartAxisLabel(
+                                      Duration(milliseconds: axisLabelRenderArgs.value.toInt()).toString().split('.').first,
+                                      TextStyle(),
+                                    );
+                                  },
+                                )
+                              : NumericAxis(
+                                  title: AxisTitle(text: 'Queue Length'),
+                                ),
+                          series: series),
+                    ),
+                    FeedbackEntryListWidget(adminQueueController: adminQueueController, queue: queue)
+                  ]));
             }));
   }
+}
 
-  Widget bottomTitlesWeek(double value, TitleMeta meta) {
-    String text;
-    switch (value.toInt()) {
-      case 0:
-        text = 'Mn';
-        break;
-      case 1:
-        text = 'Te';
-        break;
-      case 2:
-        text = 'Wd';
-        break;
-      case 3:
-        text = 'Tu';
-        break;
-      case 4:
-        text = 'Fr';
-        break;
-      case 5:
-        text = 'St';
-        break;
-      case 6:
-        text = 'Sn';
-        break;
-      default:
-        text = '';
-        break;
-    }
-    return SideTitleWidget(
-      axisSide: meta.axisSide,
-      space: 4,
-      child: Text(text,
-          style: const TextStyle(
-            color: Color(0xFF464646),
-            fontWeight: FontWeight.bold,
-            fontSize: 14,
-          )),
-    );
-  }
+class FeedbackEntryListWidget extends StatelessWidget {
+  const FeedbackEntryListWidget({
+    super.key,
+    required this.adminQueueController,
+    required this.queue,
+  });
 
-  BarChartGroupData makeBar(int x, double y) {
-    return BarChartGroupData(barsSpace: 4, x: x, barRods: [
-      BarChartRodData(
-        toY: y,
-        color: const Color(0xFF017A08),
-        width: 7,
-      ),
-    ], showingTooltipIndicators: [
-      0
-    ]);
-  }
+  final AdminQueueController adminQueueController;
+  final Queue queue;
 
-  Widget bottomTitlesToday(double value, TitleMeta meta) {
-    List<String> titles = [
-      "00:00",
-      "01:00",
-      "02:00",
-      "03:00",
-      "04:00",
-      "05:00",
-      "06:00",
-      "07:00",
-      "08:00",
-      "09:00",
-      "10:00",
-      "11:00",
-      "12:00",
-      "13:00",
-      "14:00",
-      "15:00",
-      "16:00",
-      "17:00",
-      "18:00",
-      "19:00",
-      "20:00",
-      "21:00",
-      "22:00",
-      "23:00"
-    ];
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+        stream: adminQueueController.getFeedback(queue.id),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return const Text("Error");
+          }
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-    Widget text = Text(
-      titles[value.toInt()],
-      style: const TextStyle(
-        color: Color(0xff7589a2),
-        fontWeight: FontWeight.bold,
-        fontSize: 14,
-      ),
-    );
+          // This is the live queue data
+          List<FeedbackEntry> feedback = snapshot.data as List<FeedbackEntry>;
 
-    return SideTitleWidget(
-      axisSide: meta.axisSide,
-      space: 1, //margin top
-      child: RotatedBox(quarterTurns: -1, child: text),
-    );
+          if (feedback.isEmpty) {
+            return const Text("No feedback");
+          } else {
+            return Expanded(
+              child: ListView.builder(
+                itemCount: feedback.length,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Card(
+                      child: ListTile(
+                        title: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              feedback[index].name,
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            RatingBar.builder(
+                                initialRating: feedback[index].rating.toDouble(),
+                                minRating: 1,
+                                itemSize: 24,
+                                ignoreGestures: true,
+                                direction: Axis.horizontal,
+                                allowHalfRating: true,
+                                itemCount: 5,
+                                itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+                                itemBuilder: (context, _) => const Icon(
+                                      Icons.star,
+                                      color: Colors.amber,
+                                    ),
+                                onRatingUpdate: (rating) {})
+                          ],
+                        ),
+                        subtitle: Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Text(
+                            feedback[index].comments,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            );
+          }
+        });
   }
 }
