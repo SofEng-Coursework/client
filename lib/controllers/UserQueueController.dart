@@ -30,22 +30,26 @@ class UserQueueController extends ChangeNotifier {
       return ErrorStatus(success: false, message: "An error occurred: User already in queue");
     }
 
-    final userReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('users').doc(userUID);
-    final name = await userReference.get().then((value) => value.data()?['name']);
+    try {
+      final userReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('users').doc(userUID);
+      final name = await userReference.get().then((value) => value.data()?['name']);
 
-    // Check if queue with this ID still exists
-    final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
-    final queueDoc = await queueReference.get();
-    if (queueDoc.exists) {
-      userReference.update({
-        'feedbackPrompt': FieldValue.arrayUnion([queue.id]), // Add the queue ID to the user's feedback prompt list
-      });
+      // Check if queue with this ID still exists
+      final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
+      final queueDoc = await queueReference.get();
+      if (queueDoc.exists) {
+        userReference.update({
+          'feedbackPrompt': FieldValue.arrayUnion([queue.id]), // Add the queue ID to the user's feedback prompt list
+        });
+      }
+
+      queue.users.add(QueueUserEntry(userId: userUID, name: name, timestamp: DateTime.now().millisecondsSinceEpoch));
+      await queueReference.update({'users': queue.users.map((e) => e.toJson()).toList()});
+
+      return ErrorStatus(success: true);
+    } catch (e) {
+      return ErrorStatus(success: false, message: "An error occurred: $e");
     }
-
-    queue.users.add(QueueUserEntry(userId: userUID, name: name, timestamp: DateTime.now().millisecondsSinceEpoch));
-    await queueReference.update({'users': queue.users.map((e) => e.toJson()).toList()});
-
-    return ErrorStatus(success: true);
   }
 
   Future<ErrorStatus> leaveQueue(Queue queue) async {
@@ -64,15 +68,19 @@ class UserQueueController extends ChangeNotifier {
     final logs = queue.logs;
     logs.add(QueueLog(userId: userUID, start: startTime, end: endTime));
 
-    final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
-    queue.users.removeWhere((element) => element.userId == userUID);
+    try {
+      final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
+      queue.users.removeWhere((element) => element.userId == userUID);
 
-    await queueReference.update({
-      'users': queue.users.map((e) => e.toJson()).toList(),
-      'logs': logs.map((e) => e.toJson()).toList(),
-    });
+      await queueReference.update({
+        'users': queue.users.map((e) => e.toJson()).toList(),
+        'logs': logs.map((e) => e.toJson()).toList(),
+      });
 
-    return ErrorStatus(success: true);
+      return ErrorStatus(success: true);
+    } catch (e) {
+      return ErrorStatus(success: false, message: "An error occurred: $e");
+    }
   }
 
   Stream<List<Queue>> getQueues() {
@@ -100,23 +108,6 @@ class UserQueueController extends ChangeNotifier {
     });
   }
 
-  Future<Queue?> getCurrentQueueFuture() async {
-    final userUID = _firebaseProvider.FIREBASE_AUTH.currentUser?.uid;
-    if (userUID == null) {
-      return null;
-    }
-
-    final snapshot = await _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').get();
-    for (DocumentSnapshot doc in snapshot.docs) {
-      Queue queue = Queue.fromJson(doc.data() as Map<String, dynamic>);
-      int position = queue.users.indexWhere((element) => element.userId == userUID);
-      if (position != -1) {
-        return queue; // Return the Queue object if the user is found in the queue
-      }
-    }
-    return null; // Return null if the user is not found in any queue
-  }
-
   Stream<int> getCurrentQueuePosition() {
     final userUID = _firebaseProvider.FIREBASE_AUTH.currentUser?.uid;
     if (userUID == null) {
@@ -132,11 +123,16 @@ class UserQueueController extends ChangeNotifier {
     });
   }
 
-  Future<void> removeFeedbackPrompt(String queueId, String userId) {
-    final userReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('users').doc(userId);
-    return userReference.update({
-      'feedbackPrompt': FieldValue.arrayRemove([queueId])
-    });
+  Future<ErrorStatus> removeFeedbackPrompt(String queueId, String userId) async {
+    try {
+      final userReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('users').doc(userId);
+      await userReference.update({
+        'feedbackPrompt': FieldValue.arrayRemove([queueId])
+      });
+      return ErrorStatus(success: true);
+    } catch (e) {
+      return ErrorStatus(success: false, message: "An error occurred: $e");
+    }
   }
 
   Future<ErrorStatus> submitFeedback(String queueId, FeedbackEntry entry) async {
@@ -145,18 +141,22 @@ class UserQueueController extends ChangeNotifier {
       return ErrorStatus(success: false, message: "An error occurred: User not logged in");
     }
 
-    final queueFeedbackRef = _firebaseProvider.FIREBASE_FIRESTORE.collection('feedback').doc(queueId);
-    // Create a new document if it doesn't exist, otherwise update the existing document
-    await queueFeedbackRef.set({
-      'queueId': queueId,
-      'entries': [],
-    }, SetOptions(merge: true));
+    try {
+      final queueFeedbackRef = _firebaseProvider.FIREBASE_FIRESTORE.collection('feedback').doc(queueId);
+      // Create a new document if it doesn't exist, otherwise update the existing document
+      await queueFeedbackRef.set({
+        'queueId': queueId,
+        'entries': [],
+      }, SetOptions(merge: true));
 
-    // Update the ratings and comments arrays with the new feedback
-    await queueFeedbackRef.update({
-      'entries': FieldValue.arrayUnion([entry.toJson()]),
-    });
+      // Update the ratings and comments arrays with the new feedback
+      await queueFeedbackRef.update({
+        'entries': FieldValue.arrayUnion([entry.toJson()]),
+      });
 
-    return ErrorStatus(success: true);
+      return ErrorStatus(success: true);
+    } catch (e) {
+      return ErrorStatus(success: false, message: "An error occurred: $e");
+    }
   }
 }

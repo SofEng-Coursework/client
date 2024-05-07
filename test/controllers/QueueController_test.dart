@@ -24,10 +24,17 @@ void main() {
 
       // Initialize controller
       userQueueController = UserQueueController(firebaseProvider: firebaseProvider);
-
-      // Must be signed in to join a queue
       userAccountController = UserAccountController(firebaseProvider: firebaseProvider);
-      await userAccountController.signUp('email', 'password', 'name', 'phone');
+    });
+
+    setUp(() async {
+      // Sign in before each test
+      await userAccountController.signUp('email@email.com', 'password', 'name', '07123456789');
+    });
+
+    tearDown(() async {
+      // Sign out after each test
+      await firebaseProvider.FIREBASE_AUTH.currentUser?.delete();
     });
 
     test('is initialized', () {
@@ -112,8 +119,17 @@ void main() {
 
       // Must be signed in
       adminAccountController = AdminAccountController(firebaseProvider: firebaseProvider);
-      await adminAccountController.signUp('email', 'password', 'name', 'phone');
+    });
+
+    setUp(() async {
+      // Sign in before each test
+      await adminAccountController.signUp('email@email.com', 'password', 'name', '07123456789');
       uid = (await adminAccountController.getUserData())!['uid'];
+    });
+
+    tearDown(() async {
+      // Sign out after each test
+      await firebaseProvider.FIREBASE_AUTH.currentUser?.delete();
     });
 
     test('is initialized', () {
