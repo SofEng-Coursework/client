@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_queue/controllers/adminAccountController.dart';
 import 'package:virtual_queue/controllers/userAccountController.dart';
-
+import 'package:virtual_queue/InputVerifications.dart';
 enum AccountType { User, Admin }
 
 /// This builds the widget hosted on the [AuthPage] for registering a new user
@@ -95,7 +95,7 @@ class _RegisterFormState extends State<RegisterForm> {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your email';
                   }
-                  if (!RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$').hasMatch(value)) {
+                  if (!validEmail(value)) {
                     return 'Please enter a valid email';
                   }
                   return null;
@@ -132,7 +132,7 @@ class _RegisterFormState extends State<RegisterForm> {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your password';
                   }
-                  if (value.length < 6) {
+                  if (!validPassword(value)) {
                     return 'Password must be at least 6 characters';
                   }
                   return null;
@@ -173,7 +173,7 @@ class _RegisterFormState extends State<RegisterForm> {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your phone number';
                   }
-                  if (!RegExp(r'^\+?\d{1,3}-?\d{3}-?\d{3}-?\d{4}$').hasMatch(value)) {
+                  if (!validPhone(value)) {
                     return 'Please enter a valid phone number';
                   }
                   return null;

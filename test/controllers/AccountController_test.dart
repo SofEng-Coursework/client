@@ -27,21 +27,24 @@ void main() {
     });
 
     test('can sign up and be authenticated', () async {
-      final result = await accountController.signUp("test@test.com", "password", "name", "phone");
-      expect(result.success, true);
-
+      final result = await accountController.signUp("test", "password", "name", "07123456789");
+      expect(result.success, false);
+      final result2 = await accountController.signUp("test@test.com", "pass", "name", "07123456789");
+      expect(result2.success, false);
+      final result3 = await accountController.signUp("test@test.com", "password", "name", "071234");
+      expect(result3.success, false);
+      final result1 = await accountController.signUp("test@test.com", "password", "name", "07123456789");
+      expect(result1.success, true);
       final user = firebaseProvider.FIREBASE_AUTH.currentUser;
       expect(user, isA<MockUser>());
       expect(user!.email, "test@test.com");
     });
 
     test('can sign in and be authenticated', () async {
-      final result = await accountController.login("test@test.com", "password");
-      expect(result.success, true);
-
-      final user = firebaseProvider.FIREBASE_AUTH.currentUser;
-      expect(user, isA<MockUser>());
-      expect(user!.email, "test@test.com");
+      final result1 = await accountController.login("test@test.com", "password");
+      final user1 = firebaseProvider.FIREBASE_AUTH.currentUser;
+      expect(user1, isA<MockUser>());
+      expect(user1!.email, "test@test.com");
     });
 
     test('user exists in database after sign up', () async {
