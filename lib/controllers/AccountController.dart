@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:virtual_queue/controllers/FirebaseProvider.dart';
 import 'package:virtual_queue/models/ErrorStatus.dart';
 import 'package:virtual_queue/pages/RegisterForm.dart';
+import 'package:virtual_queue/InputVerifications.dart';
 
 class AccountController extends ChangeNotifier {
   late FirebaseProvider firebaseProvider;
@@ -12,6 +13,9 @@ class AccountController extends ChangeNotifier {
   AccountController({required this.collectionName, required this.firebaseProvider});
 
   Future<ErrorStatus> signUp(String email, String password, String name, String phone) async {
+    if (!validEmail(email) | !validPhone(phone) | !validPassword(password)) {
+      return ErrorStatus(success: false);
+    }
     try {
       UserCredential credential = await firebaseProvider.FIREBASE_AUTH.createUserWithEmailAndPassword(
         email: email,

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_queue/controllers/userAccountController.dart';
 import 'package:virtual_queue/pages/RegisterForm.dart';
-
+import 'package:virtual_queue/InputVerifications.dart';
 class LoginForm extends StatefulWidget {
   const LoginForm({
     super.key,
@@ -64,7 +64,7 @@ class _LoginFormState extends State<LoginForm> {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your email';
                   }
-                  if (!RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$').hasMatch(value)) {
+                  if (!validEmail(value)) {
                     return 'Please enter a valid email';
                   }
                   return null;
@@ -99,7 +99,7 @@ class _LoginFormState extends State<LoginForm> {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your password';
                   }
-                  if (value.length < 6) {
+                  if (!validPassword(value)) {
                     return 'Password must be at least 6 characters';
                   }
                   return null;
