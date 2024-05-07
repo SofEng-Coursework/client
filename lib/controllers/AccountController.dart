@@ -25,18 +25,16 @@ class AccountController extends ChangeNotifier {
       final uid = credential.user!.uid;
 
       CollectionReference collection = firebaseProvider.FIREBASE_FIRESTORE.collection(collectionName);
-      await collection.doc(uid).set({
+      final Map<String, dynamic> data = {
         'name': name,
         'phone': phone,
         'email': email,
         'uid': uid,
-        'feedbackPrompt': [],
-        'notificiation_settings': {
-          'chat_enabled': true,
-          'email_enabled': true,
-          'push_enabled': true,
-        }
-      });
+      };
+      if (collectionName == 'users') {
+        data['feedbackPrompt'] = [];
+      }
+      await collection.doc(uid).set(data);
       return ErrorStatus(success: true);
     } on FirebaseAuthException catch (e) {
       return ErrorStatus(success: false, message: 'An error occurred: ${e.message}');

@@ -57,7 +57,7 @@ class _LoginFormState extends State<LoginForm> {
                 onSaved: (value) {
                   _email = value!;
                 },
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Email',
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.email),
@@ -72,7 +72,7 @@ class _LoginFormState extends State<LoginForm> {
                   return null;
                 },
               ),
-              SizedBox(
+              const SizedBox(
                 height: 16,
               ),
               TextFormField(
@@ -81,8 +81,8 @@ class _LoginFormState extends State<LoginForm> {
                 },
                 decoration: InputDecoration(
                     labelText: 'Password',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.lock),
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.lock),
                     suffixIcon: Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: IconButton(
@@ -107,16 +107,16 @@ class _LoginFormState extends State<LoginForm> {
                   return null;
                 },
               ),
-              SizedBox(
+              const SizedBox(
                 height: 16,
               ),
               if (errorMesssage != null)
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
                   child: Text("Username or Password is incorrect", style: TextStyle(color: Colors.red)),
                 ),
               ElevatedButton(
-                  child: Text('Sign In'),
+                  child: const Text('Sign In'),
                   onPressed: () async {
                     /// This will pass the login details to userAccountController
                     /// Which will then use firebase to validate and return either a success or error message
@@ -131,7 +131,7 @@ class _LoginFormState extends State<LoginForm> {
                       }
                     }
                   }),
-              SizedBox(
+              const SizedBox(
                 height: 16,
               ),
             ],

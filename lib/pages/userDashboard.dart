@@ -45,6 +45,7 @@ class FeedbackView extends StatefulWidget {
 class _FeedbackViewState extends State<FeedbackView> {
   final commentsController = TextEditingController();
 
+  bool anonymous = false;
   int rating = 0;
 
   @override
@@ -125,6 +126,18 @@ class _FeedbackViewState extends State<FeedbackView> {
                 ),
               ),
             ),
+            // anonymous toggle
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.5,
+              child: CheckboxListTile(
+                  title: const Text("Submit anonymously"),
+                  value: anonymous,
+                  onChanged: (value) {
+                    setState(() {
+                      anonymous = value!;
+                    });
+                  }),
+            ),
             ElevatedButton(
               onPressed: () {
                 if (rating == 0) {
@@ -134,6 +147,7 @@ class _FeedbackViewState extends State<FeedbackView> {
                 // Submit feedback
                 final FeedbackEntry entry = FeedbackEntry(
                   userId: userId,
+                  name: anonymous ? 'Anonymous' : widget.userData['name'] as String,
                   comments: commentsController.text,
                   rating: rating,
                 );
@@ -171,7 +185,7 @@ class QueueProgressView extends StatelessWidget {
           const SizedBox(),
           Column(
             children: [
-              Text("Average Wait Time: ${dataController.formatTime(dataController.getMedianWaitTime(queue))}"),
+              Text("Average Wait Time: ${dataController.formatTime(dataController.getMedianWaitTime(queue).inMilliseconds)}"),
               const Text("Your position in the queue"),
               const SizedBox(
                 height: 10,
@@ -279,6 +293,17 @@ class _QueuesListViewState extends State<QueuesListView> {
         ),
         actions: [
           IconButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                      builder: (context) => HistoryPage(
+                            accountController: userAccountController,
+                          )),
+                );
+              },
+              icon: const Icon(Icons.history),
+              color: const Color(0xffffffff)),
+          IconButton(
             icon: const Icon(Icons.settings),
             color: const Color(0xffffffff),
             onPressed: () {
@@ -322,7 +347,6 @@ class _QueuesListViewState extends State<QueuesListView> {
                               AccountDetailsEditWidget(
                                 accountController: userAccountController,
                               ),
-                              NotificationToggleWidget(),
                               SignOutButton(
                                 accountController: userAccountController,
                               ),
@@ -393,6 +417,90 @@ class _QueuesListViewState extends State<QueuesListView> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class HistoryPage extends StatelessWidget {
+  HistoryPage({required this.accountController, super.key});
+
+  final UserAccountController accountController;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        elevation: 0,
+        centerTitle: true,
+        automaticallyImplyLeading: false,
+        backgroundColor: const Color(0xff017a08),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.zero,
+        ),
+        title: const Text(
+          "History",
+          style: TextStyle(
+            fontWeight: FontWeight.w700,
+            fontStyle: FontStyle.normal,
+            fontSize: 20,
+            color: Color(0xffffffff),
+          ),
+        ),
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back,
+            color: Color(0xffffffff),
+            size: 24,
+          ),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ),
+      body: FutureBuilder(
+        future: accountController.getHistory(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const CircularProgressIndicator();
+          }
+          if (snapshot.hasError) {
+            return Text("Error: ${snapshot.error}");
+          }
+          final history = snapshot.data as List<dynamic>;
+
+          return ListView.builder(
+            itemCount: history.length,
+            itemBuilder: (context, index) {
+              final entry = history[index];
+              final duration = entry['end'] - entry['start'];
+              final start = DateTime.fromMillisecondsSinceEpoch(entry['start']);
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Card(
+                  child: ListTile(
+                    title: Text(
+                      entry['queue'] as String,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontStyle: FontStyle.normal,
+                        fontSize: 16,
+                        color: Color(0xff000000),
+                      ),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('${start.day}/${start.month}/${start.year}'),
+                        Text('Duration: ${Duration(milliseconds: duration).toString().split('.').first}'),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }
