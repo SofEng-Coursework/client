@@ -32,6 +32,7 @@ class _RegisterFormState extends State<RegisterForm> {
     _passwordVisible = false;
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -74,6 +75,7 @@ class _RegisterFormState extends State<RegisterForm> {
             ],
           ),
         ),
+
         /// This is the area where all inputs are gathered and validated before being submitted to firebase
         Form(
           key: _formKey,
@@ -102,6 +104,7 @@ class _RegisterFormState extends State<RegisterForm> {
               SizedBox(
                 height: 16,
               ),
+
               /// This section will take a password and confirm it has at least 6 characters
               TextFormField(
                 onSaved: (value) {
@@ -138,6 +141,7 @@ class _RegisterFormState extends State<RegisterForm> {
               SizedBox(
                 height: 16,
               ),
+
               /// This will take the user or company name
               TextFormField(
                 onSaved: (value) {
@@ -158,6 +162,7 @@ class _RegisterFormState extends State<RegisterForm> {
               SizedBox(
                 height: 16,
               ),
+
               /// This section will take a phone number and ensure it is valid
               TextFormField(
                 onSaved: (value) {
@@ -177,6 +182,7 @@ class _RegisterFormState extends State<RegisterForm> {
               SizedBox(
                 height: 16,
               ),
+
               /// This section will check that there are no errors within the data before uploading the data to firebase
               if (errorMesssage != null)
                 Padding(padding: EdgeInsets.all(8), child: Text(errorMesssage!, style: TextStyle(color: Colors.red))),
@@ -192,15 +198,19 @@ class _RegisterFormState extends State<RegisterForm> {
                         _name,
                         _phone,
                       );
-                      setState(() {
-                        errorMesssage = errStatus.message;
-                      });
+                      if (mounted) {
+                        setState(() {
+                          errorMesssage = errStatus.message;
+                        });
+                      }
                     } else {
                       final errStatus =
                           await Provider.of<AdminAccountController>(context, listen: false).signUp(_email, _password, _name, _phone);
-                      setState(() {
-                        errorMesssage = errStatus.message;
-                      });
+                      if (mounted) {
+                        setState(() {
+                          errorMesssage = errStatus.message;
+                        });
+                      }
                     }
                   }
                 },
