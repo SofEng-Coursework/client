@@ -18,10 +18,14 @@ class AdminQueueController extends ChangeNotifier {
 
   /// Adds a new queue to the Firestore database
   Future<ErrorStatus> addQueue(String name, int? capacity, String owner) async {
-    CollectionReference collection = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues');
-    final id = collection.doc().id;
-    await collection.doc(id).set({'id': id, 'name': name, 'open': true, 'capacity': capacity, 'owner': owner, 'users': [], 'logs': []});
-    return ErrorStatus(success: true);
+    try {
+      CollectionReference collection = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues');
+      final id = collection.doc().id;
+      await collection.doc(id).set({'id': id, 'name': name, 'open': true, 'capacity': capacity, 'owner': owner, 'users': [], 'logs': []});
+      return ErrorStatus(success: true);
+    } on FirebaseException catch (e) {
+      return ErrorStatus(success: false, message: 'An error occurred: ${e.message}');
+    }
   }
 
   /// Returns a Stream of all queues owned by the current admin
@@ -48,45 +52,38 @@ class AdminQueueController extends ChangeNotifier {
 
   /// Toggle the open status of a queue
   Future<ErrorStatus> toggleQueueOpenStatus(Queue queue) async {
-    final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
-    await queueReference.update({
-      'open': !queue.open,
-    });
-
-    // If the queue is being closed, remove all users from the queue
-    if (queue.open) {
+    try {
+      final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
       await queueReference.update({
-        'users': [],
+        'open': !queue.open,
       });
+
+      // If the queue is being closed, remove all users from the queue
+      if (queue.open) {
+        await queueReference.update({
+          'users': [],
+        });
+      }
+      return ErrorStatus(success: true);
+    } on FirebaseException catch (e) {
+      return ErrorStatus(success: false, message: 'An error occurred: ${e.message}');
     }
-    return ErrorStatus(success: true);
   }
 
   /// Deletes a queue from the Firestore database
   Future<ErrorStatus> deleteQueue(Queue queue) async {
-    final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
-    await queueReference.delete();
+    try {
+      final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
+      await queueReference.delete();
 
-    // Delete feedback
-    final feedbackReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('feedback').doc(queue.id);
-    await feedbackReference.delete();
+      // Delete feedback
+      final feedbackReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('feedback').doc(queue.id);
+      await feedbackReference.delete();
 
-    return ErrorStatus(success: true);
-  }
-
-  /// Get list of people in a queue
-  Future<List<String>> getUsersInQueue(Queue queue) async {
-    final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
-    final queueData = await queueReference.get();
-    final users = queueData.data()!['users'] as List<dynamic>;
-    return users.map((e) => e['name'] as String).toList();
-  }
-
-  Future<String> getFirstUserInQueue(Queue queue) async {
-    final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
-    final queueData = await queueReference.get();
-    final users = queueData.data()!['users'] as List<dynamic>;
-    return await users[0];
+      return ErrorStatus(success: true);
+    } on FirebaseException catch (e) {
+      return ErrorStatus(success: false, message: 'An error occurred: ${e.message}');
+    }
   }
 
   Stream<Queue> getQueue(String queueID) {
@@ -94,23 +91,27 @@ class AdminQueueController extends ChangeNotifier {
   }
 
   Future<ErrorStatus> removeUserFromQueue(Queue queue, QueueUserEntry user) async {
-    final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
-    final queueData = await queueReference.get();
+    try {
+      final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
+      final queueData = await queueReference.get();
 
-    final users = queueData.data()!['users'] as List<dynamic>;
-    final startTime = user.timestamp;
-    final endTime = DateTime.now().millisecondsSinceEpoch;
+      final users = queueData.data()!['users'] as List<dynamic>;
+      final startTime = user.timestamp;
+      final endTime = DateTime.now().millisecondsSinceEpoch;
 
-    // Add the user to the logs
-    final logs = queueData.data()!['logs'] as List<dynamic>;
-    logs.add({"userId": user.userId, "start": startTime, "end": endTime});
+      // Add the user to the logs
+      final logs = queueData.data()!['logs'] as List<dynamic>;
+      logs.add({"userId": user.userId, "start": startTime, "end": endTime});
 
-    users.removeWhere((element) => element['userId'] == user.userId);
-    await queueReference.update({
-      'users': users,
-      'logs': logs,
-    });
-    return ErrorStatus(success: true);
+      users.removeWhere((element) => element['userId'] == user.userId);
+      await queueReference.update({
+        'users': users,
+        'logs': logs,
+      });
+      return ErrorStatus(success: true);
+    } on FirebaseException catch (e) {
+      return ErrorStatus(success: false, message: 'An error occurred: ${e.message}');
+    }
   }
 
   Future<ErrorStatus> addUserToQueue(Queue queue, String user) async {

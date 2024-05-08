@@ -92,12 +92,13 @@ class AccountController extends ChangeNotifier {
     final user = firebaseProvider.FIREBASE_AUTH.currentUser;
     if (user == null) return ErrorStatus(success: false, message: 'User not found');
     Map<String, dynamic> data = {};
-    if (name != null) {
+    if (name != null && name.isNotEmpty) {
       data['name'] = name;
     }
-    if (phone != null) {
+    if (phone != null && validPhone(phone)) {
       data['phone'] = phone;
     }
+    if (data.isEmpty) return ErrorStatus(success: false, message: 'No data to update');
     try {
       await firebaseProvider.FIREBASE_FIRESTORE.collection(collectionName).doc(user.uid).update(data);
       return ErrorStatus(success: true);
