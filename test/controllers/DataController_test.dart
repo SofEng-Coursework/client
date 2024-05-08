@@ -1,11 +1,5 @@
-import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
-import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:virtual_queue/controllers/FirebaseProvider.dart';
-import 'package:virtual_queue/controllers/AccountController.dart';
-import 'package:virtual_queue/pages/RegisterForm.dart';
 import 'package:virtual_queue/controllers/dataController.dart';
-import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:virtual_queue/models/Queue.dart';
 
 void main() {
@@ -100,6 +94,9 @@ void main() {
       List<QueueLog> emptyLogs = testQueueWithEmptyLogs.logs;
       expect(dataController.getLogsForHour(emptyLogs, testHour), []);
 
+      expect(dataController.getLogsForHour(logs, -1), []);
+      expect(dataController.getLogsForHour(logs, 25), []);
+
     });
 
     test('correctly returns the daily time logs', () {
@@ -131,6 +128,9 @@ void main() {
 
       List<QueueLog> emptyLogs = testQueueWithEmptyLogs.logs;
       expect(dataController.getMedianWaitTimeForHour(emptyLogs, testHour), Duration.zero);
+
+      expect(dataController.getMedianWaitTimeForHour(logs, -1), Duration.zero);
+      expect(dataController.getMedianWaitTimeForHour(logs, 25), Duration.zero);
     });
 
     test('correctly returns median wait time for the date', () {
@@ -191,6 +191,9 @@ void main() {
           dataController.getLogsForHour(emptyLogs, testHour);
 
       expect(dataController.getMinMaxQueueLengthForHour(emptyLogsForHour, testHour),(0, 0));
+
+      expect(dataController.getMinMaxQueueLengthForHour(logs, -1),(0, 0));
+      expect(dataController.getMinMaxQueueLengthForHour(logs, 25),(0, 0));
     });
 
     test('correctly returns minimum and maximum wait times for the date', () {

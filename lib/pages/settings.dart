@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:virtual_queue/controllers/AccountController.dart';
-import 'package:virtual_queue/controllers/userAccountController.dart';
-import 'package:virtual_queue/pages/userDashboard.dart';
+
 
 class AccountDetailsEditWidget extends StatelessWidget {
   AccountDetailsEditWidget({

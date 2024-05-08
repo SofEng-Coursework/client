@@ -1,10 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:virtual_queue/controllers/FirebaseProvider.dart';
 import 'package:virtual_queue/controllers/adminAccountController.dart';
 import 'package:virtual_queue/controllers/dataController.dart';
 import 'package:virtual_queue/models/Queue.dart';
@@ -12,7 +10,6 @@ import 'package:virtual_queue/pages/AdminQueueProgress.dart';
 import 'package:virtual_queue/pages/QueueStats.dart';
 import 'package:virtual_queue/pages/settings.dart';
 import 'package:virtual_queue/controllers/AdminQueueController.dart';
-import 'AdminQueueProgress.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
