@@ -14,6 +14,7 @@ void main() {
   group("DataController Get Wait Times", () {
     late DataController dataController;
     late Queue testQueue;
+    late Queue testQueueWithEmptyLogs;
 
     setUpAll(() {
       // Initialize controller
@@ -51,6 +52,13 @@ void main() {
           users: [],
           logs: [user1, user2, user3, user4, user5, user6],
           capacity: null);
+      testQueueWithEmptyLogs = Queue(
+        id: "1",
+        name: "test",
+        open: true,
+        users: [],
+        logs: [],
+        capacity: null);
     });
 
     test('correctly returns a list of wait times', () {
@@ -72,6 +80,9 @@ void main() {
       int median = times[times.length ~/ 2];
       expect(dataController.getMedianWaitTime(testQueue),
           Duration(milliseconds: median));
+
+      
+      expect(dataController.getMedianWaitTime(testQueueWithEmptyLogs), Duration.zero);
     });
 
     test('correctly returns the hourly time logs', () {
@@ -84,6 +95,11 @@ void main() {
       }).toList();
 
       expect(dataController.getLogsForHour(logs, testHour), logsForHour);
+
+
+      List<QueueLog> emptyLogs = testQueueWithEmptyLogs.logs;
+      expect(dataController.getLogsForHour(emptyLogs, testHour), []);
+
     });
 
     test('correctly returns the daily time logs', () {
@@ -98,6 +114,8 @@ void main() {
       }).toList();
 
       expect(dataController.getLogsForDate(testQueue, testDate), logsForDate);
+
+      expect(dataController.getLogsForDate(testQueueWithEmptyLogs, testDate), []);
     });
 
     test('correctly returns median wait time for the hour', () {
@@ -110,6 +128,9 @@ void main() {
         median = logsForHour[logsForHour.length ~/ 2];
       }
       expect(dataController.getMedianWaitTimeForHour(logs, testHour), median);
+
+      List<QueueLog> emptyLogs = testQueueWithEmptyLogs.logs;
+      expect(dataController.getMedianWaitTimeForHour(emptyLogs, testHour), Duration.zero);
     });
 
     test('correctly returns median wait time for the date', () {
@@ -123,8 +144,9 @@ void main() {
         times.sort();
         median = times[times.length ~/ 2];
       }
-      expect(
-          dataController.getMedianWaitTimeForDate(testQueue, testDate), median);
+      expect(dataController.getMedianWaitTimeForDate(testQueue, testDate), median);
+
+      expect(dataController.getMedianWaitTimeForDate(testQueueWithEmptyLogs, testDate), Duration.zero);
     });
 
     test('correctly returns minimum and maximum wait times for the hour', () {
@@ -162,9 +184,16 @@ void main() {
 
       expect(dataController.getMinMaxQueueLengthForHour(logsForHour, testHour),
           (minQueueLength, maxQueueLength));
+
+
+      List<QueueLog> emptyLogs = testQueueWithEmptyLogs.logs;
+      List<QueueLog> emptyLogsForHour =
+          dataController.getLogsForHour(emptyLogs, testHour);
+
+      expect(dataController.getMinMaxQueueLengthForHour(emptyLogsForHour, testHour),(0, 0));
     });
 
-    test('correctly returns minimum and maximum wait times for the hour', () {
+    test('correctly returns minimum and maximum wait times for the date', () {
       DateTime testDate = DateTime.utc(2024, 5, 4, 14);
       List<QueueLog> logsForDay =
           dataController.getLogsForDate(testQueue, testDate);
@@ -197,6 +226,9 @@ void main() {
 
       expect(dataController.getMinMaxQueueLengthForDate(testQueue, testDate),
           (minQueueLength, maxQueueLength));
+
+      expect(dataController.getMinMaxQueueLengthForDate(testQueueWithEmptyLogs, testDate),
+          (0, 0));
     });
 
     test('correctly formats time', () {
