@@ -10,29 +10,29 @@ void main() {
   group("UserAccountController", () {
     late UserAccountController userAccountController;
     late FirebaseProvider firebaseProvider;
-    late MockUser mockUser;
 
     setUpAll(() {
       firebaseProvider = FirebaseProvider();
       firebaseProvider.initializeMock();
       userAccountController = UserAccountController(firebaseProvider: firebaseProvider);
-
-      // Sign in a user for testing
-      mockUser = MockUser(
-        isAnonymous: false,
-        uid: 'testUserID',
-        email: 'test@test.com',
-        displayName: 'Test User',
-      );
-      firebaseProvider.FIREBASE_AUTH.signInAnonymously();
     });
 
-    setUp(() {
-      firebaseProvider.FIREBASE_AUTH.signOut();
+    tearDown(() {
+      // Delete the user account
+      firebaseProvider.FIREBASE_AUTH.currentUser!.delete();
     });
 
     test('is initialized', () {
       expect(userAccountController, isA<UserAccountController>());
+    });
+
+    test('can query the history', () async {
+      await userAccountController.signUp("email@email.com", "password", "name", "07123456789");
+
+      final result = await userAccountController.getHistory();
+      expect(result, isA<List<Map<String, dynamic>>>());
+
+      
     });
   });
 }
