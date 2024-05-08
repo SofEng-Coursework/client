@@ -17,9 +17,9 @@ void main() {
       userAccountController = UserAccountController(firebaseProvider: firebaseProvider);
     });
 
-    tearDown(() {
+    tearDown(() async {
       // Delete the user account
-      firebaseProvider.FIREBASE_AUTH.currentUser!.delete();
+      await firebaseProvider.FIREBASE_AUTH.currentUser?.delete();
     });
 
     test('is initialized', () {
@@ -31,8 +31,6 @@ void main() {
 
       final result = await userAccountController.getHistory();
       expect(result, isA<List<Map<String, dynamic>>>());
-
-      
     });
   });
 }
