@@ -5,7 +5,6 @@ import 'package:virtual_queue/controllers/userAccountController.dart';
 import 'package:virtual_queue/pages/RegisterForm.dart';
 import 'package:virtual_queue/pages/userDashboard.dart';
 import 'package:virtual_queue/pages/AdminDashboard.dart';
-import 'package:virtual_queue/controllers/FirebaseProvider.dart';
 
 /// This is the barrier between the login / signup page and the user's dashboard
 /// It will use [UserAccountController] and [AdminAccountController] to determine the type of user
