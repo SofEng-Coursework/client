@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:virtual_queue/controllers/FirebaseProvider.dart';
 import 'package:virtual_queue/models/ErrorStatus.dart';
 import 'package:virtual_queue/pages/RegisterForm.dart';
-import 'package:virtual_queue/InputVerifications.dart';
+import 'package:virtual_queue/Modules/InputVerifications.dart';
 
 class AccountController extends ChangeNotifier {
   late FirebaseProvider firebaseProvider;

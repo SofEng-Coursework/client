@@ -16,7 +16,7 @@ class UserDashboard extends StatelessWidget {
   Widget build(BuildContext context) {
     final userQueueController = Provider.of<UserQueueController>(context, listen: false);
 
-    /// This StreamBuilder will check if the user is in a queue and will pass the Queue Progress page if so.
+    /// This StreamBuilder will conditionally pass the queue view or progress page depending on whether the user is in a queue
     return StreamBuilder(
         stream: userQueueController.getCurrentQueue(),
         builder: (context, snapshot) {
@@ -32,7 +32,7 @@ class UserDashboard extends StatelessWidget {
         });
   }
 }
-/// This is where the popup asking for feedback is created and uploaded to Firebase
+
 class FeedbackView extends StatefulWidget {
   final List<dynamic> feedbackPrompts;
   final Map<String, dynamic> userData;
@@ -47,7 +47,7 @@ class _FeedbackViewState extends State<FeedbackView> {
 
   bool anonymous = false;
   int rating = 0;
-
+  /// This widget builds the popup that asks for feedback before uploading it to firebase
   @override
   Widget build(BuildContext context) {
     final userQueueController = Provider.of<UserQueueController>(context, listen: false);
@@ -168,12 +168,12 @@ class _FeedbackViewState extends State<FeedbackView> {
     );
   }
 }
-/// This is the widget that shows the user their position in the queue and the average wait time
+
 class QueueProgressView extends StatelessWidget {
   final Queue queue;
 
   const QueueProgressView({required this.queue, super.key});
-
+  /// This is the widget that shows the user their position in the queue and the average wait time
   @override
   Widget build(BuildContext context) {
     final dataController = Provider.of<DataController>(context, listen: false);
@@ -249,7 +249,8 @@ class QueuesListView extends StatefulWidget {
 
 class _QueuesListViewState extends State<QueuesListView> {
   final feedbackViewPushed = ValueNotifier<bool>(false);
-
+  /// This is the widget that builds the main user view showing all the available queue's
+  /// and facilitating access to other user pages such as settings and history
   @override
   Widget build(BuildContext context) {
     final userAccountController = Provider.of<UserAccountController>(context, listen: false);
@@ -426,7 +427,7 @@ class HistoryPage extends StatelessWidget {
   HistoryPage({required this.accountController, super.key});
 
   final UserAccountController accountController;
-
+  /// This widget builds the history page allowing the user to see past queue's they've joined
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -517,7 +518,7 @@ class QueueCard extends StatefulWidget {
   @override
   State<QueueCard> createState() => _QueueCardState();
 }
-
+/// This widget builds cards that represent each queue the user can join and allows them to be accessed
 class _QueueCardState extends State<QueueCard> {
   @override
   Widget build(BuildContext context) {

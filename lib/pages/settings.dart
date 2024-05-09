@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:virtual_queue/controllers/AccountController.dart';
-import 'package:virtual_queue/controllers/userAccountController.dart';
-import 'package:virtual_queue/pages/userDashboard.dart';
+
 
 class AccountDetailsEditWidget extends StatelessWidget {
   AccountDetailsEditWidget({
@@ -14,6 +12,7 @@ class AccountDetailsEditWidget extends StatelessWidget {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController phoneNumberController = TextEditingController();
 
+  /// This widget builds the settings page that allows the user to change their account details
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -142,6 +141,7 @@ class AccountDetailsEditWidget extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
+              /// This is the button that determines the details to be changed and then triggers the account controller's update function
               child: ElevatedButton(
                   onPressed: () {
                     accountController
@@ -180,6 +180,7 @@ class SignOutButton extends StatelessWidget {
 
   final AccountController accountController;
 
+  /// This widget builds the button that allows the user to sign out of their account
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -219,6 +220,7 @@ class DeleteAccountButton extends StatelessWidget {
 
   final AccountController accountController;
 
+  /// This widget allows the user to delete their account
   @override
   Widget build(BuildContext context) {
     return Padding(
