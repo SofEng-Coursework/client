@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_queue/controllers/userAccountController.dart';
-import 'package:virtual_queue/pages/RegisterForm.dart';
 import 'package:virtual_queue/modules/InputVerifications.dart';
+
 class LoginForm extends StatefulWidget {
   const LoginForm({
     super.key,

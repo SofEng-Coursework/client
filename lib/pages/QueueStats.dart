@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'dart:math';
 import 'package:provider/provider.dart';
 import 'package:virtual_queue/controllers/AdminQueueController.dart';
 import 'package:virtual_queue/controllers/dataController.dart';
@@ -9,6 +7,8 @@ import 'package:virtual_queue/models/FeedbackEntry.dart';
 import 'package:virtual_queue/models/Queue.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
+
+/// This is the page that will display statistics and feedback about the queues to the admin
 class QueueStats extends StatefulWidget {
   final Queue queue;
   const QueueStats({
@@ -33,9 +33,10 @@ class QueueLengthChartData {
 }
 
 class _QueueStatsState extends State<QueueStats> {
-  int viewType = 0; // 0 for today, 1 for this week
-  int dataType = 0; // 0 for wait time, 1 for queue length
+  int viewType = 0; /// 0 for today, 1 for this week
+  int dataType = 0; /// 0 for wait time, 1 for queue length
 
+  /// This is the main widget that builds the graph to display user activity
   @override
   Widget build(BuildContext context) {
     final adminQueueController = Provider.of<AdminQueueController>(context, listen: false);
@@ -62,10 +63,10 @@ class _QueueStatsState extends State<QueueStats> {
                 return const Center(child: CircularProgressIndicator());
               }
 
-              // This is the live queue data
+              /// This is the live queue data
               Queue queue = snapshot.data as Queue;
 
-              // Daily data
+              /// Daily data
 
               final todayLogs = dataController.getLogsForDate(queue, DateTime.now());
               final hourlyLogs = List.generate(24, (i) => dataController.getLogsForHour(todayLogs, i));
@@ -73,7 +74,7 @@ class _QueueStatsState extends State<QueueStats> {
 
               final hourlyQueueLengths = List.generate(24, (i) => dataController.getMinMaxQueueLengthForHour(todayLogs, i));
 
-              // Weekly data
+              /// Weekly data
 
               final dailyWaitTimes = List.generate(7,
                   (i) => dataController.getMedianWaitTimeForDate(queue, DateTime.now().subtract(const Duration(days: 6)).add(Duration(days: i))));
@@ -84,7 +85,7 @@ class _QueueStatsState extends State<QueueStats> {
                 return (min, max);
               });
 
-              // Chart data
+              /// Chart data
 
               final List<WaitTimeChartData> waitTimeChartData = viewType == 0
                   ? List.generate(24, (i) {
@@ -121,7 +122,7 @@ class _QueueStatsState extends State<QueueStats> {
                 ];
               } else {
                 series = [
-                  // min queue length column
+                  /// min queue length column
                   ColumnSeries<QueueLengthChartData, DateTime>(
                     enableTooltip: false,
                     name: 'Min Queue Length',
@@ -136,7 +137,7 @@ class _QueueStatsState extends State<QueueStats> {
                       return "Min ${datum.y.$2.toString()}";
                     },
                   ),
-                  // max queue length column
+                  /// max queue length column
                   ColumnSeries<QueueLengthChartData, DateTime>(
                     enableTooltip: false,
                     name: 'Max Queue Length',
@@ -264,6 +265,7 @@ class FeedbackEntryListWidget extends StatelessWidget {
   final AdminQueueController adminQueueController;
   final Queue queue;
 
+  /// This is the main widget to display the user ratings
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
@@ -276,7 +278,7 @@ class FeedbackEntryListWidget extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
 
-          // This is the live queue data
+          /// This is the live queue data
           List<FeedbackEntry> feedback = snapshot.data as List<FeedbackEntry>;
 
           if (feedback.isEmpty) {
