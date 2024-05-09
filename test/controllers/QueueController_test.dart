@@ -5,6 +5,8 @@ import 'package:virtual_queue/controllers/UserQueueController.dart';
 import 'package:virtual_queue/controllers/adminAccountController.dart';
 import 'package:virtual_queue/controllers/userAccountController.dart';
 import 'package:virtual_queue/models/Queue.dart';
+import 'package:virtual_queue/models/FeedbackEntry.dart';
+import 'package:virtual_queue/models/ErrorStatus.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -20,13 +22,16 @@ void main() {
       await firebaseProvider.initializeMock();
 
       // Initialize controller
-      userQueueController = UserQueueController(firebaseProvider: firebaseProvider);
-      userAccountController = UserAccountController(firebaseProvider: firebaseProvider);
+      userQueueController =
+          UserQueueController(firebaseProvider: firebaseProvider);
+      userAccountController =
+          UserAccountController(firebaseProvider: firebaseProvider);
     });
 
     setUp(() async {
       // Sign in before each test
-      await userAccountController.signUp('email@email.com', 'password', 'name', '07123456789');
+      await userAccountController.signUp(
+          'email@email.com', 'password', 'name', '07123456789');
     });
 
     tearDown(() async {
@@ -40,8 +45,12 @@ void main() {
 
     test('join and leave queue', () async {
       // Creating a mock queue
-      final fakeQueue = Queue(id: '1', name: 'test', open: true, users: [], logs: []);
-      firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc('1').set(fakeQueue.toJson());
+      final fakeQueue =
+          Queue(id: '1', name: 'test', open: true, users: [], logs: []);
+      firebaseProvider.FIREBASE_FIRESTORE
+          .collection('queues')
+          .doc('1')
+          .set(fakeQueue.toJson());
 
       // Joining the queue
       final joinResult = await userQueueController.joinQueue(fakeQueue);
@@ -53,7 +62,8 @@ void main() {
       expect(currentQueue!.id, '1');
 
       // Getting current queue position
-      final currentPosition = await userQueueController.getCurrentQueuePosition().first;
+      final currentPosition =
+          await userQueueController.getCurrentQueuePosition().first;
       expect(currentPosition, 1);
 
       // Leaving the queue
@@ -63,8 +73,12 @@ void main() {
 
     test('cant join a full queue', () async {
       // Creating a mock queue
-      final fakeQueue = Queue(id: '1', name: 'test', open: true, users: [], logs: [], capacity: 0);
-      firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc('1').set(fakeQueue.toJson());
+      final fakeQueue = Queue(
+          id: '1', name: 'test', open: true, users: [], logs: [], capacity: 0);
+      firebaseProvider.FIREBASE_FIRESTORE
+          .collection('queues')
+          .doc('1')
+          .set(fakeQueue.toJson());
 
       // Joining the queue
       final status = await userQueueController.joinQueue(fakeQueue);
@@ -74,8 +88,12 @@ void main() {
 
     test('cant join a closed queue', () async {
       // Creating a mock queue
-      final fakeQueue = Queue(id: '1', name: 'test', open: false, users: [], logs: []);
-      firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc('1').set(fakeQueue.toJson());
+      final fakeQueue =
+          Queue(id: '1', name: 'test', open: false, users: [], logs: []);
+      firebaseProvider.FIREBASE_FIRESTORE
+          .collection('queues')
+          .doc('1')
+          .set(fakeQueue.toJson());
 
       // Joining the queue
       final status = await userQueueController.joinQueue(fakeQueue);
@@ -85,10 +103,18 @@ void main() {
 
     test('get queues', () async {
       // Creating some mock queues
-      final fakeQueue1 = Queue(id: '1', name: 'test1', open: true, users: [], logs: []);
-      final fakeQueue2 = Queue(id: '2', name: 'test2', open: true, users: [], logs: []);
-      await firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc('1').set(fakeQueue1.toJson());
-      await firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc('2').set(fakeQueue2.toJson());
+      final fakeQueue1 =
+          Queue(id: '1', name: 'test1', open: true, users: [], logs: []);
+      final fakeQueue2 =
+          Queue(id: '2', name: 'test2', open: true, users: [], logs: []);
+      await firebaseProvider.FIREBASE_FIRESTORE
+          .collection('queues')
+          .doc('1')
+          .set(fakeQueue1.toJson());
+      await firebaseProvider.FIREBASE_FIRESTORE
+          .collection('queues')
+          .doc('2')
+          .set(fakeQueue2.toJson());
 
       // Getting queues
       final queuesStream = userQueueController.getQueues();
@@ -111,16 +137,20 @@ void main() {
     setUpAll(() async {
       firebaseProvider = FirebaseProvider();
       firebaseProvider.initializeMock();
-      userQueueController = UserQueueController(firebaseProvider: firebaseProvider);
-      adminQueueController = AdminQueueController(firebaseProvider: firebaseProvider);
+      userQueueController =
+          UserQueueController(firebaseProvider: firebaseProvider);
+      adminQueueController =
+          AdminQueueController(firebaseProvider: firebaseProvider);
 
       // Must be signed in
-      adminAccountController = AdminAccountController(firebaseProvider: firebaseProvider);
+      adminAccountController =
+          AdminAccountController(firebaseProvider: firebaseProvider);
     });
 
     setUp(() async {
       // Sign in before each test
-      await adminAccountController.signUp('email@email.com', 'password', 'name', '07123456789');
+      await adminAccountController.signUp(
+          'email@email.com', 'password', 'name', '07123456789');
       uid = (await adminAccountController.getUserData())!['uid'];
     });
 
@@ -166,7 +196,8 @@ void main() {
       expect(queues[0].open, true);
 
       // Toggling the queue open status
-      final toggleResult = await adminQueueController.toggleQueueOpenStatus(queues[0]);
+      final toggleResult =
+          await adminQueueController.toggleQueueOpenStatus(queues[0]);
       expect(toggleResult.success, true);
 
       // Getting queues after toggling
@@ -190,7 +221,8 @@ void main() {
       expect(queues.length, 1);
 
       // Adding a user to the queue
-      final status = await adminQueueController.addUserToQueue(queues[0], 'Steve');
+      final status =
+          await adminQueueController.addUserToQueue(queues[0], 'Steve');
       expect(status.success, true);
 
       // Getting users in the queue
@@ -222,7 +254,8 @@ void main() {
       await adminQueueController.addUserToQueue(queue, 'Alice');
 
       // Moving user up
-      final statusUp = await adminQueueController.moveUserUp(queue, queue.users[1]);
+      final statusUp =
+          await adminQueueController.moveUserUp(queue, queue.users[1]);
       expect(statusUp.success, true);
 
       // Getting users in the queue
@@ -233,6 +266,20 @@ void main() {
       expect(usersAfterUp[0].name, 'John');
       expect(usersAfterUp[1].name, 'Steve');
       expect(usersAfterUp[2].name, 'Alice');
+
+      // Moving user down
+      final statusDown =
+          await adminQueueController.moveUserDown(queue, queue.users[0]);
+      expect(statusDown.success, true);
+
+      // Getting users in the queue after moving down
+      final queuesAfterDown = await queuesStream.first;
+      final queueAfterDown = queuesAfterDown.first;
+      final usersAfterDown = queueAfterDown.users;
+      expect(usersAfterDown.length, 3);
+      expect(usersAfterDown[0].name, 'Steve');
+      expect(usersAfterDown[1].name, 'John');
+      expect(usersAfterDown[2].name, 'Alice');
 
       // Delete the queue
       await adminQueueController.deleteQueue(queues[0]);
@@ -256,12 +303,82 @@ void main() {
       await adminQueueController.addUserToQueue(queue, 'Alice');
 
       // Moving user up
-      final statusUp = await adminQueueController.moveUserUp(queue, queue.users[0]);
+      final statusUp =
+          await adminQueueController.moveUserUp(queue, queue.users[0]);
       expect(statusUp.success, false);
       expect(statusUp.message, 'User is already at the top of the queue');
 
       // Delete the queue
       await adminQueueController.deleteQueue(queues[0]);
+    });
+
+    test('remove user from queue', () async {
+      // Adding a queue
+      final addResult = await adminQueueController.addQueue('test', 10, uid);
+      expect(addResult.success, true);
+
+      // Getting queues
+      final queuesStream = adminQueueController.getQueues();
+      final queues = await queuesStream.first;
+      expect(queues.length, 1);
+
+      final queue = queues[0];
+
+      // Adding users to the queue
+      await adminQueueController.addUserToQueue(queue, 'Steve');
+
+      // Remove user from the queue
+      var removeUser =
+          await adminQueueController.removeUserFromQueue(queue, queue.users[0]);
+      expect(removeUser.success, true, reason: removeUser.message);
+
+      // Check queue length again to see if the user has been removed
+      var updatedQueue = await adminQueueController.getQueue(queue.id).first;
+      expect(updatedQueue.users.length, 0);
+    });
+
+    test('get a specific queue', () async {
+      // Adding a queue
+      final addResult = await adminQueueController.addQueue('test', 10, uid);
+      expect(addResult.success, true);
+
+      // Get the specific queue
+      final queueResult = await adminQueueController.getQueue(uid).first;
+      expect(queueResult.name, 'test');
+      expect(queueResult.capacity, 10);
+
+      // Delete the queue
+      await adminQueueController.deleteQueue(queueResult);
+    });
+
+    test('get feedback', () async {
+      // Mock feedback entry
+      FeedbackEntry mockFeedback = FeedbackEntry(
+        userId: '1',
+        name: 'test name',
+        comments: 'test comment',
+        rating: 5,
+      );
+
+      // Adding a queue
+      final addResult = await adminQueueController.addQueue('test', 10, uid);
+      expect(addResult.success, true);
+
+      // Submitting the mock feedback
+      final submitStatus =
+          await userQueueController.submitFeedback(uid, mockFeedback);
+      expect(submitStatus.success, true);
+
+      // Getting feedback for the specific queue
+      final feedbackStream = adminQueueController.getFeedback(uid);
+      final feedbackList = await feedbackStream.first;
+
+      // Validate that retrieved feedback is the same as the mock feedback
+      expect(feedbackList.length, equals(1));
+      expect(feedbackList[0].userId, equals(mockFeedback.userId));
+      expect(feedbackList[0].name, equals(mockFeedback.name));
+      expect(feedbackList[0].comments, equals(mockFeedback.comments));
+      expect(feedbackList[0].rating, equals(mockFeedback.rating));
     });
   });
 }
