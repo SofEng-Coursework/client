@@ -1,5 +1,3 @@
-import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
-import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:virtual_queue/controllers/FirebaseProvider.dart';
 import 'package:virtual_queue/controllers/UserAccountController.dart';
@@ -17,9 +15,9 @@ void main() {
       userAccountController = UserAccountController(firebaseProvider: firebaseProvider);
     });
 
-    tearDown(() {
+    tearDown(() async {
       // Delete the user account
-      firebaseProvider.FIREBASE_AUTH.currentUser!.delete();
+      await firebaseProvider.FIREBASE_AUTH.currentUser?.delete();
     });
 
     test('is initialized', () {
@@ -31,8 +29,6 @@ void main() {
 
       final result = await userAccountController.getHistory();
       expect(result, isA<List<Map<String, dynamic>>>());
-
-      
     });
   });
 }

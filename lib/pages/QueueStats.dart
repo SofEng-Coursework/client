@@ -77,11 +77,11 @@ class _QueueStatsState extends State<QueueStats> {
               /// Weekly data
 
               final dailyWaitTimes = List.generate(7,
-                  (i) => dataController.getMedianWaitTimeForDate(queue, DateTime.now().subtract(Duration(days: 6)).add(Duration(days: i))));
+                  (i) => dataController.getMedianWaitTimeForDate(queue, DateTime.now().subtract(const Duration(days: 6)).add(Duration(days: i))));
 
               final dailyQueueLengths = List.generate(7, (i) {
                 final (min, max) =
-                    dataController.getMinMaxQueueLengthForDate(queue, DateTime.now().subtract(Duration(days: 6)).add(Duration(days: i)));
+                    dataController.getMinMaxQueueLengthForDate(queue, DateTime.now().subtract(const Duration(days: 6)).add(Duration(days: i)));
                 return (min, max);
               });
 
@@ -130,7 +130,7 @@ class _QueueStatsState extends State<QueueStats> {
                     dataSource: queueLengthChartData,
                     xValueMapper: (data, _) => data.x,
                     yValueMapper: (data, _) => data.y.$1,
-                    dataLabelSettings: DataLabelSettings(isVisible: true),
+                    dataLabelSettings: const DataLabelSettings(isVisible: true),
                     dataLabelMapper: (datum, index) {
                       final minLength = datum.y.$1;
                       if (minLength == 0) return "";
@@ -145,7 +145,7 @@ class _QueueStatsState extends State<QueueStats> {
                     dataSource: queueLengthChartData,
                     xValueMapper: (data, _) => data.x,
                     yValueMapper: (data, _) => data.y.$2,
-                    dataLabelSettings: DataLabelSettings(isVisible: true),
+                    dataLabelSettings: const DataLabelSettings(isVisible: true),
                     dataLabelMapper: (datum, index) {
                       final maxLength = datum.y.$2;
                       if (maxLength == 0) return "";
@@ -161,7 +161,7 @@ class _QueueStatsState extends State<QueueStats> {
                       //mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                    SizedBox(
+                    const SizedBox(
                       height: 10,
                     ),
                     Row(
@@ -169,14 +169,14 @@ class _QueueStatsState extends State<QueueStats> {
                       children: [
                         DropdownButton(
                             value: viewType,
-                            items: [
+                            items: const [
                               DropdownMenuItem(
-                                child: Text("Today"),
                                 value: 0,
+                                child: Text("Today"),
                               ),
                               DropdownMenuItem(
-                                child: Text("Last 7 Days"),
                                 value: 1,
+                                child: Text("Last 7 Days"),
                               ),
                             ],
                             onChanged: (value) {
@@ -184,17 +184,17 @@ class _QueueStatsState extends State<QueueStats> {
                                 viewType = value as int;
                               });
                             }),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         DropdownButton(
                             value: dataType,
-                            items: [
+                            items: const [
                               DropdownMenuItem(
-                                child: Text("Wait Time"),
                                 value: 0,
+                                child: Text("Wait Time"),
                               ),
                               DropdownMenuItem(
-                                child: Text("Queue Length"),
                                 value: 1,
+                                child: Text("Queue Length"),
                               ),
                             ],
                             onChanged: (value) {
@@ -224,27 +224,27 @@ class _QueueStatsState extends State<QueueStats> {
                           ),
                           primaryXAxis: viewType == 0
                               ? DateTimeAxis(
-                                  title: AxisTitle(text: 'Time Of Day'),
+                                  title: const AxisTitle(text: 'Time Of Day'),
                                   minimum: DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day),
                                   maximum: DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 23, 59, 59),
                                 )
                               : DateTimeAxis(
-                                  title: AxisTitle(text: 'Day'),
+                                  title: const AxisTitle(text: 'Day'),
                                   minimum:
-                                      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).subtract(Duration(days: 6)),
-                                  maximum: DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).add(Duration(days: 1)),
+                                      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).subtract(const Duration(days: 6)),
+                                  maximum: DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).add(const Duration(days: 1)),
                                 ),
                           primaryYAxis: dataType == 0
                               ? NumericAxis(
-                                  title: AxisTitle(text: 'Wait Time'),
+                                  title: const AxisTitle(text: 'Wait Time'),
                                   axisLabelFormatter: (axisLabelRenderArgs) {
                                     return ChartAxisLabel(
                                       Duration(milliseconds: axisLabelRenderArgs.value.toInt()).toString().split('.').first,
-                                      TextStyle(),
+                                      const TextStyle(),
                                     );
                                   },
                                 )
-                              : NumericAxis(
+                              : const NumericAxis(
                                   title: AxisTitle(text: 'Queue Length'),
                                 ),
                           series: series),
@@ -297,7 +297,7 @@ class FeedbackEntryListWidget extends StatelessWidget {
                           children: [
                             Text(
                               feedback[index].name,
-                              style: TextStyle(fontWeight: FontWeight.bold),
+                              style: const TextStyle(fontWeight: FontWeight.bold),
                             ),
                             RatingBar.builder(
                                 initialRating: feedback[index].rating.toDouble(),

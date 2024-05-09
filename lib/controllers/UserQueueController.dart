@@ -146,7 +146,6 @@ class UserQueueController extends ChangeNotifier {
       // Create a new document if it doesn't exist, otherwise update the existing document
       await queueFeedbackRef.set({
         'queueId': queueId,
-        'entries': [],
       }, SetOptions(merge: true));
 
       // Update the ratings and comments arrays with the new feedback

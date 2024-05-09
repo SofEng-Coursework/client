@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_queue/controllers/adminAccountController.dart';
 import 'package:virtual_queue/controllers/userAccountController.dart';
-import 'package:virtual_queue/Modules/InputVerifications.dart';
+import 'package:virtual_queue/modules/InputVerifications.dart';
+
 enum AccountType { User, Admin }
 
 /// This builds the widget hosted on the [AuthPage] for registering a new user

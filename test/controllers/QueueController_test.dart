@@ -1,12 +1,9 @@
-import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
-import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:virtual_queue/controllers/AdminQueueController.dart';
 import 'package:virtual_queue/controllers/FirebaseProvider.dart';
 import 'package:virtual_queue/controllers/UserQueueController.dart';
 import 'package:virtual_queue/controllers/adminAccountController.dart';
 import 'package:virtual_queue/controllers/userAccountController.dart';
-import 'package:virtual_queue/pages/RegisterForm.dart';
 import 'package:virtual_queue/models/Queue.dart';
 
 void main() {
@@ -197,9 +194,11 @@ void main() {
       expect(status.success, true);
 
       // Getting users in the queue
-      final users = await adminQueueController.getUsersInQueue(queues[0]);
+      final newQueues = await queuesStream.first;
+      final newQueue = newQueues.first;
+      final users = newQueue.users;
       expect(users.length, 1);
-      expect(users[0], 'Steve');
+      expect(users[0].name, 'Steve');
 
       // Delete the queue
       await adminQueueController.deleteQueue(queues[0]);
@@ -227,11 +226,13 @@ void main() {
       expect(statusUp.success, true);
 
       // Getting users in the queue
-      final usersAfterUp = await adminQueueController.getUsersInQueue(queue);
+      final queuesAferUp = await queuesStream.first;
+      final newQueue = queuesAferUp.first;
+      final usersAfterUp = newQueue.users;
       expect(usersAfterUp.length, 3);
-      expect(usersAfterUp[0], 'John');
-      expect(usersAfterUp[1], 'Steve');
-      expect(usersAfterUp[2], 'Alice');
+      expect(usersAfterUp[0].name, 'John');
+      expect(usersAfterUp[1].name, 'Steve');
+      expect(usersAfterUp[2].name, 'Alice');
 
       // Delete the queue
       await adminQueueController.deleteQueue(queues[0]);
