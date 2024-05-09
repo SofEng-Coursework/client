@@ -100,6 +100,117 @@ void main() {
       expect(queues[0].id, '1');
       expect(queues[1].id, '2');
     });
+
+    test('get current queue', () async {
+      // Creating a mock queue
+      final fakeQueue = Queue(id: '1', name: 'test', open: true, users: [], logs: []);
+      firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc('1').set(fakeQueue.toJson());
+
+      // Joining the queue
+      await userQueueController.joinQueue(fakeQueue);
+
+      // Getting current queue
+      final currentQueue = await userQueueController.getCurrentQueue().first;
+      expect(currentQueue, isNotNull);
+      expect(currentQueue!.id, '1');
+
+      // Leaving the queue
+      await userQueueController.leaveQueue(currentQueue);
+    });
+
+    test('get current queue position', () async {
+      // Creating a mock queue
+      final fakeQueue = Queue(id: '1', name: 'test', open: true, users: [], logs: []);
+      firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc('1').set(fakeQueue.toJson());
+
+      // Joining the queue
+      await userQueueController.joinQueue(fakeQueue);
+
+      // Getting current queue position
+      final currentPosition = await userQueueController.getCurrentQueuePosition().first;
+      expect(currentPosition, 1);
+
+      // Leaving the queue
+      final currentQueue = await userQueueController.getCurrentQueue().first;
+      await userQueueController.leaveQueue(currentQueue!);
+    });
+
+    test('submit feedback', () async {
+      // Mock feedback entry
+      FeedbackEntry mockFeedback = FeedbackEntry(
+        userId: '1',
+        name: 'test name',
+        comments: 'test comment',
+        rating: 5,
+      );
+
+      // Creating a mock queue
+      final fakeQueue = Queue(id: '1', name: 'test', open: true, users: [], logs: []);
+      firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc('1').set(fakeQueue.toJson());
+
+      // Joining the queue
+      await userQueueController.joinQueue(fakeQueue);
+
+      // Submitting the mock feedback
+      final submitStatus = await userQueueController.submitFeedback('1', mockFeedback);
+      expect(submitStatus.success, true);
+
+      // Leaving the queue
+      final currentQueue = await userQueueController.getCurrentQueue().first;
+      await userQueueController.leaveQueue(currentQueue!);
+    });
+  });
+
+  group("Not logged in - should fail", () {
+    late UserQueueController userQueueController;
+    late UserAccountController userAccountController;
+    late FirebaseProvider firebaseProvider;
+
+    setUpAll(() async {
+      // Initialize Firebase mock
+      firebaseProvider = FirebaseProvider();
+      await firebaseProvider.initializeMock();
+
+      // Initialize controller
+      userQueueController = UserQueueController(firebaseProvider: firebaseProvider);
+      userAccountController = UserAccountController(firebaseProvider: firebaseProvider);
+    });
+
+    test("get current queue", () async {
+      final currentQueue = await userQueueController.getCurrentQueue().first;
+      expect(currentQueue, isNull);
+    });
+
+    test("get current queue position", () async {
+      final currentPosition = await userQueueController.getCurrentQueuePosition().first;
+      expect(currentPosition, -1);
+    });
+
+    test("get queues", () async {
+      final queues = await userQueueController.getQueues().first;
+      expect(queues.length, 0);
+    });
+
+    test("join queue", () async {
+      final fakeQueue = Queue(id: '1', name: 'test', open: true, users: [], logs: []);
+      final status = await userQueueController.joinQueue(fakeQueue);
+      expect(status.success, false);
+      expect(status.message, contains('User not logged in'));
+    });
+
+    test("leave queue", () async {
+      final fakeQueue = Queue(id: '1', name: 'test', open: true, users: [], logs: []);
+      final status = await userQueueController.leaveQueue(fakeQueue);
+      expect(status.success, false);
+      expect(status.message, contains('User not logged in'));
+    });
+
+    test("submit feedback", () async {
+      final fakeFeedback = FeedbackEntry(userId: '1', name: 'test', comments: 'test', rating: 5);
+      final status = await userQueueController.submitFeedback('1', fakeFeedback);
+      expect(status.success, false);
+      expect(status.message, contains('User not logged in'));
+    });
   });
 
   group("Admin functionality", () {
