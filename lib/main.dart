@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
 
 class FirebaseLoadingWidget extends StatelessWidget {
   const FirebaseLoadingWidget({super.key});
-
+  /// This is the widget that will initiate firebase and prepare it to be passed as context throughout the program
   @override
   Widget build(BuildContext context) {
     final firebaseProvider = Provider.of<FirebaseProvider>(context, listen: false);
@@ -56,6 +56,8 @@ class FirebaseLoadingWidget extends StatelessWidget {
                   create: (context) => DataController()
               )
             ],
+            /// This switcher automatically sends the user to the sign in page and then periodically
+            /// queries firebase to determine the user's login status in order to move them to the appropriate dashboard
             child: Consumer<FirebaseProvider>(builder: (context, firebaseProvider, child) {
               return AnimatedSwitcher(
                   duration: Duration(milliseconds: 400), child: firebaseProvider.getLoggedInUser() != null ? Dashboard() : AuthPage());
@@ -72,7 +74,7 @@ class LoadingScreen extends StatelessWidget {
   const LoadingScreen({
     super.key,
   });
-
+  /// This is the loading screen that shows whenever the program is waiting for a page to passed to it
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
