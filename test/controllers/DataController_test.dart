@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:virtual_queue/controllers/dataController.dart';
 import 'package:virtual_queue/models/Queue.dart';
+import 'package:virtual_queue/modules/InputVerifications.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -39,20 +40,8 @@ void main() {
           start: DateTime.utc(2024, 5, 4, 10, 20).millisecondsSinceEpoch,
           end: DateTime.utc(2024, 5, 4, 10, 22).millisecondsSinceEpoch,
           userId: "test6");
-      testQueue = Queue(
-          id: "1",
-          name: "test",
-          open: true,
-          users: [],
-          logs: [user1, user2, user3, user4, user5, user6],
-          capacity: null);
-      testQueueWithEmptyLogs = Queue(
-        id: "1",
-        name: "test",
-        open: true,
-        users: [],
-        logs: [],
-        capacity: null);
+      testQueue = Queue(id: "1", name: "test", open: true, users: [], logs: [user1, user2, user3, user4, user5, user6], capacity: null);
+      testQueueWithEmptyLogs = Queue(id: "1", name: "test", open: true, users: [], logs: [], capacity: null);
     });
 
     test('correctly returns a list of wait times', () {
@@ -72,10 +61,8 @@ void main() {
       }
       times.sort();
       int median = times[times.length ~/ 2];
-      expect(dataController.getMedianWaitTime(testQueue),
-          Duration(milliseconds: median));
+      expect(dataController.getMedianWaitTime(testQueue), Duration(milliseconds: median));
 
-      
       expect(dataController.getMedianWaitTime(testQueueWithEmptyLogs), Duration.zero);
     });
 
@@ -90,13 +77,11 @@ void main() {
 
       expect(dataController.getLogsForHour(logs, testHour), logsForHour);
 
-
       List<QueueLog> emptyLogs = testQueueWithEmptyLogs.logs;
       expect(dataController.getLogsForHour(emptyLogs, testHour), []);
 
       expect(dataController.getLogsForHour(logs, -1), []);
       expect(dataController.getLogsForHour(logs, 25), []);
-
     });
 
     test('correctly returns the daily time logs', () {
@@ -105,9 +90,7 @@ void main() {
 
       List logsForDate = logs.where((element) {
         final logDate = DateTime.fromMillisecondsSinceEpoch(element.start);
-        return logDate.year == testDate.year &&
-            logDate.month == testDate.month &&
-            logDate.day == testDate.day;
+        return logDate.year == testDate.year && logDate.month == testDate.month && logDate.day == testDate.day;
       }).toList();
 
       expect(dataController.getLogsForDate(testQueue, testDate), logsForDate);
@@ -136,9 +119,7 @@ void main() {
     test('correctly returns median wait time for the date', () {
       DateTime testDate = DateTime.utc(2024, 5, 4);
       List logsForDate = dataController.getLogsForDate(testQueue, testDate);
-      List times = logsForDate
-          .map((e) => Duration(milliseconds: e.end - e.start))
-          .toList();
+      List times = logsForDate.map((e) => Duration(milliseconds: e.end - e.start)).toList();
       var median = Duration.zero;
       if (times.isNotEmpty) {
         times.sort();
@@ -153,8 +134,7 @@ void main() {
       List<QueueLog> logs = testQueue.logs;
       DateTime testDate = DateTime.utc(2024, 5, 4, 14);
       int testHour = testDate.hour;
-      List<QueueLog> logsForHour =
-          dataController.getLogsForHour(logs, testHour);
+      List<QueueLog> logsForHour = dataController.getLogsForHour(logs, testHour);
 
       // get the min and max from the test data
       int minQueueLength = 0;
@@ -182,56 +162,50 @@ void main() {
         }
       }
 
-      expect(dataController.getMinMaxQueueLengthForHour(logsForHour, testHour),
-          (minQueueLength, maxQueueLength));
-
+      expect(dataController.getMinMaxQueueLengthForHour(logsForHour, testHour), (minQueueLength, maxQueueLength));
 
       List<QueueLog> emptyLogs = testQueueWithEmptyLogs.logs;
-      List<QueueLog> emptyLogsForHour =
-          dataController.getLogsForHour(emptyLogs, testHour);
+      List<QueueLog> emptyLogsForHour = dataController.getLogsForHour(emptyLogs, testHour);
 
-      expect(dataController.getMinMaxQueueLengthForHour(emptyLogsForHour, testHour),(0, 0));
+      expect(dataController.getMinMaxQueueLengthForHour(emptyLogsForHour, testHour), (0, 0));
 
-      expect(dataController.getMinMaxQueueLengthForHour(logs, -1),(0, 0));
-      expect(dataController.getMinMaxQueueLengthForHour(logs, 25),(0, 0));
+      expect(dataController.getMinMaxQueueLengthForHour(logs, -1), (0, 0));
+      expect(dataController.getMinMaxQueueLengthForHour(logs, 25), (0, 0));
     });
 
     test('correctly returns minimum and maximum wait times for the date', () {
       DateTime testDate = DateTime.utc(2024, 5, 4, 14);
-      List<QueueLog> logsForDay =
-          dataController.getLogsForDate(testQueue, testDate);
+      List<QueueLog> logsForDay = dataController.getLogsForDate(testQueue, testDate);
 
       // get the min and max from the test data
       int minQueueLength = 0;
-    int maxQueueLength = 0;
-    int currentQueueLength = 0;
+      int maxQueueLength = 0;
+      int currentQueueLength = 0;
 
       final List<(EventType, int)> eventTimes = [];
-    for (final log in logsForDay) {
-      eventTimes.add((EventType.enter, log.start));
-      eventTimes.add((EventType.exit, log.end));
-    }
-    eventTimes.sort((a, b) => a.$2.compareTo(b.$2));
+      for (final log in logsForDay) {
+        eventTimes.add((EventType.enter, log.start));
+        eventTimes.add((EventType.exit, log.end));
+      }
+      eventTimes.sort((a, b) => a.$2.compareTo(b.$2));
 
-    for (final event in eventTimes) {
-      if (event.$1 == EventType.enter) {
-        currentQueueLength++;
-        if (currentQueueLength > maxQueueLength) {
-          maxQueueLength = currentQueueLength;
-        }
-      } else {
-        currentQueueLength--;
-        if (currentQueueLength < minQueueLength) {
-          minQueueLength = currentQueueLength;
+      for (final event in eventTimes) {
+        if (event.$1 == EventType.enter) {
+          currentQueueLength++;
+          if (currentQueueLength > maxQueueLength) {
+            maxQueueLength = currentQueueLength;
+          }
+        } else {
+          currentQueueLength--;
+          if (currentQueueLength < minQueueLength) {
+            minQueueLength = currentQueueLength;
+          }
         }
       }
-    }
 
-      expect(dataController.getMinMaxQueueLengthForDate(testQueue, testDate),
-          (minQueueLength, maxQueueLength));
+      expect(dataController.getMinMaxQueueLengthForDate(testQueue, testDate), (minQueueLength, maxQueueLength));
 
-      expect(dataController.getMinMaxQueueLengthForDate(testQueueWithEmptyLogs, testDate),
-          (0, 0));
+      expect(dataController.getMinMaxQueueLengthForDate(testQueueWithEmptyLogs, testDate), (0, 0));
     });
 
     test('correctly formats time', () {

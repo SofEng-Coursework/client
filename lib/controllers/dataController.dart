@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:virtual_queue/models/Queue.dart';
+import 'package:virtual_queue/modules/InputVerifications.dart';
 
 enum EventType { enter, exit }
 
@@ -35,9 +36,7 @@ class DataController extends ChangeNotifier {
     final logs = queue.logs;
     return logs.where((element) {
       final logDate = DateTime.fromMillisecondsSinceEpoch(element.start);
-      return logDate.year == date.year &&
-          logDate.month == date.month &&
-          logDate.day == date.day;
+      return logDate.year == date.year && logDate.month == date.month && logDate.day == date.day;
     }).toList();
   }
 
@@ -46,9 +45,7 @@ class DataController extends ChangeNotifier {
       return Duration.zero;
     } else {
       final logsForHour = getLogsForHour(logsForDay, hour);
-      final waitTimes = logsForHour
-          .map((e) => Duration(milliseconds: e.end - e.start))
-          .toList();
+      final waitTimes = logsForHour.map((e) => Duration(milliseconds: e.end - e.start)).toList();
       if (waitTimes.isEmpty) {
         return Duration.zero;
       }
@@ -59,8 +56,7 @@ class DataController extends ChangeNotifier {
 
   Duration getMedianWaitTimeForDate(Queue queue, DateTime date) {
     final logsForDay = getLogsForDate(queue, date);
-    final waitTimes =
-        logsForDay.map((e) => Duration(milliseconds: e.end - e.start)).toList();
+    final waitTimes = logsForDay.map((e) => Duration(milliseconds: e.end - e.start)).toList();
     if (waitTimes.isEmpty) {
       return Duration.zero;
     }
@@ -69,40 +65,38 @@ class DataController extends ChangeNotifier {
   }
 
   (int, int) getMinMaxQueueLengthForHour(List<QueueLog> logsForDay, int hour) {
-    if (checkValidHour(hour)) {
-      return (0, 0);
-    } else {
-      final logsForHour = getLogsForHour(logsForDay, hour);
+    if (!validHour(hour)) return (0, 0);
 
-      int minQueueLength = 0;
-      int maxQueueLength = 0;
-      int currentQueueLength = 0;
+    final logsForHour = getLogsForHour(logsForDay, hour);
 
-      /// Timeline sweep algorithm
-      /// Create a list of events for the hour
-      final List<(EventType, int)> eventTimes = [];
-      for (final log in logsForHour) {
-        eventTimes.add((EventType.enter, log.start));
-        eventTimes.add((EventType.exit, log.end));
-      }
-      eventTimes.sort((a, b) => a.$2.compareTo(b.$2));
+    int minQueueLength = 0;
+    int maxQueueLength = 0;
+    int currentQueueLength = 0;
 
-      for (final event in eventTimes) {
-        if (event.$1 == EventType.enter) {
-          currentQueueLength++;
-          if (currentQueueLength > maxQueueLength) {
-            maxQueueLength = currentQueueLength;
-          }
-        } else {
-          currentQueueLength--;
-          if (currentQueueLength < minQueueLength) {
-            minQueueLength = currentQueueLength;
-          }
+    /// Timeline sweep algorithm
+    /// Create a list of events for the hour
+    final List<(EventType, int)> eventTimes = [];
+    for (final log in logsForHour) {
+      eventTimes.add((EventType.enter, log.start));
+      eventTimes.add((EventType.exit, log.end));
+    }
+    eventTimes.sort((a, b) => a.$2.compareTo(b.$2));
+
+    for (final event in eventTimes) {
+      if (event.$1 == EventType.enter) {
+        currentQueueLength++;
+        if (currentQueueLength > maxQueueLength) {
+          maxQueueLength = currentQueueLength;
+        }
+      } else {
+        currentQueueLength--;
+        if (currentQueueLength < minQueueLength) {
+          minQueueLength = currentQueueLength;
         }
       }
-
-      return (minQueueLength, maxQueueLength);
     }
+
+    return (minQueueLength, maxQueueLength);
   }
 
   (int, int) getMinMaxQueueLengthForDate(Queue queue, DateTime date) {
