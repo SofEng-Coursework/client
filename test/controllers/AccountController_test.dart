@@ -6,7 +6,7 @@ import 'package:virtual_queue/pages/RegisterForm.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  
+
   group("AccountController Signing Up", () {
     late AccountController accountController;
     late FirebaseProvider firebaseProvider;
@@ -84,7 +84,7 @@ void main() {
 
       final user = firebaseProvider.FIREBASE_AUTH.currentUser;
       expect(user, isA<MockUser>());
-      
+
       final databaseUser = await firebaseProvider.FIREBASE_FIRESTORE.collection("users").doc(user!.uid).get();
       expect(databaseUser.data(), isA<Map<String, dynamic>>());
       expect(databaseUser.data()!['email'], "test@test.com");
@@ -96,7 +96,6 @@ void main() {
       expect(result.success, true);
     });
 
-
     test('can get user data', () async {
       final result = await accountController.login("test@test.com", "password");
       expect(result.success, true);
@@ -105,6 +104,40 @@ void main() {
       expect(userData, isA<Map<String, dynamic>>());
       expect(userData!['email'], "test@test.com");
       expect(userData['accountType'], AccountType.User);
+    });
+
+    test('can delete account', () async {
+      final result = await accountController.login("test@test.com", "password");
+      expect(result.success, true);
+
+      final deleteResult = await accountController.deleteAccount();
+      expect(deleteResult.success, true);
+    });
+  });
+
+  group("Not logged in", () {
+    late AccountController accountController;
+    late FirebaseProvider firebaseProvider;
+
+    setUpAll(() {
+      firebaseProvider = FirebaseProvider();
+      firebaseProvider.initializeMock();
+      accountController = AccountController(collectionName: 'users', firebaseProvider: firebaseProvider);
+    });
+
+    test('is initialized', () {
+      expect(accountController, isA<AccountController>());
+    });
+
+    test('cannot get user data', () async {
+      final userData = await accountController.getUserData();
+      expect(userData, null);
+    });
+
+    test('cannot delete account', () async {
+      final result = await accountController.deleteAccount();
+      expect(result.success, false);
+      expect(result.message, "User not found");
     });
   });
 }
