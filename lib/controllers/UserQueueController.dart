@@ -1,12 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:virtual_queue/controllers/FirebaseProvider.dart';
-
 import 'package:virtual_queue/models/ErrorStatus.dart';
 import 'package:virtual_queue/models/FeedbackEntry.dart';
 import 'package:virtual_queue/models/Queue.dart';
-import 'package:virtual_queue/pages/RegisterForm.dart';
 import 'dart:async';
 
 class UserQueueController extends ChangeNotifier {
@@ -34,7 +31,7 @@ class UserQueueController extends ChangeNotifier {
       final userReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('users').doc(userUID);
       final name = await userReference.get().then((value) => value.data()?['name']);
 
-      // Check if queue with this ID still exists
+      /// Check if queue with this ID still exists
       final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
       final queueDoc = await queueReference.get();
       if (queueDoc.exists) {
@@ -61,7 +58,7 @@ class UserQueueController extends ChangeNotifier {
       return ErrorStatus(success: false, message: "An error occurred: User not in queue");
     }
 
-    // Add a log entry for the user leaving the queue
+    /// Add a log entry for the user leaving the queue
     final startTime = queue.users.firstWhere((element) => element.userId == userUID).timestamp;
     final endTime = DateTime.now().millisecondsSinceEpoch;
 
@@ -101,10 +98,10 @@ class UserQueueController extends ChangeNotifier {
         Queue queue = Queue.fromJson(doc.data() as Map<String, dynamic>);
         int position = queue.users.indexWhere((element) => element.userId == userUID);
         if (position != -1) {
-          return queue; // Return the Queue object if the user is found in the queue
+          return queue; /// Return the Queue object if the user is found in the queue
         }
       }
-      return null; // Return null if the user is not found in any queue
+      return null; /// Return null if the user is not found in any queue
     });
   }
 
@@ -143,12 +140,12 @@ class UserQueueController extends ChangeNotifier {
 
     try {
       final queueFeedbackRef = _firebaseProvider.FIREBASE_FIRESTORE.collection('feedback').doc(queueId);
-      // Create a new document if it doesn't exist, otherwise update the existing document
+      /// Create a new document if it doesn't exist, otherwise update the existing document
       await queueFeedbackRef.set({
         'queueId': queueId,
       }, SetOptions(merge: true));
 
-      // Update the ratings and comments arrays with the new feedback
+      /// Update the ratings and comments arrays with the new feedback
       await queueFeedbackRef.update({
         'entries': FieldValue.arrayUnion([entry.toJson()]),
       });
