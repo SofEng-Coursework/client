@@ -1,18 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:virtual_queue/controllers/FirebaseProvider.dart';
-import 'package:virtual_queue/models/ErrorStatus.dart';
 import 'package:virtual_queue/models/Queue.dart';
 
 enum EventType { enter, exit }
 
 class DataController extends ChangeNotifier {
-  late FirebaseProvider _firebaseProvider;
-  AdminQueueController({required FirebaseProvider firebaseProvider}) {
-    _firebaseProvider = firebaseProvider;
-  }
-
   List<Duration> getWaitTimes(Queue queue) {
     final logs = queue.logs;
     return logs.map((e) => Duration(milliseconds: e.end - e.start)).toList();
@@ -28,6 +19,9 @@ class DataController extends ChangeNotifier {
   }
 
   List<QueueLog> getLogsForHour(List<QueueLog> logsForDay, int hour) {
+    if (hour < 0 || hour > 24) {
+      return [];
+    }
     return logsForDay.where((element) {
       final logDate = DateTime.fromMillisecondsSinceEpoch(element.start);
       return logDate.hour == hour;
@@ -43,6 +37,9 @@ class DataController extends ChangeNotifier {
   }
 
   Duration getMedianWaitTimeForHour(List<QueueLog> logsForDay, int hour) {
+    if (hour < 0 || hour > 24) {
+      return Duration.zero;
+    }
     final logsForHour = getLogsForHour(logsForDay, hour);
     final waitTimes = logsForHour.map((e) => Duration(milliseconds: e.end - e.start)).toList();
     if (waitTimes.isEmpty) {
@@ -63,6 +60,10 @@ class DataController extends ChangeNotifier {
   }
 
   (int, int) getMinMaxQueueLengthForHour(List<QueueLog> logsForDay, int hour) {
+    if (hour < 0 || hour > 24) {
+      return (0, 0);
+    }
+
     final logsForHour = getLogsForHour(logsForDay, hour);
 
     int minQueueLength = 0;

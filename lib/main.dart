@@ -1,6 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_queue/controllers/AdminQueueController.dart';
@@ -10,12 +7,7 @@ import 'package:virtual_queue/controllers/FirebaseProvider.dart';
 import 'package:virtual_queue/controllers/dataController.dart';
 import 'package:virtual_queue/pages/AuthPage.dart';
 import 'package:virtual_queue/pages/Dashboard.dart';
-import 'package:virtual_queue/pages/LoginForm.dart';
-import 'package:virtual_queue/pages/RegisterForm.dart';
 import 'package:virtual_queue/controllers/userAccountController.dart';
-
-import 'firebase_options.dart';
-import 'pages/userDashboard.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();

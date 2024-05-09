@@ -1,12 +1,9 @@
-import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
-import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:virtual_queue/controllers/AdminQueueController.dart';
 import 'package:virtual_queue/controllers/FirebaseProvider.dart';
 import 'package:virtual_queue/controllers/UserQueueController.dart';
 import 'package:virtual_queue/controllers/adminAccountController.dart';
 import 'package:virtual_queue/controllers/userAccountController.dart';
-import 'package:virtual_queue/pages/RegisterForm.dart';
 import 'package:virtual_queue/models/Queue.dart';
 
 void main() {
