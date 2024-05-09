@@ -136,6 +136,8 @@ class UserQueueController extends ChangeNotifier {
   }
 
   Future<ErrorStatus> submitFeedback(String queueId, FeedbackEntry entry) async {
+    if (entry.rating == 0) return ErrorStatus(success: false, message: "An error occurred: Rating must be provided");
+
     final userUID = _firebaseProvider.FIREBASE_AUTH.currentUser?.uid;
     if (userUID == null) {
       return ErrorStatus(success: false, message: "An error occurred: User not logged in");
