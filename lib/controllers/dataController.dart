@@ -3,6 +3,8 @@ import 'package:virtual_queue/models/Queue.dart';
 
 enum EventType { enter, exit }
 
+/// This file contains functions that access the logs and creates stats for the admin stats page to display
+
 class DataController extends ChangeNotifier {
   List<Duration> getWaitTimes(Queue queue) {
     final logs = queue.logs;
@@ -76,8 +78,8 @@ class DataController extends ChangeNotifier {
       int maxQueueLength = 0;
       int currentQueueLength = 0;
 
-      // Timeline sweep algorithm
-      // Create a list of events for the hour
+      /// Timeline sweep algorithm
+      /// Create a list of events for the hour
       final List<(EventType, int)> eventTimes = [];
       for (final log in logsForHour) {
         eventTimes.add((EventType.enter, log.start));
@@ -110,8 +112,8 @@ class DataController extends ChangeNotifier {
     int maxQueueLength = 0;
     int currentQueueLength = 0;
 
-    // Timeline sweep algorithm
-    // Create a list of events for the day
+    /// Timeline sweep algorithm
+    /// Create a list of events for the day
     final List<(EventType, int)> eventTimes = [];
     for (final log in logsForDay) {
       eventTimes.add((EventType.enter, log.start));

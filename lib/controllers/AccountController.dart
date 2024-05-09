@@ -6,6 +6,7 @@ import 'package:virtual_queue/models/ErrorStatus.dart';
 import 'package:virtual_queue/pages/RegisterForm.dart';
 import 'package:virtual_queue/modules/InputVerifications.dart';
 
+/// This file facilitates all communications between the User and Admin accounts and firebase
 class AccountController extends ChangeNotifier {
   late FirebaseProvider firebaseProvider;
   final String collectionName;

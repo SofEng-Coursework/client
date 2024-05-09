@@ -58,7 +58,7 @@ class AdminQueueController extends ChangeNotifier {
         'open': !queue.open,
       });
 
-      // If the queue is being closed, remove all users from the queue
+      /// If the queue is being closed, remove all users from the queue
       if (queue.open) {
         await queueReference.update({
           'users': [],
@@ -76,7 +76,7 @@ class AdminQueueController extends ChangeNotifier {
       final queueReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('queues').doc(queue.id);
       await queueReference.delete();
 
-      // Delete feedback
+      /// Delete feedback
       final feedbackReference = _firebaseProvider.FIREBASE_FIRESTORE.collection('feedback').doc(queue.id);
       await feedbackReference.delete();
 
@@ -99,7 +99,7 @@ class AdminQueueController extends ChangeNotifier {
       final startTime = user.timestamp;
       final endTime = DateTime.now().millisecondsSinceEpoch;
 
-      // Add the user to the logs
+      /// Add the user to the logs
       final logs = queueData.data()!['logs'] as List<dynamic>;
       logs.add({"userId": user.userId, "start": startTime, "end": endTime});
 
